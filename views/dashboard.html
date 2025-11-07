@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Meta Credit Union</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-brand">Meta Credit Union</div>
+    <div class="nav-links">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="dashboard">
+    <header>
+      <h1>Welcome back, <%= username %> 👋</h1>
+    </header>
+
+    <!-- Account Balances -->
+    <section class="balances">
+      <div class="card">
+        <h3>Checking Account</h3>
+        <p>$<%= checking.toLocaleString() %></p>
+      </div>
+      <div class="card">
+        <h3>Savings Account</h3>
+        <p>$<%= savings.toLocaleString() %></p>
+      </div>
+      <div class="card total">
+        <h3>Total Balance</h3>
+        <p>$<%= total.toLocaleString() %></p>
+      </div>
+    </section>
+
+    <!-- Analyzer -->
+    <section class="analyzer">
+      <h2>Account Analyzer</h2>
+      <p>Checking is <%= ((checking / total) * 100).toFixed(1) %>% of your total balance.</p>
+      <p>Savings is <%= ((savings / total) * 100).toFixed(1) %>% of your total balance.</p>
+    </section>
+
+    <!-- Wire Transfer -->
+    <section class="wire-transfer">
+      <h2>Wire Transfer</h2>
+      <form action="/transfer" method="POST">
+        <input type="text" name="recipient" placeholder="Recipient Name" required />
+        <input type="number" name="amount" placeholder="Amount to Transfer" required />
+        <input type="text" name="confirmationCode" placeholder="Enter Confirmation Code" required />
+        <button type="submit">Send Transfer</button>
+      </form>
+      <p class="note">Use code <strong>123456</strong> to confirm transfer (simulated)</p>
+    </section>
+
+    <!-- Mobile Deposit -->
+    <section class="mobile-deposit">
+      <h2>Mobile Deposit</h2>
+      <form action="/deposit" method="POST">
+        <input type="text" name="checkNumber" placeholder="Check Number" required />
+        <input type="number" name="amount" placeholder="Amount to Deposit" required />
+        <button type="submit">Deposit Check</button>
+      </form>
+    </section>
+
+    <!-- Transfer History -->
+    <section class="transfer-history">
+      <h2>Transfer History</h2>
+      <% if (transactions && transactions.length > 0) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Recipient</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% transactions.forEach(tx => { %>
+              <tr>
+                <td><%= tx.date %></td>
+                <td><%= tx.type %></td>
+                <td><%= tx.to || tx.checkNumber || 'N/A' %></td>
+                <td>$<%= tx.amount.toLocaleString() %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>No transactions yet.</p>
+      <% } %>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 Meta Credit Union. All rights reserved.</p>
+  </footer>
+</body>
+</html>

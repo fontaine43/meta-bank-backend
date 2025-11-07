@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Create Your Bank Account</h2>
+    <form action="/register" method="POST">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+
+      <h4>Secret Questions</h4>
+      <input type="text" name="secretQuestion1" placeholder="What is your mother's maiden name?" required />
+      <input type="text" name="secretAnswer1" placeholder="Answer" required />
+      <input type="text" name="secretQuestion2" placeholder="What was your first pet's name?" required />
+      <input type="text" name="secretAnswer2" placeholder="Answer" required />
+      <input type="text" name="secretQuestion3" placeholder="What city were you born in?" required />
+      <input type="text" name="secretAnswer3" placeholder="Answer" required />
+      <input type="text" name="secretQuestion4" placeholder="What is your favorite food?" required />
+      <input type="text" name="secretAnswer4" placeholder="Answer" required />
+
+      <button type="submit">Register</button>
+      <p>Already have an account? <a href="/login">Login here</a></p>
+    </form>
+  </div>
+</body>
+</html>

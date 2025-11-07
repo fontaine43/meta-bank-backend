@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Meta Credit Union</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">Meta Credit Union Admin</div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="dashboard">
+    <h2>Registered Users</h2>
+    <ul>
+      <% users.forEach(user => { %>
+        <li><strong><%= user.username %></strong> — Checking: $<%= user.balance.checking.toLocaleString() %>, Savings: $<%= user.balance.savings.toLocaleString() %></li>
+      <% }) %>
+    </ul>
+
+    <h2>All Transactions</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Recipient/Check</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% allTransactions.forEach(tx => { %>
+          <tr>
+            <td><%= tx.user %></td>
+            <td><%= tx.date %></td>
+            <td><%= tx.type %></td>
+            <td><%= tx.to || tx.checkNumber || 'N/A' %></td>
+            <td>$<%= tx.amount.toLocaleString() %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Meta Credit Union. Admin Panel</p>
+  </footer>
+</body>
+</html>
