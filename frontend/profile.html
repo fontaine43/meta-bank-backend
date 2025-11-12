@@ -99,21 +99,55 @@
 </div>
 
 <div class="main">
-  <div class="greeting">Hello, Micheal Fontaine</div>
+  <div class="greeting" id="greeting">Hello, Micheal Fontaine</div>
 
-  <div class="profile-card">
+  <div class="profile-card" id="profileCard">
     <h3>My Profile</h3>
-    <p><strong>Full Name:</strong> Micheal Fontaine</p>
-    <p><strong>Username:</strong> meta_micheal</p>
-    <p><strong>Email:</strong> micheal.fontaine43@gmail.com</p>
-    <p><strong>Phone:</strong> 2992596771</p>
-    <p><strong>Date of Birth:</strong> 08/29/1976</p>
-    <p><strong>Address:</strong> [Your Address Here]</p>
-    <p><strong>KYC Status:</strong> Approved</p>
-    <p><strong>Account Status:</strong> Active</p>
+    <p><strong>Full Name:</strong> <span id="fullName">Loading...</span></p>
+    <p><strong>Username:</strong> <span id="username">Loading...</span></p>
+    <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+    <p><strong>Phone:</strong> <span id="phone">Loading...</span></p>
+    <p><strong>Date of Birth:</strong> <span id="dob">Loading...</span></p>
+    <p><strong>Address:</strong> <span id="address">Loading...</span></p>
+    <p><strong>KYC Status:</strong> <span id="kyc">Loading...</span></p>
+    <p><strong>Account Status:</strong> <span id="status">Loading...</span></p>
     <button class="update-btn">Update Profile</button>
   </div>
 </div>
+
+<script>
+async function loadProfile() {
+  try {
+    const res = await fetch('https://metabank-api.onrender.com/api/user/profile', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+        // 'Authorization': 'Bearer ' + localStorage.getItem('token') // Uncomment if using JWT
+      }
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      document.getElementById('greeting').textContent = `Hello, ${data.fullName || 'User'}`;
+      document.getElementById('fullName').textContent = data.fullName || 'N/A';
+      document.getElementById('username').textContent = data.username || 'N/A';
+      document.getElementById('email').textContent = data.email || 'N/A';
+      document.getElementById('phone').textContent = data.phone || 'N/A';
+      document.getElementById('dob').textContent = data.dob || 'N/A';
+      document.getElementById('address').textContent = data.address || 'N/A';
+      document.getElementById('kyc').textContent = data.kycStatus || 'Pending';
+      document.getElementById('status').textContent = data.accountStatus || 'Inactive';
+    } else {
+      alert(data.message || 'Failed to load profile');
+    }
+  } catch (err) {
+    alert('Error connecting to server');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', loadProfile);
+</script>
 
 </body>
 </html>

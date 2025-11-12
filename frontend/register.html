@@ -101,7 +101,7 @@
 <div class="container">
   <div class="form-box">
     <h2>Registration Form</h2>
-    <form action="dashboard.html">
+    <form id="registerForm">
       <div>
         <label for="fullname">Full Name</label>
         <input type="text" id="fullname" required>
@@ -165,6 +165,43 @@
     </form>
   </div>
 </div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const form = new FormData();
+  form.append('fullName', document.getElementById('fullname').value.trim());
+  form.append('email', document.getElementById('email').value.trim());
+  form.append('phone', document.getElementById('phone').value.trim());
+  form.append('username', document.getElementById('username').value.trim());
+  form.append('password', document.getElementById('password').value);
+  form.append('confirmPassword', document.getElementById('confirm').value);
+  form.append('dob', document.getElementById('dob').value);
+  form.append('ssn', document.getElementById('ssn').value.trim());
+  form.append('bankName', document.getElementById('bankName').value.trim());
+  form.append('idFront', document.getElementById('idFront').files[0]);
+  form.append('idBack', document.getElementById('idBack').files[0]);
+
+  try {
+    const res = await fetch('https://metabank-api.onrender.com/api/auth/register', {
+      method: 'POST',
+      body: form
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert('Registration successful!');
+      window.location.href = 'dashboard.html';
+    } else {
+      alert(data.message || 'Registration failed');
+    }
+  } catch (err) {
+    alert('Error connecting to server');
+  }
+});
+</script>
 
 </body>
 </html>

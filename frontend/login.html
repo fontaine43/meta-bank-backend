@@ -10,7 +10,6 @@
       background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
     }
 
-    /* Header styles */
     .navbar {
       background-color: #006644;
       color: white;
@@ -73,7 +72,6 @@
       display: block;
     }
 
-    /* Login container */
     .login-container {
       max-width: 400px;
       margin: 60px auto;
@@ -127,7 +125,6 @@
       margin: 0 10px;
     }
 
-    /* Footer styles */
     footer {
       background-color: #003322;
       color: white;
@@ -169,7 +166,6 @@
 </head>
 <body>
 
-<!-- Header -->
 <div class="navbar">
   <h1>Meta Bank</h1>
   <div class="nav-links">
@@ -197,15 +193,14 @@
   </div>
 </div>
 
-<!-- Login Form -->
 <div class="login-container">
   <h2>Welcome Back</h2>
-  <form>
+  <form id="loginForm">
     <label for="username">Username</label>
-    <input type="text" id="username" placeholder="Enter your username">
+    <input type="text" id="username" placeholder="Enter your username" required>
 
     <label for="password">Password</label>
-    <input type="password" id="password" placeholder="Enter your password">
+    <input type="password" id="password" placeholder="Enter your password" required>
 
     <label>
       <input type="checkbox"> Remember me
@@ -222,7 +217,6 @@
   </form>
 </div>
 
-<!-- Footer -->
 <footer>
   <div>
     <h4>Quick Links</h4>
@@ -253,6 +247,34 @@
 <div class="footer-bottom">
   © 2025 Meta Bank. All rights reserved. Member FDIC. Equal Housing Lender.
 </div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  try {
+    const res = await fetch('https://metabank-api.onrender.com/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert('Login successful!');
+      // window.location.href = 'dashboard.html'; // Uncomment if you have a dashboard page
+    } else {
+      alert(data.message || 'Login failed');
+    }
+  } catch (err) {
+    alert('Error connecting to server');
+  }
+});
+</script>
 
 </body>
 </html>

@@ -117,17 +117,44 @@
 
   <div class="upload-section">
     <h3>Upload Verification Documents</h3>
-    <form>
+    <form id="kycForm">
       <label for="idUpload">Government-issued ID</label>
-      <input type="file" id="idUpload">
+      <input type="file" id="idUpload" accept="image/*" required>
 
       <label for="addressUpload">Proof of Address</label>
-      <input type="file" id="addressUpload">
+      <input type="file" id="addressUpload" accept="image/*" required>
 
       <button type="submit">Submit Documents</button>
     </form>
   </div>
 </div>
+
+<script>
+document.getElementById('kycForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const form = new FormData();
+  form.append('idUpload', document.getElementById('idUpload').files[0]);
+  form.append('addressUpload', document.getElementById('addressUpload').files[0]);
+
+  try {
+    const res = await fetch('https://metabank-api.onrender.com/api/kyc/upload', {
+      method: 'POST',
+      body: form
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert('Documents submitted successfully!');
+    } else {
+      alert(data.message || 'Submission failed');
+    }
+  } catch (err) {
+    alert('Error connecting to server');
+  }
+});
+</script>
 
 </body>
 </html>

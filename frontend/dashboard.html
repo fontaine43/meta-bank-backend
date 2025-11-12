@@ -133,7 +133,7 @@
 
   <div class="account-info">
     <h3>Your Accounts</h3>
-    <table>
+    <table id="accountTable">
       <tr>
         <th>Account Type</th>
         <th>Bank</th>
@@ -141,14 +141,6 @@
         <th>Routing Number</th>
         <th>Balance</th>
         <th>Available Balance</th>
-      </tr>
-      <tr>
-        <td>Checking</td>
-        <td>Meta Bank</td>
-        <td>5027457508</td>
-        <td>124303120</td>
-        <td>$760,000.00</td>
-        <td>$760,000.00</td>
       </tr>
     </table>
   </div>
@@ -165,11 +157,6 @@
       <tr><td>Nov 2, 2025</td><td>Transfer domestic: Here</td><td>Withdrawal</td><td>-$20,000.00</td></tr>
       <tr><td>Oct 30, 2025</td><td>Transfer domestic: D</td><td>Withdrawal</td><td>-$1,000.00</td></tr>
       <tr><td>Oct 29, 2025</td><td>Loan disbursement - business</td><td>Deposit</td><td>+$200,000.00</td></tr>
-      <tr><td>Oct 28, 2025</td><td>Transfer domestic: G</td><td>Withdrawal</td><td>-$100,000.00</td></tr>
-      <tr><td>Oct 27, 2025</td><td>Transfer domestic: F</td><td>Withdrawal</td><td>-$5,000.00</td></tr>
-      <tr><td>Oct 26, 2025</td><td>ATM Withdrawal</td><td>Withdrawal</td><td>-$300.00</td></tr>
-      <tr><td>Oct 25, 2025</td><td>Direct Deposit - Payroll</td><td>Deposit</td><td>+$6,500.00</td></tr>
-      <tr><td>Oct 24, 2025</td><td>Transfer domestic: H</td><td>Withdrawal</td><td>-$2,000.00</td></tr>
     </table>
   </div>
 
@@ -185,13 +172,7 @@
           <th>Status</th>
         </tr>
         <tr><td>Nov 4, 2025</td><td>Domestic Transfer</td><td>H</td><td>$19,820.00</td><td>SUBMITTED</td></tr>
-        <tr><td>Nov 4, 2025</td><td>Wire Transfer</td><td>A</td><td>$18,500.00</td><td>SUBMITTED</td></tr>
         <tr><td>Nov 3, 2025</td><td>Domestic Transfer</td><td>Here</td><td>$20,000.00</td><td>PROCESSING</td></tr>
-        <tr><td>Nov 2, 2025</td><td>Domestic Transfer</td><td>Medical</td><td>$1,000.00</td><td>SUBMITTED</td></tr>
-        <tr><td>Nov 1, 2025</td><td>Wire Transfer</td><td>Business</td><td>$50,000.00</td><td>SUBMITTED</td></tr>
-        <tr><td>Oct 31, 2025</td><td>Domestic Transfer</td><td>Rent</td><td>$2,500.00</td><td>PROCESSING</td></tr>
-        <tr><td>Oct 30, 2025</td><td>Wire Transfer</td><td>Vendor Payment</td><td>$10,000.00</td><td>SUBMITTED</td></tr>
-        <tr><td>Oct 29, 2025</td><td>Domestic Transfer</td><td>Utilities</td><td>$800.00</td><td>SUBMITTED</td></tr>
       </table>
     </div>
 
@@ -235,4 +216,55 @@
       }
     }
   });
+
+  async function loadDashboard() {
+    try {
+      const res = await fetch('https://metabank-api.onrender.com/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+          // 'Authorization': 'Bearer ' + localStorage.getItem('token') // Uncomment if using JWT
+        }
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        document.querySelector('.greeting').textContent = `Good Afternoon, ${data.username || 'User'}!`;
+
+        const row = `
+          <tr>
+            <td>${data.accountType || 'Checking'}</td>
+            <td>${data.bankName || 'Meta Bank'}</td>
+            <td>${data.accountNumber || 'N/A'}</td>
+            <td>${data.routingNumber || 'N/A'}</td>
+            <td>$${(data.balance || 0).toLocaleString()}</td>
+            <td>$${(data.availableBalance || 0).toLocaleString()}</td>
+          </tr>
+        `;
+
+        const table = document.getElementById('accountTable');
+        table.innerHTML = `
+          <tr>
+            <th>Account Type</th>
+            <th>Bank</th>
+            <th>Account Number</th>
+            <th>Routing Number</th>
+            <th>Balance</th>
+            <th>Available Balance</th>
+          </tr>
+          ${row}
+        `;
+      } else {
+        alert(data.message || 'Failed to load dashboard');
+      }
+    } catch (err) {
+      alert('Error connecting to server');
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', loadDashboard);
 </script>
+
+</body>
+</html>
