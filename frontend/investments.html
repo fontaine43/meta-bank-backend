@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Bank Investments</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #006644;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+    }
+
+    .greeting {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #006644;
+    }
+
+    .portfolio, .activity {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+
+    .portfolio h3, .activity h3 {
+      margin-top: 0;
+      color: #006644;
+    }
+
+    .portfolio p {
+      margin: 10px 0;
+      font-size: 1em;
+    }
+
+    .portfolio strong {
+      color: #003322;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #e0f7e9;
+      color: #006644;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Meta Bank</h2>
+  <a href="dashboard.html">Overview</a>
+  <a href="#">Verification</a>
+  <a href="profile.html">Profile</a>
+  <a href="loans.html">Loans</a>
+  <a href="#">Investments</a>
+  <a href="#">Transfer</a>
+  <a href="#">External Accounts</a>
+  <a href="#">Statements</a>
+  <a href="#">Sign Out</a>
+</div>
+
+<div class="main">
+  <div class="greeting">Investment Portfolio – Micheal Fontaine</div>
+
+  <div class="portfolio">
+    <h3>Portfolio Summary</h3>
+    <p><strong>Total Investment Value:</strong> $1,250,000.00</p>
+    <p><strong>Crypto Assets:</strong> $450,000.00</p>
+    <p><strong>Stocks:</strong> $500,000.00</p>
+    <p><strong>Bonds:</strong> $200,000.00</p>
+    <p><strong>Real Estate:</strong> $100,000.00</p>
+  </div>
+
+  <div class="activity">
+    <h3>Recent Investment Activity</h3>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Asset</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Status</th>
+      </tr>
+      <tr><td>Nov 5, 2025</td><td>Bitcoin</td><td>Buy</td><td>$50,000.00</td><td>Completed</td></tr>
+      <tr><td>Nov 3, 2025</td><td>Apple Stock</td><td>Buy</td><td>$25,000.00</td><td>Completed</td></tr>
+      <tr><td>Nov 2, 2025</td><td>Government Bonds</td><td>Buy</td><td>$10,000.00</td><td>Completed</td></tr>
+      <tr><td>Nov 1, 2025</td><td>Ethereum</td><td>Sell</td><td>$20,000.00</td><td>Completed</td></tr>
+      <tr><td>Oct 30, 2025</td><td>Real Estate Fund</td><td>Buy</td><td>$100,000.00</td><td>Completed</td></tr>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Bank - Secure Online Banking</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+    }
+
+    /* Header styles */
+    .navbar {
+      background-color: #006644;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 30px;
+      left: 0;
+      background-color: white;
+      color: #006644;
+      min-width: 200px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      z-index: 1001;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #006644;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #e0f7e9;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* Login container */
+    .login-container {
+      max-width: 400px;
+      margin: 60px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    .login-container h2 {
+      text-align: center;
+      color: #006644;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .actions {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .actions button {
+      background-color: #006644;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .links {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .links a {
+      color: #006644;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    /* Footer styles */
+    footer {
+      background-color: #003322;
+      color: white;
+      padding: 40px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      text-align: left;
+    }
+
+    footer h4 {
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+
+    footer ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    footer ul li {
+      margin-bottom: 8px;
+    }
+
+    footer ul li a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .footer-bottom {
+      background-color: #002211;
+      color: #ccc;
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="navbar">
+  <h1>Meta Bank</h1>
+  <div class="nav-links">
+    <div class="dropdown">
+      <a href="#">Products ▾</a>
+      <div class="dropdown-content">
+        <a href="#">Savings Account</a>
+        <a href="#">Checking Account</a>
+        <a href="#">Business Account</a>
+        <a href="#">Investment Account</a>
+        <a href="#">IRA Account</a>
+        <a href="#">High-Yield Savings</a>
+        <a href="#">Crypto Investment</a>
+        <a href="#">Business Investment</a>
+        <a href="#">Home Loan</a>
+        <a href="#">Auto Loan</a>
+      </div>
+    </div>
+    <a href="#">Mission</a>
+    <a href="#">Contact Us</a>
+    <a href="#">About Us</a>
+    <a href="#">Privacy & Security</a>
+    <a href="#">Log In</a>
+    <a href="#">Sign Up</a>
+  </div>
+</div>
+
+<!-- Login Form -->
+<div class="login-container">
+  <h2>Welcome Back</h2>
+  <form>
+    <label for="username">Username</label>
+    <input type="text" id="username" placeholder="Enter your username">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Enter your password">
+
+    <label>
+      <input type="checkbox"> Remember me
+    </label>
+
+    <div class="actions">
+      <button type="submit">Log In</button>
+    </div>
+
+    <div class="links">
+      <a href="#">Forgot password?</a> |
+      <a href="#">Sign up</a>
+    </div>
+  </form>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div>
+    <h4>Quick Links</h4>
+    <ul>
+      <li><a href="#">Products</a></li>
+      <li><a href="#">Our Mission</a></li>
+      <li><a href="#">About Us</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Legal</h4>
+    <ul>
+      <li><a href="#">Privacy & Security</a></li>
+      <li><a href="#">Terms of Service</a></li>
+      <li><a href="#">Compliance</a></li>
+    </ul>
+  </div>
+  <div>
+    <h4>Contact Us</h4>
+    <ul>
+      <li>Email: support@metabank.com</li>
+      <li>Phone: 1-800-METABANK</li>
+      <li>Available 24/7</li>
+    </ul>
+  </div>
+</footer>
+
+<div class="footer-bottom">
+  © 2025 Meta Bank. All rights reserved. Member FDIC. Equal Housing Lender.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Bank Transfers</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #006644;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+    }
+
+    .greeting {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #006644;
+    }
+
+    .transfer-form, .transfer-history {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+      max-width: 700px;
+    }
+
+    .transfer-form h3, .transfer-history h3 {
+      margin-top: 0;
+      color: #006644;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #006644;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #e0f7e9;
+      color: #006644;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Meta Bank</h2>
+  <a href="dashboard.html">Overview</a>
+  <a href="#">Verification</a>
+  <a href="profile.html">Profile</a>
+  <a href="loans.html">Loans</a>
+  <a href="investments.html">Investments</a>
+  <a href="#">Transfer</a>
+  <a href="#">External Accounts</a>
+  <a href="#">Statements</a>
+  <a href="#">Sign Out</a>
+</div>
+
+<div class="main">
+  <div class="greeting">Transfer Center – Micheal Fontaine</div>
+
+  <div class="transfer-form">
+    <h3>Initiate a Transfer</h3>
+    <form>
+      <label for="fromAccount">From Account</label>
+      <select id="fromAccount">
+        <option>Checking - 5027457508</option>
+      </select>
+
+      <label for="toAccount">To Account</label>
+      <input type="text" id="toAccount" placeholder="Enter recipient account number">
+
+      <label for="amount">Amount</label>
+      <input type="number" id="amount" placeholder="Enter amount">
+
+      <label for="type">Transfer Type</label>
+      <select id="type">
+        <option>Domestic</option>
+        <option>Wire</option>
+      </select>
+
+      <label for="notes">Notes</label>
+      <textarea id="notes" rows="3" placeholder="Optional notes"></textarea>
+
+      <button type="submit">Submit Transfer</button>
+    </form>
+  </div>
+
+  <div class="transfer-history">
+    <h3>Recent Transfers</h3>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>To</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Status</th>
+      </tr>
+      <tr><td>Nov 4, 2025</td><td>H</td><td>Domestic</td><td>$19,820.00</td><td>Submitted</td></tr>
+      <tr><td>Nov 4, 2025</td><td>A</td><td>Wire</td><td>$18,500.00</td><td>Submitted</td></tr>
+      <tr><td>Nov 3, 2025</td><td>Here</td><td>Domestic</td><td>$20,000.00</td><td>Processing</td></tr>
+      <tr><td>Nov 2, 2025</td><td>Medical</td><td>Domestic</td><td>$1,000.00</td><td>Submitted</td></tr>
+      <tr><td>Nov 1, 2025</td><td>Business</td><td>Wire</td><td>$50,000.00</td><td>Submitted</td></tr>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

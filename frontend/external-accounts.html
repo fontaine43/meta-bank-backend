@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Bank External Accounts</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #006644;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+    }
+
+    .greeting {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #006644;
+    }
+
+    .linked-accounts, .add-account {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+      max-width: 700px;
+    }
+
+    .linked-accounts h3, .add-account h3 {
+      margin-top: 0;
+      color: #006644;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #e0f7e9;
+      color: #006644;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #006644;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Meta Bank</h2>
+  <a href="dashboard.html">Overview</a>
+  <a href="#">Verification</a>
+  <a href="profile.html">Profile</a>
+  <a href="loans.html">Loans</a>
+  <a href="investments.html">Investments</a>
+  <a href="transfer.html">Transfer</a>
+  <a href="#">External Accounts</a>
+  <a href="#">Statements</a>
+  <a href="#">Sign Out</a>
+</div>
+
+<div class="main">
+  <div class="greeting">External Accounts – Micheal Fontaine</div>
+
+  <div class="linked-accounts">
+    <h3>Linked Accounts</h3>
+    <table>
+      <tr>
+        <th>Bank Name</th>
+        <th>Account Type</th>
+        <th>Account Number</th>
+        <th>Status</th>
+      </tr>
+      <tr><td>Chase Bank</td><td>Checking</td><td>****9834</td><td>Active</td></tr>
+      <tr><td>Wells Fargo</td><td>Savings</td><td>****1120</td><td>Active</td></tr>
+      <tr><td>Bank of America</td><td>Business</td><td>****7450</td><td>Inactive</td></tr>
+    </table>
+  </div>
+
+  <div class="add-account">
+    <h3>Add External Account</h3>
+    <form>
+      <label for="bankName">Bank Name</label>
+      <input type="text" id="bankName" placeholder="e.g. Chase Bank">
+
+      <label for="accountNumber">Account Number</label>
+      <input type="text" id="accountNumber" placeholder="Enter account number">
+
+      <label for="routingNumber">Routing Number</label>
+      <input type="text" id="routingNumber" placeholder="Enter routing number">
+
+      <label for="accountType">Account Type</label>
+      <select id="accountType">
+        <option>Checking</option>
+        <option>Savings</option>
+        <option>Business</option>
+      </select>
+
+      <button type="submit">Link Account</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

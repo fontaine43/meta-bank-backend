@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Bank Verification</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #006644;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+    }
+
+    .greeting {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #006644;
+    }
+
+    .verification-status, .upload-section {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 700px;
+      margin-bottom: 30px;
+    }
+
+    .verification-status h3, .upload-section h3 {
+      margin-top: 0;
+      color: #006644;
+    }
+
+    .verification-status p {
+      font-size: 1em;
+      margin: 10px 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input[type="file"] {
+      margin-top: 5px;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #006644;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Meta Bank</h2>
+  <a href="dashboard.html">Overview</a>
+  <a href="#">Verification</a>
+  <a href="profile.html">Profile</a>
+  <a href="loans.html">Loans</a>
+  <a href="investments.html">Investments</a>
+  <a href="transfer.html">Transfer</a>
+  <a href="external-accounts.html">External Accounts</a>
+  <a href="statements.html">Statements</a>
+  <a href="#">Sign Out</a>
+</div>
+
+<div class="main">
+  <div class="greeting">Verification Center – Micheal Fontaine</div>
+
+  <div class="verification-status">
+    <h3>KYC Status</h3>
+    <p><strong>Status:</strong> Approved</p>
+    <p><strong>Verified On:</strong> October 12, 2025</p>
+    <p><strong>Verified By:</strong> Meta Bank Compliance Team</p>
+  </div>
+
+  <div class="upload-section">
+    <h3>Upload Verification Documents</h3>
+    <form>
+      <label for="idUpload">Government-issued ID</label>
+      <input type="file" id="idUpload">
+
+      <label for="addressUpload">Proof of Address</label>
+      <input type="file" id="addressUpload">
+
+      <button type="submit">Submit Documents</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

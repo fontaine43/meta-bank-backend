@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Bank Profile</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #006644;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+    }
+
+    .greeting {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #006644;
+    }
+
+    .profile-card {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 600px;
+    }
+
+    .profile-card h3 {
+      margin-top: 0;
+      color: #006644;
+    }
+
+    .profile-card p {
+      margin: 10px 0;
+      font-size: 1em;
+    }
+
+    .profile-card strong {
+      color: #003322;
+    }
+
+    .update-btn {
+      margin-top: 20px;
+      background-color: #006644;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Meta Bank</h2>
+  <a href="dashboard.html">Overview</a>
+  <a href="#">Verification</a>
+  <a href="#">Profile</a>
+  <a href="#">Loans</a>
+  <a href="#">Investments</a>
+  <a href="#">Transfer</a>
+  <a href="#">External Accounts</a>
+  <a href="#">Statements</a>
+  <a href="#">Sign Out</a>
+</div>
+
+<div class="main">
+  <div class="greeting">Hello, Micheal Fontaine</div>
+
+  <div class="profile-card">
+    <h3>My Profile</h3>
+    <p><strong>Full Name:</strong> Micheal Fontaine</p>
+    <p><strong>Username:</strong> meta_micheal</p>
+    <p><strong>Email:</strong> micheal.fontaine43@gmail.com</p>
+    <p><strong>Phone:</strong> 2992596771</p>
+    <p><strong>Date of Birth:</strong> 08/29/1976</p>
+    <p><strong>Address:</strong> [Your Address Here]</p>
+    <p><strong>KYC Status:</strong> Approved</p>
+    <p><strong>Account Status:</strong> Active</p>
+    <button class="update-btn">Update Profile</button>
+  </div>
+</div>
+
+</body>
+</html>

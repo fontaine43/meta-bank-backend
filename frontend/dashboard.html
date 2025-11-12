@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Bank Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #006644;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+    }
+
+    .greeting {
+      font-size: 1.4em;
+      margin-bottom: 5px;
+      color: #006644;
+    }
+
+    .welcome {
+      font-size: 1em;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .account-info, .transactions, .transfers, .analytics {
+      background-color: white;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .account-info h3, .transactions h3, .transfers h3, .analytics h3 {
+      margin-top: 0;
+      color: #006644;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #e0f7e9;
+      color: #006644;
+    }
+
+    .flex-row {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .analytics {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .transfers {
+      flex: 2;
+      min-width: 400px;
+    }
+
+    .analytics p {
+      margin: 8px 0;
+      font-size: 0.95em;
+    }
+
+    canvas {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Meta Bank</h2>
+  <a href="#">Overview</a>
+  <a href="#">Verification</a>
+  <a href="#">Profile</a>
+  <a href="#">Loans</a>
+  <a href="#">Investments</a>
+  <a href="#">Transfer</a>
+  <a href="#">External Accounts</a>
+  <a href="#">Statements</a>
+  <a href="#">Sign Out</a>
+</div>
+
+<div class="main">
+  <div class="greeting">Good Afternoon, Micheal!</div>
+  <div class="welcome">Welcome back to your dashboard. Here’s a quick look at your account activity.</div>
+
+  <div class="account-info">
+    <h3>Your Accounts</h3>
+    <table>
+      <tr>
+        <th>Account Type</th>
+        <th>Bank</th>
+        <th>Account Number</th>
+        <th>Routing Number</th>
+        <th>Balance</th>
+        <th>Available Balance</th>
+      </tr>
+      <tr>
+        <td>Checking</td>
+        <td>Meta Bank</td>
+        <td>5027457508</td>
+        <td>124303120</td>
+        <td>$760,000.00</td>
+        <td>$760,000.00</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="transactions">
+    <h3>Recent Transactions</h3>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Amount</th>
+      </tr>
+      <tr><td>Nov 2, 2025</td><td>Transfer domestic: Here</td><td>Withdrawal</td><td>-$20,000.00</td></tr>
+      <tr><td>Oct 30, 2025</td><td>Transfer domestic: D</td><td>Withdrawal</td><td>-$1,000.00</td></tr>
+      <tr><td>Oct 29, 2025</td><td>Loan disbursement - business</td><td>Deposit</td><td>+$200,000.00</td></tr>
+      <tr><td>Oct 28, 2025</td><td>Transfer domestic: G</td><td>Withdrawal</td><td>-$100,000.00</td></tr>
+      <tr><td>Oct 27, 2025</td><td>Transfer domestic: F</td><td>Withdrawal</td><td>-$5,000.00</td></tr>
+      <tr><td>Oct 26, 2025</td><td>ATM Withdrawal</td><td>Withdrawal</td><td>-$300.00</td></tr>
+      <tr><td>Oct 25, 2025</td><td>Direct Deposit - Payroll</td><td>Deposit</td><td>+$6,500.00</td></tr>
+      <tr><td>Oct 24, 2025</td><td>Transfer domestic: H</td><td>Withdrawal</td><td>-$2,000.00</td></tr>
+    </table>
+  </div>
+
+  <div class="flex-row">
+    <div class="transfers">
+      <h3>Scheduled Transfers</h3>
+      <table>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+        <tr><td>Nov 4, 2025</td><td>Domestic Transfer</td><td>H</td><td>$19,820.00</td><td>SUBMITTED</td></tr>
+        <tr><td>Nov 4, 2025</td><td>Wire Transfer</td><td>A</td><td>$18,500.00</td><td>SUBMITTED</td></tr>
+        <tr><td>Nov 3, 2025</td><td>Domestic Transfer</td><td>Here</td><td>$20,000.00</td><td>PROCESSING</td></tr>
+        <tr><td>Nov 2, 2025</td><td>Domestic Transfer</td><td>Medical</td><td>$1,000.00</td><td>SUBMITTED</td></tr>
+        <tr><td>Nov 1, 2025</td><td>Wire Transfer</td><td>Business</td><td>$50,000.00</td><td>SUBMITTED</td></tr>
+        <tr><td>Oct 31, 2025</td><td>Domestic Transfer</td><td>Rent</td><td>$2,500.00</td><td>PROCESSING</td></tr>
+        <tr><td>Oct 30, 2025</td><td>Wire Transfer</td><td>Vendor Payment</td><td>$10,000.00</td><td>SUBMITTED</td></tr>
+        <tr><td>Oct 29, 2025</td><td>Domestic Transfer</td><td>Utilities</td><td>$800.00</td><td>SUBMITTED</td></tr>
+      </table>
+    </div>
+
+    <div class="analytics">
+      <h3>Bank Analytics</h3>
+      <p><strong>Total Deposits:</strong> $206,500.00</p>
+      <p><strong>Total Withdrawals:</strong> $148,800.00</p>
+      <p><strong>Net Growth:</strong> +$57,700.00</p>
+      <p><strong>Last Login:</strong> Nov 9, 2025, 2:52 PM</p>
+      <canvas id="analyticsChart" width="300" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('analyticsChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Deposits', 'Withdrawals', 'Net Growth'],
+      datasets: [{
+        label: 'Bank Analytics ($)',
+        data: [206500, 148800, 57700],
+        backgroundColor: ['#009933', '#cc0000', '#0066cc']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: {
+          display: true,
+          text: 'Bank Analytics Overview'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>

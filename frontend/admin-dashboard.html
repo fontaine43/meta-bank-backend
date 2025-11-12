@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Bank Admin Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #003322;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+    }
+
+    .greeting {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #003322;
+    }
+
+    .panel {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+
+    .panel h3 {
+      margin-top: 0;
+      color: #003322;
+    }
+
+    .panel table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .panel th, .panel td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    .panel th {
+      background-color: #e0f7e9;
+      color: #003322;
+    }
+
+    .panel button {
+      background-color: #006644;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .panel button.reject {
+      background-color: #cc0000;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Admin Panel</h2>
+  <a href="#">Dashboard</a>
+  <a href="#">KYC Approvals</a>
+  <a href="#">User Management</a>
+  <a href="#">Support Tickets</a>
+  <a href="#">Analytics</a>
+  <a href="login.html">Logout</a>
+</div>
+
+<div class="main">
+  <div class="greeting">Welcome Admin – Micheal Fontaine</div>
+
+  <div class="panel">
+    <h3>KYC Approvals</h3>
+    <table>
+      <tr>
+        <th>User</th>
+        <th>DOB</th>
+        <th>SSN</th>
+        <th>ID Front</th>
+        <th>ID Back</th>
+        <th>Action</th>
+      </tr>
+      <tr>
+        <td>Jane Doe</td>
+        <td>1990-04-12</td>
+        <td>***-**-1234</td>
+        <td><a href="#">View</a></td>
+        <td><a href="#">View</a></td>
+        <td>
+          <button>Approve</button>
+          <button class="reject">Reject</button>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h3>User Management</h3>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+      <tr>
+        <td>John Smith</td>
+        <td>john@example.com</td>
+        <td>User</td>
+        <td>Active</td>
+        <td>
+          <button>Promote</button>
+          <button class="reject">Suspend</button>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h3>Support Tickets</h3>
+    <table>
+      <tr>
+        <th>Ticket ID</th>
+        <th>User</th>
+        <th>Issue</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+      <tr>
+        <td>#1024</td>
+        <td>alice@example.com</td>
+        <td>Transfer not received</td>
+        <td>Open</td>
+        <td><button>Resolve</button></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h3>Analytics Summary</h3>
+    <p>Total Users: 1,245</p>
+    <p>Pending KYC: 32</p>
+    <p>Active Loans: 210</p>
+    <p>Open Tickets: 12</p>
+  </div>
+</div>
+
+</body>
+</html>
