@@ -1,18 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken } = require('../middleware/authMiddleware');
-const {
-  getProfile,
-  applyLoan,
-  makeTransfer,
-  getLoans,
-  getTransfers
-} = require('../controllers/userController');
+const auth = require('../middleware/authMiddleware');
+const User = require('../models/User');
 
-router.get('/profile', verifyToken, getProfile);
-router.post('/loan/apply', verifyToken, applyLoan);
-router.post('/transfer', verifyToken, makeTransfer);
-router.get('/loan', verifyToken, getLoans);
-router.get('/transfer', verifyToken, getTransfers);
+router.get('/profile', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({
+      username: user.username,
+      fullName: user.fullName,
+      accountType: 'Checking',
+      bankName: user.bankName || 'Meta Bank',
+      accountNumber: '**** 9281',
+      routingNumber: '1100001',
+      balance: 1250000,
+      availableBalance: 1248500
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', details: err.message });
+  }
+});
 
 module.exports = router;

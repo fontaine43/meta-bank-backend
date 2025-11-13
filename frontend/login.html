@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Meta Bank - Secure Online Banking</title>
+  <meta charset="UTF-8" />
+  <title>Meta Bank - Login</title>
   <style>
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+      background: #f5fdf9;
     }
-
     .navbar {
       background-color: #006644;
       color: white;
@@ -21,77 +21,67 @@
       top: 0;
       z-index: 1000;
     }
-
     .navbar h1 {
       margin: 0;
       font-size: 1.8em;
+      cursor: pointer;
     }
-
     .nav-links {
       display: flex;
       gap: 20px;
       align-items: center;
     }
-
     .nav-links a {
       color: white;
       text-decoration: none;
       font-weight: 500;
-      position: relative;
     }
-
-    .dropdown {
-      position: relative;
-    }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      top: 30px;
-      left: 0;
-      background-color: white;
-      color: #006644;
-      min-width: 200px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      border-radius: 4px;
-      z-index: 1001;
-    }
-
-    .dropdown-content a {
-      display: block;
-      padding: 10px 15px;
-      text-decoration: none;
-      color: #006644;
-    }
-
-    .dropdown-content a:hover {
-      background-color: #e0f7e9;
-    }
-
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
-
-    .login-container {
-      max-width: 400px;
-      margin: 60px auto;
-      background-color: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-
-    .login-container h2 {
+    .features {
+      max-width: 500px;
+      margin: 40px auto 0;
       text-align: center;
       color: #006644;
     }
-
+    .features h3 {
+      margin-bottom: 10px;
+    }
+    .features ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .features ul li a {
+      text-decoration: none;
+      color: #006644;
+      font-weight: 500;
+      display: block;
+      padding: 8px;
+      border: 1px solid #006644;
+      border-radius: 4px;
+      background-color: #e0f7e9;
+    }
+    .login-wrapper {
+      max-width: 400px;
+      margin: 30px auto 80px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      padding: 40px;
+    }
+    .login-wrapper h2 {
+      text-align: center;
+      color: #006644;
+      font-size: 24px;
+      margin-bottom: 30px;
+    }
     label {
       display: block;
       margin-top: 15px;
       font-weight: bold;
     }
-
     input[type="text"], input[type="password"] {
       width: 100%;
       padding: 10px;
@@ -99,12 +89,10 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-
     .actions {
       margin-top: 20px;
       text-align: center;
     }
-
     .actions button {
       background-color: #006644;
       color: white;
@@ -113,48 +101,39 @@
       border-radius: 4px;
       cursor: pointer;
     }
-
     .links {
       margin-top: 10px;
       text-align: center;
     }
-
     .links a {
       color: #006644;
       text-decoration: none;
       margin: 0 10px;
     }
-
     footer {
       background-color: #003322;
       color: white;
-      padding: 40px 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 20px;
-      text-align: left;
+      padding: 40px 30px;
     }
-
     footer h4 {
-      margin-bottom: 10px;
-      font-size: 1.1em;
+      margin-bottom: 15px;
     }
-
     footer ul {
       list-style: none;
       padding: 0;
-      margin: 0;
     }
-
     footer ul li {
       margin-bottom: 8px;
     }
-
     footer ul li a {
       color: white;
       text-decoration: none;
     }
-
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+    }
     .footer-bottom {
       background-color: #002211;
       color: #ccc;
@@ -167,34 +146,25 @@
 <body>
 
 <div class="navbar">
-  <h1>Meta Bank</h1>
+  <h1 onclick="location.href='index.html'">Meta Bank</h1>
   <div class="nav-links">
-    <div class="dropdown">
-      <a href="#">Products ▾</a>
-      <div class="dropdown-content">
-        <a href="#">Savings Account</a>
-        <a href="#">Checking Account</a>
-        <a href="#">Business Account</a>
-        <a href="#">Investment Account</a>
-        <a href="#">IRA Account</a>
-        <a href="#">High-Yield Savings</a>
-        <a href="#">Crypto Investment</a>
-        <a href="#">Business Investment</a>
-        <a href="#">Home Loan</a>
-        <a href="#">Auto Loan</a>
-      </div>
-    </div>
-    <a href="#">Mission</a>
-    <a href="#">Contact Us</a>
-    <a href="#">About Us</a>
-    <a href="#">Privacy & Security</a>
-    <a href="#">Log In</a>
-    <a href="#">Sign Up</a>
+    <a href="index.html">Home</a>
+    <a href="register.html" style="background-color: #ffcc00; color: #003322; padding: 6px 12px; border-radius: 4px;">Sign Up</a>
   </div>
 </div>
 
-<div class="login-container">
-  <h2>Welcome Back</h2>
+<div class="features">
+  <h3>Why Choose Meta Bank?</h3>
+  <ul>
+    <li><a href="index.html#fdic">FDIC Insured up to $250,000</a></li>
+    <li><a href="index.html#support">24/7 Customer Support</a></li>
+    <li><a href="index.html#fees">No Hidden Fees</a></li>
+    <li><a href="index.html#security">Advanced Security</a></li>
+  </ul>
+</div>
+
+<div class="login-wrapper">
+  <h2>Secure Login</h2>
   <form id="loginForm">
     <label for="username">Username</label>
     <input type="text" id="username" placeholder="Enter your username" required>
@@ -212,35 +182,37 @@
 
     <div class="links">
       <a href="#">Forgot password?</a> |
-      <a href="#">Sign up</a>
+      <a href="register.html">Sign up</a>
     </div>
   </form>
 </div>
 
 <footer>
-  <div>
-    <h4>Quick Links</h4>
-    <ul>
-      <li><a href="#">Products</a></li>
-      <li><a href="#">Our Mission</a></li>
-      <li><a href="#">About Us</a></li>
-    </ul>
-  </div>
-  <div>
-    <h4>Legal</h4>
-    <ul>
-      <li><a href="#">Privacy & Security</a></li>
-      <li><a href="#">Terms of Service</a></li>
-      <li><a href="#">Compliance</a></li>
-    </ul>
-  </div>
-  <div>
-    <h4>Contact Us</h4>
-    <ul>
-      <li>Email: support@metabank.com</li>
-      <li>Phone: 1-800-METABANK</li>
-      <li>Available 24/7</li>
-    </ul>
+  <div class="footer-grid">
+    <div>
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="index.html#products">Products</a></li>
+        <li><a href="index.html#mission">Our Mission</a></li>
+        <li><a href="index.html#about">About Us</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="index.html#privacy">Privacy & Security</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Compliance</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact Us</h4>
+      <ul>
+        <li>Email: support@metabank.com</li>
+        <li>Phone: 1-800-METABANK</li>
+        <li>Available 24/7</li>
+      </ul>
+    </div>
   </div>
 </footer>
 
@@ -251,7 +223,6 @@
 <script>
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
 
@@ -266,7 +237,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
     if (res.ok) {
       alert('Login successful!');
-      // window.location.href = 'dashboard.html'; // Uncomment if you have a dashboard page
+      window.location.href = 'dashboard.html';
     } else {
       alert(data.message || 'Login failed');
     }

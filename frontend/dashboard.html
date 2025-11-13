@@ -52,8 +52,14 @@
 
     .welcome {
       font-size: 1em;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       color: #333;
+    }
+
+    .total-balance {
+      font-size: 1.2em;
+      color: #006644;
+      margin-bottom: 20px;
     }
 
     .account-info, .transactions, .transfers, .analytics {
@@ -84,6 +90,12 @@
     th {
       background-color: #e0f7e9;
       color: #006644;
+    }
+
+    .restriction-note {
+      font-size: 0.9em;
+      color: #888;
+      margin-top: 8px;
     }
 
     .flex-row {
@@ -130,6 +142,7 @@
 <div class="main">
   <div class="greeting">Good Afternoon, Micheal!</div>
   <div class="welcome">Welcome back to your dashboard. Here’s a quick look at your account activity.</div>
+  <div class="total-balance"><strong>Total Balance:</strong> $1,250,000.00</div>
 
   <div class="account-info">
     <h3>Your Accounts</h3>
@@ -142,7 +155,16 @@
         <th>Balance</th>
         <th>Available Balance</th>
       </tr>
+      <tr>
+        <td>Checking</td>
+        <td>Meta Bank</td>
+        <td>**** 9281</td>
+        <td>1100001</td>
+        <td>$1,250,000.00</td>
+        <td>$1,248,500.00 🔒</td>
+      </tr>
     </table>
+    <div class="restriction-note">🔒 Available Balance is restricted due to pending verification or transfer limits.</div>
   </div>
 
   <div class="transactions">
@@ -223,23 +245,21 @@
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
-          // 'Authorization': 'Bearer ' + localStorage.getItem('token') // Uncomment if using JWT
         }
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        document.querySelector('.greeting').textContent = `Good Afternoon, ${data.username || 'User'}!`;
+        document.querySelector('.greeting').textContent = `Good Afternoon, ${data.username || 'Micheal'}!`;
 
         const row = `
           <tr>
             <td>${data.accountType || 'Checking'}</td>
             <td>${data.bankName || 'Meta Bank'}</td>
-            <td>${data.accountNumber || 'N/A'}</td>
-            <td>${data.routingNumber || 'N/A'}</td>
-            <td>$${(data.balance || 0).toLocaleString()}</td>
-            <td>$${(data.availableBalance || 0).toLocaleString()}</td>
+            <td>${data.accountNumber || '**** 9281'}</td>
+            <td>${data.routingNumber || '1100001'}</td>
+            <td>$${(data.balance || 1250000).toLocaleString()} 🔒</td>
           </tr>
         `;
 
@@ -255,6 +275,12 @@
           </tr>
           ${row}
         `;
+
+        // Show restriction note if available balance is restricted
+        const note = document.createElement('div');
+        note.className = 'restriction-note';
+        note.textContent = '🔒 Available Balance is restricted due to pending verification or transfer limits.';
+        table.parentElement.appendChild(note);
       } else {
         alert(data.message || 'Failed to load dashboard');
       }
