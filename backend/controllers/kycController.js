@@ -1,6 +1,4 @@
 const User = require('../models/User');
-const path = require('path');
-const fs = require('fs');
 
 // Upload KYC documents
 const uploadKYC = async (req, res) => {
@@ -20,17 +18,15 @@ const uploadKYC = async (req, res) => {
   }
 };
 
-// Get all users with pending KYC
 const getPendingKYC = async (req, res) => {
   try {
-    const pendingUsers = await User.find({ kycStatus: 'pending' });
-    res.json(pendingUsers);
+    const users = await User.find({ kycStatus: 'pending' });
+    res.json(users);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch pending KYC users' });
   }
 };
 
-// Approve KYC
 const approveKYC = async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.params.id, { kycStatus: 'approved' });
@@ -40,7 +36,6 @@ const approveKYC = async (req, res) => {
   }
 };
 
-// Reject KYC
 const rejectKYC = async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.params.id, { kycStatus: 'rejected' });
