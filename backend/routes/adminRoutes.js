@@ -1,7 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken } = require('../middleware/authMiddleware');
-const { requireAdmin } = require('../middleware/roleMiddleware');
 const {
   getAllUsers,
   changeUserRole,
@@ -10,10 +8,10 @@ const {
   resolveTicket
 } = require('../controllers/adminController');
 
-router.get('/users', verifyToken, requireAdmin, getAllUsers);
-router.put('/users/:id/role', verifyToken, requireAdmin, changeUserRole);
-router.delete('/users/:id', verifyToken, requireAdmin, deleteUser);
-router.get('/tickets/open', verifyToken, requireAdmin, getOpenTickets);
-router.put('/tickets/:id/resolve', verifyToken, requireAdmin, resolveTicket);
+router.get('/users', getAllUsers);
+router.put('/users/:id/role', changeUserRole);
+router.delete('/users/:id', deleteUser);
+router.get('/tickets/open', getOpenTickets);
+router.put('/tickets/:id/resolve', resolveTicket);
 
 module.exports = router;
