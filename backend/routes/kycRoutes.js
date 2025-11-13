@@ -7,12 +7,7 @@ const { verifyToken } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 
 // Controller functions
-const {
-  uploadKYC,
-  getPendingKYC,
-  approveKYC,
-  rejectKYC
-} = require('../controllers/kycController');
+const kycController = require('../controllers/kycController');
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -31,28 +26,28 @@ router.post(
   '/upload',
   verifyToken,
   upload.fields([{ name: 'idFront' }, { name: 'idBack' }]),
-  uploadKYC
+  kycController.uploadKYC
 );
 
 router.get(
   '/pending',
   verifyToken,
   requireAdmin,
-  getPendingKYC
+  kycController.getPendingKYC
 );
 
 router.put(
   '/approve/:id',
   verifyToken,
   requireAdmin,
-  approveKYC
+  kycController.approveKYC
 );
 
 router.put(
   '/reject/:id',
   verifyToken,
   requireAdmin,
-  rejectKYC
+  kycController.rejectKYC
 );
 
 module.exports = router;
