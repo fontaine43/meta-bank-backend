@@ -9,6 +9,12 @@ const { requireAdmin } = require('../middleware/roleMiddleware');
 // ✅ Import controller as object to avoid undefined
 const kycController = require('../controllers/kycController');
 
+// ✅ Debug: log controller and validate function
+console.log('DEBUG: kycController =', kycController);
+if (!kycController.uploadKYC) {
+  throw new Error('uploadKYC is undefined — check your controller export or file path');
+}
+
 // ✅ Multer setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
