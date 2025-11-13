@@ -6,50 +6,35 @@ const multer = require('multer');
 const { verifyToken } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 
-// ✅ Import controller as object to avoid undefined
+// Controller
 const kycController = require('../controllers/kycController');
-
-// ✅ Debug: log controller and validate function
-console.log('DEBUG: kycController =', kycController);
-if (!kycController.uploadKYC) {
-  throw new Error('uploadKYC is undefined — check your controller export or file path');
-}
 
 // ✅ Multer setup
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
 });
 
 const upload = multer({ storage });
+
+// ✅ Debug: confirm multer and controller
+console.log('DEBUG: kycController =', kycController);
+console.log('DEBUG: multer upload.fields =', typeof upload.fields);
 
 // ✅ Routes
 router.post(
   '/upload',
   verifyToken,
-  upload.fields([{ name: 'idFront' }, { name: 'idBack' }]),
+  upload.fields([{ name: 'idFront', maxCount: 1 }, { name: 'idBack', maxCount: 1 }]),
   kycController.uploadKYC
 );
 
-router.get(
-  '/pending',
-  verifyToken,
-  requireAdmin,
-  kycController.getPendingKYC
-);
-
-router.put(
-  '/approve/:id',
-  verifyToken,
-  requireAdmin,
-  kycController.approveKYC
-);
-
-router.put(
-  '/reject/:id',
-  verifyToken,
-  requireAdmin,
-  kycController.rejectKYC
-);
+router.get('/pending', verifyToken, requireAdmin, kycController.getPendingKYC);
+router.put('/approve/:id', verifyToken, requireAdmin, kycController.approveKYC);
+router.put('/reject/:id', verifyToken, requireAdmin, kycController.rejectKYC);
 
 module.exports = router;
