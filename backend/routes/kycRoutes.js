@@ -2,10 +2,14 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 
+// Middleware
 const { verifyToken } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
+
+// ✅ Import controller as an object — avoids undefined errors
 const kycController = require('../controllers/kycController');
 
+// ✅ Multer setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
@@ -13,6 +17,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// ✅ Routes
 router.post(
   '/upload',
   verifyToken,
