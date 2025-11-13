@@ -21,18 +21,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ✅ Debug: confirm multer and controller
-console.log('DEBUG: kycController =', kycController);
+// ✅ Debug logs
+console.log('DEBUG: kycController.uploadKYC =', typeof kycController.uploadKYC);
 console.log('DEBUG: multer upload.fields =', typeof upload.fields);
 
-// ✅ Routes
-router.post(
-  '/upload',
-  verifyToken,
-  upload.fields([{ name: 'idFront', maxCount: 1 }, { name: 'idBack', maxCount: 1 }]),
-  kycController.uploadKYC
-);
+// ✅ Route isolation test
+const uploadMiddleware = upload.fields([
+  { name: 'idFront', maxCount: 1 },
+  { name: 'idBack', maxCount: 1 }
+]);
 
+router.post('/upload', verifyToken, uploadMiddleware, kycController.uploadKYC);
 router.get('/pending', verifyToken, requireAdmin, kycController.getPendingKYC);
 router.put('/approve/:id', verifyToken, requireAdmin, kycController.approveKYC);
 router.put('/reject/:id', verifyToken, requireAdmin, kycController.rejectKYC);
