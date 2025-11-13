@@ -2,7 +2,8 @@ const User = require('../models/User');
 const path = require('path');
 const fs = require('fs');
 
-exports.uploadKYC = async (req, res) => {
+// Upload KYC documents
+const uploadKYC = async (req, res) => {
   try {
     const { id } = req.user;
     const user = await User.findById(id);
@@ -19,17 +20,39 @@ exports.uploadKYC = async (req, res) => {
   }
 };
 
-exports.getPendingKYC = async (req, res) => {
-  const pendingUsers = await User.find({ kycStatus: 'pending' });
-  res.json(pendingUsers);
+// Get all users with pending KYC
+const getPendingKYC = async (req, res) => {
+  try {
+    const pendingUsers = await User.find({ kycStatus: 'pending' });
+    res.json(pendingUsers);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch pending KYC users' });
+  }
 };
 
-exports.approveKYC = async (req, res) => {
-  await User.findByIdAndUpdate(req.params.id, { kycStatus: 'approved' });
-  res.json({ message: 'KYC approved' });
+// Approve KYC
+const approveKYC = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.params.id, { kycStatus: 'approved' });
+    res.json({ message: 'KYC approved' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to approve KYC' });
+  }
 };
 
-exports.rejectKYC = async (req, res) => {
-  await User.findByIdAndUpdate(req.params.id, { kycStatus: 'rejected' });
-  res.json({ message: 'KYC rejected' });
+// Reject KYC
+const rejectKYC = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.params.id, { kycStatus: 'rejected' });
+    res.json({ message: 'KYC rejected' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reject KYC' });
+  }
+};
+
+module.exports = {
+  uploadKYC,
+  getPendingKYC,
+  approveKYC,
+  rejectKYC
 };
