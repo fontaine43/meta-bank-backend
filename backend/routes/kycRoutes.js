@@ -6,7 +6,7 @@ const multer = require('multer');
 const { verifyToken } = require('../middleware/authMiddleware');
 const { requireAdmin } = require('../middleware/roleMiddleware');
 
-// ✅ Import controller as an object — avoids undefined errors
+// ✅ Import controller as object to avoid undefined
 const kycController = require('../controllers/kycController');
 
 // ✅ Multer setup

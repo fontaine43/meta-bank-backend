@@ -18,6 +18,7 @@ const uploadKYC = async (req, res) => {
   }
 };
 
+// Get all users with pending KYC
 const getPendingKYC = async (req, res) => {
   try {
     const users = await User.find({ kycStatus: 'pending' });
@@ -27,6 +28,7 @@ const getPendingKYC = async (req, res) => {
   }
 };
 
+// Approve KYC
 const approveKYC = async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.params.id, { kycStatus: 'approved' });
@@ -36,6 +38,7 @@ const approveKYC = async (req, res) => {
   }
 };
 
+// Reject KYC
 const rejectKYC = async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.params.id, { kycStatus: 'rejected' });
