@@ -14,8 +14,13 @@ const kycRoutes = require('./routes/kycRoutes');
 
 const app = express();
 
+// ✅ CORS Configuration — allow only your frontend domain
+app.use(cors({
+  origin: 'https://meta-bank-frontend.onrender.com',
+  credentials: true
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
