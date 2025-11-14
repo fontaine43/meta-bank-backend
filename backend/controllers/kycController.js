@@ -1,50 +1,68 @@
 const User = require('../models/User');
 
-// Upload KYC documents
+// ✅ Upload KYC documents
 const uploadKYC = async (req, res) => {
   try {
-    const { id } = req.user;
-    const user = await User.findById(id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-    user.idFront = req.files?.idFront?.[0]?.filename || '';
-    user.idBack = req.files?.idBack?.[0]?.filename || '';
+    const idFrontFile = req.files?.idFront?.[0];
+    const idBackFile = req.files?.idBack?.[0];
+
+    if (!idFrontFile || !idBackFile) {
+      return res.status(400).json({ error: 'Both ID front and back images are required' });
+    }
+
+    user.idFront = idFrontFile.filename;
+    user.idBack = idBackFile.filename;
     user.kycStatus = 'pending';
 
     await user.save();
-    res.json({ message: 'KYC documents uploaded' });
+    res.status(200).json({ message: 'KYC documents uploaded successfully' });
   } catch (err) {
+    console.error('❌ KYC upload error:', err);
     res.status(500).json({ error: 'Upload failed', details: err.message });
   }
 };
 
-// Get all users with pending KYC
+// ✅ Get all users with pending KYC
 const getPendingKYC = async (req, res) => {
   try {
-    const users = await User.find({ kycStatus: 'pending' });
-    res.json(users);
+    const users = await User.find({ kycStatus: 'pending' }).select('-password');
+    res.status(200).json(users);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch pending KYC users' });
+    console.error('❌ Fetch pending KYC error:', err);
+    res.status(500).json({ error: 'Failed to fetch pending KYC users', details: err.message });
   }
 };
 
-// Approve KYC
+// ✅ Approve KYC
 const approveKYC = async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.params.id, { kycStatus: 'approved' });
-    res.json({ message: 'KYC approved' });
+    const user = await User.findByIdAndUpdate(req.params.id, { kycStatus: 'approved' }, { new: true });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json({ message: 'KYC approved' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to approve KYC' });
+    console.error('❌ Approve KYC error:', err);
+    res.status(500).json({ error: 'Failed to approve KYC', details: err.message });
   }
 };
 
-// Reject KYC
+// ✅ Reject KYC
 const rejectKYC = async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.params.id, { kycStatus: 'rejected' });
-    res.json({ message: 'KYC rejected' });
+    const user = await User.findByIdAndUpdate(req.params.id, { kycStatus: 'rejected' }, { new: true });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json({ message: 'KYC rejected' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to reject KYC' });
+    console.error('❌ Reject KYC error:', err);
+    res.status(500).json({ error: 'Failed to reject KYC', details: err.message });
   }
 };
 
