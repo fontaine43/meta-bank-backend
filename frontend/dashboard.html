@@ -240,54 +240,62 @@
   });
 
   async function loadDashboard() {
-    try {
-      const res = await fetch('https://metabank-api.onrender.com/api/user/profile', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        document.querySelector('.greeting').textContent = `Good Afternoon, ${data.username || 'Micheal'}!`;
-
-        const row = `
-          <tr>
-            <td>${data.accountType || 'Checking'}</td>
-            <td>${data.bankName || 'Meta Bank'}</td>
-            <td>${data.accountNumber || '**** 9281'}</td>
-            <td>${data.routingNumber || '1100001'}</td>
-            <td>$${(data.balance || 1250000).toLocaleString()} 🔒</td>
-          </tr>
-        `;
-
-        const table = document.getElementById('accountTable');
-        table.innerHTML = `
-          <tr>
-            <th>Account Type</th>
-            <th>Bank</th>
-            <th>Account Number</th>
-            <th>Routing Number</th>
-            <th>Balance</th>
-            <th>Available Balance</th>
-          </tr>
-          ${row}
-        `;
-
-        // Show restriction note if available balance is restricted
-        const note = document.createElement('div');
-        note.className = 'restriction-note';
-        note.textContent = '🔒 Available Balance is restricted due to pending verification or transfer limits.';
-        table.parentElement.appendChild(note);
-      } else {
-        alert(data.message || 'Failed to load dashboard');
-      }
-    } catch (err) {
-      alert('Error connecting to server');
-    }
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
   }
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      document.querySelector('.greeting').textContent = `Good Afternoon, ${data.username || 'Micheal'}!`;
+
+      const row = `
+        <tr>
+          <td>${data.accountType || 'Checking'}</td>
+          <td>${data.bankName || 'Meta Bank'}</td>
+          <td>${data.accountNumber || '**** 9281'}</td>
+          <td>${data.routingNumber || '1100001'}</td>
+          <td>$${(data.balance || 1250000).toLocaleString()} 🔒</td>
+          <td>$${(data.availableBalance || 1248500).toLocaleString()} 🔒</td>
+        </tr>
+      `;
+
+      const table = document.getElementById('accountTable');
+      table.innerHTML = `
+        <tr>
+          <th>Account Type</th>
+          <th>Bank</th>
+          <th>Account Number</th>
+          <th>Routing Number</th>
+          <th>Balance</th>
+          <th>Available Balance</th>
+        </tr>
+        ${row}
+      `;
+
+      const note = document.createElement('div');
+      note.className = 'restriction-note';
+      note.textContent = '🔒 Available Balance is restricted due to pending verification or transfer limits.';
+      table.parentElement.appendChild(note);
+    } else {
+      alert(data.message || 'Failed to load dashboard');
+    }
+  } catch (err) {
+    alert('Error connecting to server');
+  }
+}
 
   window.addEventListener('DOMContentLoaded', loadDashboard);
 </script>

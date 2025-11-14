@@ -235,6 +235,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     const res = await fetch('https://meta-bank-backend-1.onrender.com/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ username, password })
     });
 
@@ -248,6 +249,10 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     if (!res.ok) {
       throw new Error(data.message || 'Login failed');
     }
+
+    // Optional: store token for dashboard use
+    localStorage.setItem('metaBankToken', data.token);
+    localStorage.setItem('metaBankUser', JSON.stringify(data.user));
 
     alert('Login successful!');
     window.location.href = 'dashboard.html';
