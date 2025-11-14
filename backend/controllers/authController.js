@@ -1,9 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // adjust path if needed
-const { sendVerificationEmail, notifyAdminOfNewUser } = require('../utils/email'); // utility functions
+const User = require('../models/User');
+const { sendVerificationEmail, notifyAdminOfNewUser } = require('../utils/email');
 
-// REGISTER CONTROLLER
+// ✅ REGISTER CONTROLLER
 const register = async (req, res) => {
   try {
     if (!req.body) {
@@ -56,13 +56,9 @@ const register = async (req, res) => {
 
     await newUser.save();
 
-    // Generate verification token
     const verificationToken = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-    // Send verification email
     await sendVerificationEmail(newUser.email, newUser.fullName, verificationToken);
-
-    // Notify admin
     await notifyAdminOfNewUser(newUser);
 
     res.status(201).json({
@@ -75,7 +71,7 @@ const register = async (req, res) => {
   }
 };
 
-// LOGIN CONTROLLER
+// ✅ LOGIN CONTROLLER
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -96,7 +92,17 @@ const login = async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-    res.status(200).json({ message: 'Login successful', token });
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        fullName: user.fullName,
+        role: user.role || 'user',
+        isVerified: user.isVerified
+      }
+    });
   } catch (err) {
     console.error('❌ Login error:', err);
     res.status(500).json({ message: 'Login failed', details: err.message });

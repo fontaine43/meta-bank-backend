@@ -5,14 +5,18 @@ const verifyUser = async (req, res) => {
   try {
     const { token } = req.query;
 
-    if (!token) {
-      return res.status(400).json({ message: 'Missing verification token' });
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ message: 'Missing or invalid verification token' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(403).json({ message: 'Invalid or expired token' });
+    }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
