@@ -95,14 +95,14 @@
 <div class="sidebar">
   <h2>Meta Bank</h2>
   <a href="dashboard.html">Overview</a>
-  <a href="#">Verification</a>
+  <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
   <a href="loans.html">Loans</a>
-  <a href="#">Investments</a>
-  <a href="#">Transfer</a>
-  <a href="#">External Accounts</a>
-  <a href="#">Statements</a>
-  <a href="#">Sign Out</a>
+  <a href="investments.html">Investments</a>
+  <a href="transfer.html">Transfer</a>
+  <a href="external-accounts.html">External Accounts</a>
+  <a href="statements.html">Statements</a>
+  <a href="#" onclick="logout()">Sign Out</a>
 </div>
 
 <div class="main">
@@ -135,6 +135,13 @@
     </table>
   </div>
 </div>
+
+<script>
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+</script>
 
 </body>
 </html>

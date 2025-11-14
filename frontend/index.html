@@ -107,11 +107,18 @@
       font-size: 16px;
       line-height: 1.6;
     }
+    .product-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+    }
     .product-block {
+      flex: 0 1 300px;
       border: 1px solid #ccc;
       border-radius: 6px;
       padding: 20px;
-      margin-bottom: 20px;
       background: #fff;
     }
     .product-block h3 {
@@ -127,6 +134,22 @@
       cursor: pointer;
       margin-right: 10px;
       margin-top: 10px;
+    }
+    .analytics {
+      text-align: center;
+      margin: 60px auto 20px;
+      padding: 20px;
+      background-color: #e0f7e9;
+      border-radius: 8px;
+      max-width: 600px;
+    }
+    .analytics h3 {
+      color: #006644;
+      margin-bottom: 10px;
+    }
+    .analytics p {
+      font-size: 1.1em;
+      margin: 5px 0;
     }
     footer {
       background-color: #003322;
@@ -201,86 +224,83 @@
 <section id="products">
   <h2 style="text-align:center;">Featured Products</h2>
   <p style="text-align:center;">Discover banking solutions designed to help you achieve your financial goals.</p>
-
-  <!-- Product blocks go here -->
+  <div class="product-grid">
+    <!-- All product blocks go here -->
+    <div class="product-block" id="savings">
+      <h3>Savings Account</h3>
+      <p>Grow your wealth with competitive interest rates and zero maintenance fees.</p>
+      <button onclick="location.href='register.html'">Open Savings Account</button>
+      <button onclick="alert('Savings Account offers 3.5% APY, no fees, and instant access.')">Learn More</button>
+    </div>
+    <div class="product-block" id="checking">
+      <h3>Checking Account</h3>
+      <p>Manage your daily transactions with ease. Free debit cards and mobile check deposits.</p>
+      <button onclick="location.href='register.html'">Open Checking Account</button>
+      <button onclick="alert('Checking Account includes free debit, mobile deposits, and no overdraft fees.')">Learn More</button>
+    </div>
+    <div class="product-block" id="business">
+      <h3>Business Account</h3>
+      <p>Multi-user access, invoicing tools, and accounting software integration.</p>
+      <button onclick="location.href='register.html'">Open Business Account</button>
+      <button onclick="alert('Business Account supports teams, invoicing, and accounting integrations.')">Learn More</button>
+    </div>
+    <div class="product-block" id="investment">
+      <h3>Investment Account</h3>
+      <p>Access stocks, ETFs, and retirement tools with expert guidance.</p>
+      <button onclick="location.href='register.html'">Open Investment Account</button>
+      <button onclick="alert('Investment Account offers diversified portfolios and expert insights.')">Learn More</button>
+    </div>
+    <div class="product-block" id="ira">
+      <h3>IRA Account</h3>
+      <p>Secure your retirement with tax-advantaged savings      <button onclick="location.href='register.html'">Open IRA Account</button>
+      <button onclick="alert('IRA Account includes tax benefits and flexible plans.')">Learn More</button>
+    </div>
+    <div class="product-block" id="highyield">
+      <h3>High-Yield Savings</h3>
+      <p>Earn up to 4.5% APY with no minimum balance. Your money grows faster with our high-yield savings options.</p>
+      <button onclick="location.href='register.html'">Open High-Yield Account</button>
+      <button onclick="alert('High-Yield Savings offers top-tier APY and no balance limits.')">Learn More</button>
+    </div>
+    <div class="product-block" id="crypto">
+      <h3>Crypto Investment</h3>
+      <p>Invest in digital assets with confidence. Secure wallets, real-time tracking, and regulated crypto investment options.</p>
+      <button onclick="location.href='register.html'">Start Crypto Investment</button>
+      <button onclick="alert('Crypto Investment includes secure wallets and regulated access.')">Learn More</button>
+    </div>
+    <div class="product-block" id="homeloan">
+      <h3>Home Loan</h3>
+      <p>Make your dream home a reality. Get pre-approved in minutes, enjoy low interest rates, and flexible repayment plans.</p>
+      <button onclick="location.href='register.html'">Apply for Home Loan</button>
+      <button onclick="alert('Home Loan offers fast approval and flexible terms.')">Learn More</button>
+    </div>
+    <div class="product-block" id="autoloan">
+      <h3>Auto Loan</h3>
+      <p>Drive your future with affordable auto loans. Quick approvals, competitive rates, and no hidden fees.</p>
+      <button onclick="location.href='register.html'">Apply for Auto Loan</button>
+      <button onclick="alert('Auto Loan includes fast approval and no hidden fees.')">Learn More</button>
+    </div>
+  </div>
 </section>
-  <div class="product-block" id="savings">
-    <h3>Savings Account</h3>
-    <p>Grow your wealth with competitive interest rates and zero maintenance fees. Access your funds anytime with secure mobile banking.</p>
-    <button onclick="location.href='register.html'">Open Savings Account</button>
-    <button onclick="alert('Savings Account offers 3.5% APY, no fees, and instant access.')">Learn More</button>
-  </div>
 
-  <div class="product-block" id="checking">
-    <h3>Checking Account</h3>
-    <p>Manage your daily transactions with ease. Enjoy free debit cards, mobile check deposits, and zero overdraft fees.</p>
-    <button onclick="location.href='register.html'">Open Checking Account</button>
-    <button onclick="alert('Checking Account includes free debit, mobile deposits, and no overdraft fees.')">Learn More</button>
-  </div>
-
-  <div class="product-block" id="business">
-    <h3>Business Account</h3>
-    <p>Banking solutions tailored for your business. Get multi-user access, invoicing tools, and seamless integration with accounting software.</p>
-    <button onclick="location.href='register.html'">Open Business Account</button>
-    <button onclick="alert('Business Account supports teams, invoicing, and accounting integrations.')">Learn More</button>
-  </div>
-
-  <div class="product-block" id="investment">
-    <h3>Investment Account</h3>
-    <p>Build your portfolio with expert guidance. Access stocks, ETFs, and retirement tools with real-time insights and low fees.</p>
-    <button onclick="location.href='register.html'">Open Investment Account</button>
-    <button onclick="alert('Investment Account offers diversified portfolios and expert insights.')">Learn More</button>
-  </div>
-
-  <div class="product-block" id="ira">
-    <h3>IRA Account</h3>
-    <p>Secure your retirement with tax-advantaged savings. Choose between Traditional and Roth IRAs with flexible contribution options.</p>
-    <button onclick="location.href='register.html'">Open IRA Account</button>
-    <button onclick="alert('IRA Account includes tax benefits and flexible plans.')">Learn More</button>
-  </div>
-
-  <div class="product-block" id="highyield">
-    <h3>High-Yield Savings</h3>
-    <p>Earn up to 4.5% APY with no minimum balance. Your money grows faster with our high-yield savings options.</p>
-    <button onclick="location.href='register.html'">Open High-Yield Account</button>
-    <button onclick="alert('High-Yield Savings offers top-tier APY and no balance limits.')">Learn More</button>
-  </div>
-
-  <div class="product-block" id="crypto">
-    <h3>Crypto Investment</h3>
-    <p>Invest in digital assets with confidence. Secure wallets, real-time tracking, and regulated crypto investment options.</p>
-    <button onclick="location.href='register.html'">Start Crypto Investment</button>
-    <button onclick="alert('Crypto Investment includes secure wallets and regulated access.')">Learn More</button>
-  </div>
-
-  <div class="product-block" id="homeloan">
-    <h3>Home Loan</h3>
-    <p>Make your dream home a reality. Get pre-approved in minutes, enjoy low interest rates, and flexible repayment plans.</p>
-    <button onclick="location.href='register.html'">Apply for Home Loan</button>
-    <button onclick="alert('Home Loan offers fast approval and flexible terms.')">Learn More</button>
-  </div>
-
-  <div class="product-block" id="autoloan">
-    <h3>Auto Loan</h3>
-    <p>Drive your future with affordable auto loans. Quick approvals, competitive rates, and no hidden fees.</p>
-    <button onclick="location.href='register.html'">Apply for Auto Loan</button>
-    <button onclick="alert('Auto Loan includes fast approval and no hidden fees.')">Learn More</button>
-  </div>
+<section class="analytics">
+  <h3>Platform Insights</h3>
+  <p>Total Registered Users: <span id="userCount">1,024</span></p>
+  <p>Transactions Today: <span id="txnCount">342</span></p>
 </section>
 
 <section id="about">
   <h2>About Meta Bank</h2>
-  <p>Founded in 2023, Meta Bank is a digital-first financial institution committed to speed, security, and simplicity. We serve individuals and businesses with modern banking tools that empower smarter financial decisions. Our platform is built on trust, transparency, and cutting-edge technology.</p>
+  <p>Founded in 2023, Meta Bank is a digital-first financial institution committed to speed, security, and simplicity. We serve individuals and businesses with modern banking tools that empower smarter financial decisions.</p>
 </section>
 
 <section id="mission">
   <h2>Our Mission</h2>
-  <p>To deliver secure, transparent, and innovative banking experiences that help our customers grow. We believe in financial inclusion, digital empowerment, and trust through technology. Our mission is to make banking accessible, intuitive, and impactful for everyone.</p>
+  <p>To deliver secure, transparent, and innovative banking experiences that help our customers grow. We believe in financial inclusion, digital empowerment, and trust through technology.</p>
 </section>
 
 <section id="privacy">
   <h2>Privacy & Security</h2>
-  <p>Meta Bank uses AES-256 encryption, secure cloud infrastructure, and strict compliance with U.S. banking regulations. We never compromise on your privacy or safety. Your data is protected, your transactions are secure, and your trust is our priority.</p>
+  <p>Meta Bank uses AES-256 encryption, secure cloud infrastructure, and strict compliance with U.S. banking regulations. Your data is protected, your transactions are secure, and your trust is our priority.</p>
 </section>
 
 <section id="contact">
@@ -327,6 +347,18 @@
 <div class="footer-bottom">
   © 2025 Meta Bank. All rights reserved. Member FDIC. Equal Housing Lender.
 </div>
+
+<script>
+fetch('https://meta-bank-backend.onrender.com/api/admin/stats')
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('userCount').innerText = data.users;
+    document.getElementById('txnCount').innerText = data.transactions;
+  })
+  .catch(() => {
+    console.warn('Analytics fetch failed. Using static fallback.');
+  });
+</script>
 
 </body>
 </html>

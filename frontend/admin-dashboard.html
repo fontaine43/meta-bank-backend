@@ -9,13 +9,13 @@
       font-family: 'Segoe UI', sans-serif;
       background-color: #f4f6f9;
       display: flex;
+      min-height: 100vh;
     }
 
     .sidebar {
       width: 250px;
       background-color: #003322;
       color: white;
-      height: 100vh;
       padding: 20px;
       box-sizing: border-box;
     }
@@ -42,6 +42,7 @@
       flex: 1;
       padding: 30px;
       background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+      overflow-x: auto;
     }
 
     .greeting {
@@ -87,10 +88,24 @@
       padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
+      margin-right: 5px;
     }
 
     .panel button.reject {
       background-color: #cc0000;
+    }
+
+    .panel button:hover {
+      opacity: 0.9;
+    }
+
+    .panel a {
+      color: #006644;
+      text-decoration: underline;
+    }
+
+    .panel a:hover {
+      text-decoration: none;
     }
   </style>
 </head>
@@ -124,8 +139,8 @@
         <td>Jane Doe</td>
         <td>1990-04-12</td>
         <td>***-**-1234</td>
-        <td><a href="#">View</a></td>
-        <td><a href="#">View</a></td>
+        <td><a href="/uploads/idFront-jane.jpg" target="_blank">View</a></td>
+        <td><a href="/uploads/idBack-jane.jpg" target="_blank">View</a></td>
         <td>
           <button>Approve</button>
           <button class="reject">Reject</button>
@@ -179,12 +194,26 @@
 
   <div class="panel">
     <h3>Analytics Summary</h3>
-    <p>Total Users: 1,245</p>
-    <p>Pending KYC: 32</p>
-    <p>Active Loans: 210</p>
-    <p>Open Tickets: 12</p>
+    <p>Total Users: <strong id="userCount">1,245</strong></p>
+    <p>Pending KYC: <strong id="kycCount">32</strong></p>
+    <p>Active Loans: <strong id="loanCount">210</strong></p>
+    <p>Open Tickets: <strong id="ticketCount">12</strong></p>
   </div>
 </div>
+
+<script>
+fetch('https://meta-bank-backend.onrender.com/api/admin/stats')
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('userCount').innerText = data.users;
+    document.getElementById('kycCount').innerText = data.pendingKYC;
+    document.getElementById('loanCount').innerText = data.activeLoans;
+    document.getElementById('ticketCount').innerText = data.openTickets;
+  })
+  .catch(() => {
+    console.warn('Analytics fetch failed. Using static fallback.');
+  });
+</script>
 
 </body>
 </html>

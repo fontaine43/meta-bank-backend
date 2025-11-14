@@ -1,11 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User'); // adjust path if needed
+const { sendVerificationEmail, notifyAdminOfNewUser } = require('../utils/email'); // utility functions
 
 // REGISTER CONTROLLER
 const register = async (req, res) => {
   try {
-    // Ensure req.body exists
     if (!req.body) {
       return res.status(400).json({ message: 'Missing form data' });
     }
@@ -22,7 +22,6 @@ const register = async (req, res) => {
       bankName
     } = req.body;
 
-    // Validate required fields
     if (!fullName || !email || !phone || !username || !password || !confirmPassword || !dob || !ssn || !bankName) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -31,23 +30,16 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'Passwords do not match' });
     }
 
-    // Check for existing user
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email or username already exists' });
+      return res.status(409).json({ message: 'Email or username already exists' });
     }
 
-    // Hash password safely
-    if (typeof password !== 'string') {
-      return res.status(400).json({ message: 'Invalid password format' });
-    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Handle file uploads
     const idFront = req.files?.idFront?.[0]?.filename || '';
     const idBack = req.files?.idBack?.[0]?.filename || '';
 
-    // Create and save user
     const newUser = new User({
       fullName,
       email,
@@ -58,12 +50,25 @@ const register = async (req, res) => {
       ssn,
       bankName,
       idFront,
-      idBack
+      idBack,
+      isVerified: false
     });
 
     await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    // Generate verification token
+    const verificationToken = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+    // Send verification email
+    await sendVerificationEmail(newUser.email, newUser.fullName, verificationToken);
+
+    // Notify admin
+    await notifyAdminOfNewUser(newUser);
+
+    res.status(201).json({
+      message: 'User registered successfully. Verification email sent.',
+      token: verificationToken
+    });
   } catch (err) {
     console.error('❌ Registration error:', err);
     res.status(500).json({ message: 'Registration failed', details: err.message });
@@ -81,12 +86,12 @@ const login = async (req, res) => {
 
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });

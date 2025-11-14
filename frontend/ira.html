@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Meta Bank Profile</title>
+  <title>Meta Bank IRA Accounts</title>
   <style>
     body {
       margin: 0;
@@ -50,29 +50,41 @@
       color: #006644;
     }
 
-    .profile-card {
+    .ira-info, .ira-apply {
       background-color: white;
       padding: 25px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      max-width: 600px;
+      margin-bottom: 30px;
+      max-width: 700px;
     }
 
-    .profile-card h3 {
+    .ira-info h3, .ira-apply h3 {
       margin-top: 0;
       color: #006644;
     }
 
-    .profile-card p {
+    .ira-info p {
+      font-size: 1em;
       margin: 10px 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
       font-size: 1em;
     }
 
-    .profile-card strong {
-      color: #003322;
-    }
-
-    .update-btn {
+    button {
       margin-top: 20px;
       background-color: #006644;
       color: white;
@@ -99,24 +111,38 @@
 </div>
 
 <div class="main">
-  <div class="greeting" id="greeting">Hello, Micheal Fontaine</div>
+  <div class="greeting">IRA Center – Micheal Fontaine</div>
 
-  <div class="profile-card" id="profileCard">
-    <h3>My Profile</h3>
-    <p><strong>Full Name:</strong> <span id="fullName">Loading...</span></p>
-    <p><strong>Username:</strong> <span id="username">Loading...</span></p>
-    <p><strong>Email:</strong> <span id="email">Loading...</span></p>
-    <p><strong>Phone:</strong> <span id="phone">Loading...</span></p>
-    <p><strong>Date of Birth:</strong> <span id="dob">Loading...</span></p>
-    <p><strong>Address:</strong> <span id="address">Loading...</span></p>
-    <p><strong>KYC Status:</strong> <span id="kyc">Loading...</span></p>
-    <p><strong>Account Status:</strong> <span id="status">Loading...</span></p>
-    <button class="update-btn">Update Profile</button>
+  <div class="ira-info">
+    <h3>IRA Account Overview</h3>
+    <p><strong>Traditional IRA:</strong> Tax-deferred growth with pre-tax contributions.</p>
+    <p><strong>Roth IRA:</strong> Tax-free growth with after-tax contributions.</p>
+    <p><strong>Contribution Limit:</strong> $6,500/year (under 50), $7,500/year (50+)</p>
+    <p><strong>Withdrawals:</strong> Penalty-free after age 59½ or for qualified exceptions.</p>
+  </div>
+
+  <div class="ira-apply">
+    <h3>Open an IRA Account</h3>
+    <form id="iraForm">
+      <label for="iraType">IRA Type</label>
+      <select id="iraType" required>
+        <option value="">Select type</option>
+        <option>Traditional IRA</option>
+        <option>Roth IRA</option>
+      </select>
+
+      <label for="initialAmount">Initial Contribution</label>
+      <input type="number" id="initialAmount" placeholder="Enter amount" required>
+
+      <button type="submit">Submit Application</button>
+    </form>
   </div>
 </div>
 
 <script>
-async function loadProfile() {
+document.getElementById('iraForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
   const token = localStorage.getItem('metaBankToken');
   if (!token) {
     alert('Session expired. Please log in again.');
@@ -124,42 +150,39 @@ async function loadProfile() {
     return;
   }
 
+  const payload = {
+    iraType: document.getElementById('iraType').value,
+    initialAmount: document.getElementById('initialAmount').value
+  };
+
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
-      method: 'GET',
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/ira', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
     });
 
     const data = await res.json();
 
     if (res.ok) {
-      document.getElementById('greeting').textContent = `Hello, ${data.fullName || 'User'}`;
-      document.getElementById('fullName').textContent = data.fullName || 'N/A';
-      document.getElementById('username').textContent = data.username || 'N/A';
-      document.getElementById('email').textContent = data.email || 'N/A';
-      document.getElementById('phone').textContent = data.phone || 'N/A';
-      document.getElementById('dob').textContent = data.dob || 'N/A';
-      document.getElementById('address').textContent = data.address || 'N/A';
-      document.getElementById('kyc').textContent = data.kycStatus || 'Pending';
-      document.getElementById('status').textContent = data.accountStatus || 'Inactive';
+      alert('IRA application submitted successfully!');
+      location.reload();
     } else {
-      alert(data.message || 'Failed to load profile');
+      alert(data.message || 'Failed to submit IRA application');
     }
   } catch (err) {
-    console.error('Profile fetch error:', err);
+    console.error('IRA submission error:', err);
     alert('Error connecting to server');
   }
-}
+});
 
 function logout() {
   localStorage.clear();
   window.location.href = 'login.html';
 }
-
-window.addEventListener('DOMContentLoaded', loadProfile);
 </script>
 
 </body>

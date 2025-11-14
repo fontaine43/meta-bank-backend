@@ -22,6 +22,7 @@ const app = express();
 const uploadsPath = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath);
+  console.log('📁 Created uploads directory');
 }
 
 // CORS — allow only your frontend domain
@@ -40,9 +41,9 @@ app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/kyc', kycRoutes);
 
-// Health check route
+// Health check
 app.get('/', (req, res) => {
-  res.send('Meta Bank backend is running');
+  res.send('✅ Meta Bank backend is running');
 });
 
 // Start server after DB connects
@@ -55,4 +56,5 @@ connectDB()
   })
   .catch(err => {
     console.error('❌ Failed to start server:', err.message);
+    process.exit(1);
   });

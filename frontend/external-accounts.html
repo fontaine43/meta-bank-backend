@@ -112,14 +112,14 @@
 <div class="sidebar">
   <h2>Meta Bank</h2>
   <a href="dashboard.html">Overview</a>
-  <a href="#">Verification</a>
+  <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
   <a href="loans.html">Loans</a>
   <a href="investments.html">Investments</a>
   <a href="transfer.html">Transfer</a>
-  <a href="#">External Accounts</a>
-  <a href="#">Statements</a>
-  <a href="#">Sign Out</a>
+  <a href="external-accounts.html">External Accounts</a>
+  <a href="statements.html">Statements</a>
+  <a href="#" onclick="logout()">Sign Out</a>
 </div>
 
 <div class="main">
@@ -142,18 +142,19 @@
 
   <div class="add-account">
     <h3>Add External Account</h3>
-    <form>
+    <form id="externalAccountForm">
       <label for="bankName">Bank Name</label>
-      <input type="text" id="bankName" placeholder="e.g. Chase Bank">
+      <input type="text" id="bankName" placeholder="e.g. Chase Bank" required>
 
       <label for="accountNumber">Account Number</label>
-      <input type="text" id="accountNumber" placeholder="Enter account number">
+      <input type="text" id="accountNumber" placeholder="Enter account number" required>
 
       <label for="routingNumber">Routing Number</label>
-      <input type="text" id="routingNumber" placeholder="Enter routing number">
+      <input type="text" id="routingNumber" placeholder="Enter routing number" required>
 
       <label for="accountType">Account Type</label>
-      <select id="accountType">
+      <select id="accountType" required>
+        <option value="">Select type</option>
         <option>Checking</option>
         <option>Savings</option>
         <option>Business</option>
@@ -163,6 +164,54 @@
     </form>
   </div>
 </div>
+
+<script>
+document.getElementById('externalAccountForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const payload = {
+    bankName: document.getElementById('bankName').value.trim(),
+    accountNumber: document.getElementById('accountNumber').value.trim(),
+    routingNumber: document.getElementById('routingNumber').value.trim(),
+    accountType: document.getElementById('accountType').value
+  };
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/external-accounts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert('Account linked successfully!');
+      location.reload();
+    } else {
+      alert(data.message || 'Failed to link account');
+    }
+  } catch (err) {
+    console.error('Link account error:', err);
+    alert('Error connecting to server');
+  }
+});
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+</script>
 
 </body>
 </html>

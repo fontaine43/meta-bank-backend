@@ -95,14 +95,14 @@
 <div class="sidebar">
   <h2>Meta Bank</h2>
   <a href="dashboard.html">Overview</a>
-  <a href="#">Verification</a>
+  <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
   <a href="loans.html">Loans</a>
   <a href="investments.html">Investments</a>
   <a href="transfer.html">Transfer</a>
   <a href="external-accounts.html">External Accounts</a>
   <a href="statements.html">Statements</a>
-  <a href="#">Sign Out</a>
+  <a href="#" onclick="logout()">Sign Out</a>
 </div>
 
 <div class="main">
@@ -133,13 +133,23 @@
 document.getElementById('kycForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
   const form = new FormData();
   form.append('idUpload', document.getElementById('idUpload').files[0]);
   form.append('addressUpload', document.getElementById('addressUpload').files[0]);
 
   try {
-    const res = await fetch('https://metabank-api.onrender.com/api/kyc/upload', {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/kyc/upload', {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
       body: form
     });
 
@@ -151,9 +161,15 @@ document.getElementById('kycForm').addEventListener('submit', async function(e) 
       alert(data.message || 'Submission failed');
     }
   } catch (err) {
+    console.error('KYC upload error:', err);
     alert('Error connecting to server');
   }
 });
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
 </script>
 
 </body>

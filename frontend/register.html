@@ -170,6 +170,19 @@
 document.getElementById('registerForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
+  const formElement = document.getElementById('registerForm');
+  const submitButton = formElement.querySelector('button[type="submit"]');
+
+  // Create spinner
+  let spinner = document.createElement('div');
+  spinner.innerText = 'Processing registration...';
+  spinner.style.cssText = 'grid-column: span 2; text-align: center; color: #006644; font-weight: bold; margin-top: 10px;';
+  formElement.appendChild(spinner);
+
+  // Disable button
+  submitButton.disabled = true;
+  submitButton.style.opacity = '0.6';
+
   const form = new FormData();
   form.append('fullName', document.getElementById('fullname').value.trim());
   form.append('email', document.getElementById('email').value.trim());
@@ -197,13 +210,19 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     const contentType = res.headers.get('content-type');
     const data = contentType && contentType.includes('application/json') ? await res.json() : {};
 
+    spinner.remove();
+    submitButton.disabled = false;
+    submitButton.style.opacity = '1';
+
     if (res.ok) {
-      alert('Registration successful!');
       window.location.href = 'dashboard.html';
     } else {
       alert(data.message || 'Registration failed');
     }
   } catch (err) {
+    spinner.remove();
+    submitButton.disabled = false;
+    submitButton.style.opacity = '1';
     console.error('Registration error:', err);
     alert('Error connecting to server');
   }

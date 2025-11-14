@@ -92,14 +92,14 @@
 <div class="sidebar">
   <h2>Meta Bank</h2>
   <a href="dashboard.html">Overview</a>
-  <a href="#">Verification</a>
+  <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
   <a href="loans.html">Loans</a>
   <a href="investments.html">Investments</a>
   <a href="transfer.html">Transfer</a>
   <a href="external-accounts.html">External Accounts</a>
-  <a href="#">Statements</a>
-  <a href="#">Sign Out</a>
+  <a href="statements.html">Statements</a>
+  <a href="#" onclick="logout()">Sign Out</a>
 </div>
 
 <div class="main">
@@ -114,14 +114,21 @@
         <th>Type</th>
         <th>Download</th>
       </tr>
-      <tr><td>October 2025</td><td>Checking</td><td>PDF</td><td><a href="#" class="download">Download</a></td></tr>
-      <tr><td>September 2025</td><td>Checking</td><td>PDF</td><td><a href="#" class="download">Download</a></td></tr>
-      <tr><td>August 2025</td><td>Checking</td><td>PDF</td><td><a href="#" class="download">Download</a></td></tr>
-      <tr><td>July 2025</td><td>Checking</td><td>PDF</td><td><a href="#" class="download">Download</a></td></tr>
-      <tr><td>June 2025</td><td>Checking</td><td>PDF</td><td><a href="#" class="download">Download</a></td></tr>
+      <tr><td>October 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/october-2025.pdf" class="download" target="_blank">Download</a></td></tr>
+      <tr><td>September 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/september-2025.pdf" class="download" target="_blank">Download</a></td></tr>
+      <tr><td>August 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/august-2025.pdf" class="download" target="_blank">Download</a></td></tr>
+      <tr><td>July 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/july-2025.pdf" class="download" target="_blank">Download</a></td></tr>
+      <tr><td>June 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/june-2025.pdf" class="download" target="_blank">Download</a></td></tr>
     </table>
   </div>
 </div>
+
+<script>
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+</script>
 
 </body>
 </html>

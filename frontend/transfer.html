@@ -112,14 +112,14 @@
 <div class="sidebar">
   <h2>Meta Bank</h2>
   <a href="dashboard.html">Overview</a>
-  <a href="#">Verification</a>
+  <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
   <a href="loans.html">Loans</a>
   <a href="investments.html">Investments</a>
-  <a href="#">Transfer</a>
-  <a href="#">External Accounts</a>
-  <a href="#">Statements</a>
-  <a href="#">Sign Out</a>
+  <a href="transfer.html">Transfer</a>
+  <a href="external-accounts.html">External Accounts</a>
+  <a href="statements.html">Statements</a>
+  <a href="#" onclick="logout()">Sign Out</a>
 </div>
 
 <div class="main">
@@ -127,20 +127,21 @@
 
   <div class="transfer-form">
     <h3>Initiate a Transfer</h3>
-    <form>
+    <form id="transferForm">
       <label for="fromAccount">From Account</label>
       <select id="fromAccount">
         <option>Checking - 5027457508</option>
       </select>
 
       <label for="toAccount">To Account</label>
-      <input type="text" id="toAccount" placeholder="Enter recipient account number">
+      <input type="text" id="toAccount" placeholder="Enter recipient account number" required>
 
       <label for="amount">Amount</label>
-      <input type="number" id="amount" placeholder="Enter amount">
+      <input type="number" id="amount" placeholder="Enter amount" required>
 
       <label for="type">Transfer Type</label>
-      <select id="type">
+      <select id="type" required>
+        <option value="">Select type</option>
         <option>Domestic</option>
         <option>Wire</option>
       </select>
@@ -170,6 +171,55 @@
     </table>
   </div>
 </div>
+
+<script>
+document.getElementById('transferForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const payload = {
+    fromAccount: document.getElementById('fromAccount').value,
+    toAccount: document.getElementById('toAccount').value.trim(),
+    amount: document.getElementById('amount').value,
+    type: document.getElementById('type').value,
+    notes: document.getElementById('notes').value.trim()
+  };
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert('Transfer submitted successfully!');
+      location.reload();
+    } else {
+      alert(data.message || 'Failed to submit transfer');
+    }
+  } catch (err) {
+    console.error('Transfer submission error:', err);
+    alert('Error connecting to server');
+  }
+});
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+</script>
 
 </body>
 </html>

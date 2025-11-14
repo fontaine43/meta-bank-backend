@@ -223,6 +223,10 @@
 <script>
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
+
+  const formElement = document.getElementById('loginForm');
+  const submitButton = formElement.querySelector('button[type="submit"]');
+
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
 
@@ -230,6 +234,16 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     alert('Please enter both username and password');
     return;
   }
+
+  // Create spinner
+  let spinner = document.createElement('div');
+  spinner.innerText = 'Authenticating...';
+  spinner.style.cssText = 'text-align:center; color:#006644; font-weight:bold; margin-top:15px;';
+  formElement.appendChild(spinner);
+
+  // Disable button
+  submitButton.disabled = true;
+  submitButton.style.opacity = '0.6';
 
   try {
     const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/login', {
@@ -246,17 +260,22 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       throw new Error('Invalid JSON response from server');
     }
 
+    spinner.remove();
+    submitButton.disabled = false;
+    submitButton.style.opacity = '1';
+
     if (!res.ok) {
       throw new Error(data.message || 'Login failed');
     }
 
-    // Optional: store token for dashboard use
     localStorage.setItem('metaBankToken', data.token);
     localStorage.setItem('metaBankUser', JSON.stringify(data.user));
 
-    alert('Login successful!');
     window.location.href = 'dashboard.html';
   } catch (err) {
+    spinner.remove();
+    submitButton.disabled = false;
+    submitButton.style.opacity = '1';
     console.error('Login error:', err);
     alert(err.message.includes('Failed to fetch') ? 'Cannot reach server. Check backend URL or CORS.' : err.message);
   }

@@ -128,15 +128,15 @@
 
 <div class="sidebar">
   <h2>Meta Bank</h2>
-  <a href="#">Overview</a>
-  <a href="#">Verification</a>
-  <a href="#">Profile</a>
-  <a href="#">Loans</a>
-  <a href="#">Investments</a>
-  <a href="#">Transfer</a>
-  <a href="#">External Accounts</a>
-  <a href="#">Statements</a>
-  <a href="#">Sign Out</a>
+  <a href="overview.html">Overview</a>
+  <a href="verification.html">Verification</a>
+  <a href="profile.html">Profile</a>
+  <a href="loans.html">Loans</a>
+  <a href="investments.html">Investments</a>
+  <a href="transfer.html">Transfer</a>
+  <a href="external-accounts.html">External Accounts</a>
+  <a href="statements.html">Statements</a>
+  <a href="#" onclick="logout()">Sign Out</a>
 </div>
 
 <div class="main">
@@ -240,62 +240,68 @@
   });
 
   async function loadDashboard() {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
-  }
-
-  try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      document.querySelector('.greeting').textContent = `Good Afternoon, ${data.username || 'Micheal'}!`;
-
-      const row = `
-        <tr>
-          <td>${data.accountType || 'Checking'}</td>
-          <td>${data.bankName || 'Meta Bank'}</td>
-          <td>${data.accountNumber || '**** 9281'}</td>
-          <td>${data.routingNumber || '1100001'}</td>
-          <td>$${(data.balance || 1250000).toLocaleString()} 🔒</td>
-          <td>$${(data.availableBalance || 1248500).toLocaleString()} 🔒</td>
-        </tr>
-      `;
-
-      const table = document.getElementById('accountTable');
-      table.innerHTML = `
-        <tr>
-          <th>Account Type</th>
-          <th>Bank</th>
-          <th>Account Number</th>
-          <th>Routing Number</th>
-          <th>Balance</th>
-          <th>Available Balance</th>
-        </tr>
-        ${row}
-      `;
-
-      const note = document.createElement('div');
-      note.className = 'restriction-note';
-      note.textContent = '🔒 Available Balance is restricted due to pending verification or transfer limits.';
-      table.parentElement.appendChild(note);
-    } else {
-      alert(data.message || 'Failed to load dashboard');
+    const token = localStorage.getItem('metaBankToken');
+    if (!token) {
+      alert('Session expired. Please log in again.');
+      window.location.href = 'login.html';
+      return;
     }
-  } catch (err) {
-    alert('Error connecting to server');
+
+    try {
+      const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+                document.querySelector('.greeting').textContent = `Good Afternoon, ${data.username || 'Micheal'}!`;
+
+        const row = `
+          <tr>
+            <td>${data.accountType || 'Checking'}</td>
+            <td>${data.bankName || 'Meta Bank'}</td>
+            <td>${data.accountNumber || '**** 9281'}</td>
+            <td>${data.routingNumber || '1100001'}</td>
+            <td>$${(data.balance || 1250000).toLocaleString()} 🔒</td>
+            <td>$${(data.availableBalance || 1248500).toLocaleString()} 🔒</td>
+          </tr>
+        `;
+
+        const table = document.getElementById('accountTable');
+        table.innerHTML = `
+          <tr>
+            <th>Account Type</th>
+            <th>Bank</th>
+            <th>Account Number</th>
+            <th>Routing Number</th>
+            <th>Balance</th>
+            <th>Available Balance</th>
+          </tr>
+          ${row}
+        `;
+
+        const note = document.createElement('div');
+        note.className = 'restriction-note';
+        note.textContent = '🔒 Available Balance is restricted due to pending verification or transfer limits.';
+        table.parentElement.appendChild(note);
+      } else {
+        alert(data.message || 'Failed to load dashboard');
+      }
+    } catch (err) {
+      console.error('Dashboard fetch error:', err);
+      alert('Error connecting to server');
+    }
   }
-}
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = 'login.html';
+  }
 
   window.addEventListener('DOMContentLoaded', loadDashboard);
 </script>
