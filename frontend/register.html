@@ -184,7 +184,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
   form.append('idBack', document.getElementById('idBack').files[0]);
 
   try {
-    const res = await fetch('https://metabank-api.onrender.com/api/auth/register', {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/register', {
       method: 'POST',
       body: form
     });
