@@ -238,20 +238,22 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       body: JSON.stringify({ username, password })
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch (jsonErr) {
+      throw new Error('Invalid JSON response from server');
+    }
 
     if (!res.ok) {
       throw new Error(data.message || 'Login failed');
     }
 
-    // Optional: store token for dashboard use
-    // localStorage.setItem('token', data.token);
-
     alert('Login successful!');
     window.location.href = 'dashboard.html';
   } catch (err) {
     console.error('Login error:', err);
-    alert(err.message === 'Failed to fetch' ? 'Cannot reach server. Check backend URL or CORS.' : err.message);
+    alert(err.message.includes('Failed to fetch') ? 'Cannot reach server. Check backend URL or CORS.' : err.message);
   }
 });
 </script>
