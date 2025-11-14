@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 // Load environment variables
 dotenv.config();
@@ -17,6 +18,12 @@ const kycRoutes = require('./routes/kycRoutes');
 
 const app = express();
 
+// Ensure uploads folder exists
+const uploadsPath = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath);
+}
+
 // CORS — allow only your frontend domain
 app.use(cors({
   origin: 'https://meta-bank-frontend.onrender.com',
@@ -25,7 +32,7 @@ app.use(cors({
 
 // Middleware
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsPath));
 
 // Routes
 app.use('/api/auth', authRoutes);
