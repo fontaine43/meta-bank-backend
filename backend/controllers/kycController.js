@@ -1,3 +1,5 @@
+console.log('✅ kycController.js loaded'); // Diagnostic log
+
 const User = require('../models/User');
 
 // ✅ Upload KYC documents
@@ -41,7 +43,11 @@ const getPendingKYC = async (req, res) => {
 // ✅ Approve KYC
 const approveKYC = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, { kycStatus: 'approved' }, { new: true });
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { kycStatus: 'approved' },
+      { new: true }
+    );
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -55,7 +61,11 @@ const approveKYC = async (req, res) => {
 // ✅ Reject KYC
 const rejectKYC = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, { kycStatus: 'rejected' }, { new: true });
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { kycStatus: 'rejected' },
+      { new: true }
+    );
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

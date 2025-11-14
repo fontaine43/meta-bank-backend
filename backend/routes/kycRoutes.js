@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const {
-  uploadKYC,
-  getPendingKYC,
-  approveKYC,
-  rejectKYC
-} = require('../controllers/kycController');
+const kycController = require('../controllers/kycController');
 const { verifyToken } = require('../middleware/authMiddleware');
+
+// ✅ Log to confirm controller is loaded
+console.log('✅ kycController loaded:', Object.keys(kycController));
 
 // ✅ Multer setup
 const storage = multer.diskStorage({
@@ -21,7 +19,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) {
       return cb(new Error('Only image files are allowed'), false);
@@ -38,16 +36,16 @@ router.post(
     { name: 'idFront', maxCount: 1 },
     { name: 'idBack', maxCount: 1 }
   ]),
-  uploadKYC
+  kycController.uploadKYC
 );
 
 // ✅ Get all users with pending KYC
-router.get('/pending', verifyToken, getPendingKYC);
+router.get('/pending', verifyToken, kycController.getPendingKYC);
 
 // ✅ Approve KYC for a user
-router.post('/approve/:id', verifyToken, approveKYC);
+router.post('/approve/:id', verifyToken, kycController.approveKYC);
 
 // ✅ Reject KYC for a user
-router.post('/reject/:id', verifyToken, rejectKYC);
+router.post('/reject/:id', verifyToken, kycController.rejectKYC);
 
 module.exports = router;
