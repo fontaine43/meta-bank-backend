@@ -4,6 +4,9 @@ const multer = require('multer');
 const kycController = require('../controllers/kycController');
 const { verifyToken } = require('../middleware/authMiddleware');
 
+// ✅ Confirm multer is loaded
+console.log('✅ multer loaded:', typeof multer); // should log 'function'
+
 // ✅ Multer setup — must come BEFORE any route uses `upload`
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
