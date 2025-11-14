@@ -1,9 +1,31 @@
 const express = require('express');
 const router = express.Router();
 const verifyToken = require('../middleware/authMiddleware');
-const { getUserProfile } = require('../controllers/userController');
+const {
+  getProfile,
+  getUserDashboard,
+  applyLoan,
+  makeTransfer,
+  getLoans,
+  getTransfers
+} = require('../controllers/userController');
 
-// ✅ GET /api/user/profile — Secure profile fetch
-router.get('/profile', verifyToken, getUserProfile);
+// ✅ Basic profile info
+router.get('/profile', verifyToken, getProfile);
+
+// ✅ Dashboard-style detailed profile
+router.get('/account', verifyToken, getUserDashboard);
+
+// ✅ Loan application
+router.post('/loan', verifyToken, applyLoan);
+
+// ✅ Transfer initiation
+router.post('/transfer', verifyToken, makeTransfer);
+
+// ✅ Loan history
+router.get('/loans', verifyToken, getLoans);
+
+// ✅ Transfer history
+router.get('/transfers', verifyToken, getTransfers);
 
 module.exports = router;
