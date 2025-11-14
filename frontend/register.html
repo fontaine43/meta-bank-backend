@@ -180,16 +180,22 @@ document.getElementById('registerForm').addEventListener('submit', async functio
   form.append('dob', document.getElementById('dob').value);
   form.append('ssn', document.getElementById('ssn').value.trim());
   form.append('bankName', document.getElementById('bankName').value.trim());
-  form.append('idFront', document.getElementById('idFront').files[0]);
-  form.append('idBack', document.getElementById('idBack').files[0]);
+
+  const idFront = document.getElementById('idFront').files[0];
+  const idBack = document.getElementById('idBack').files[0];
+
+  if (idFront) form.append('idFront', idFront);
+  if (idBack) form.append('idBack', idBack);
 
   try {
     const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/register', {
       method: 'POST',
-      body: form
+      body: form,
+      credentials: 'include'
     });
 
-    const data = await res.json();
+    const contentType = res.headers.get('content-type');
+    const data = contentType && contentType.includes('application/json') ? await res.json() : {};
 
     if (res.ok) {
       alert('Registration successful!');
@@ -198,6 +204,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
       alert(data.message || 'Registration failed');
     }
   } catch (err) {
+    console.error('Registration error:', err);
     alert('Error connecting to server');
   }
 });
