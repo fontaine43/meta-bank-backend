@@ -4,12 +4,11 @@ const multer = require('multer');
 const kycController = require('../controllers/kycController');
 const { verifyToken } = require('../middleware/authMiddleware');
 
-// ✅ Confirm multer is loaded
+// ✅ Confirm middleware and controller functions are loaded
 console.log('✅ multer loaded:', typeof multer); // should log 'function'
-
-// ✅ Confirm controller functions are loaded
+console.log('✅ typeof verifyToken:', typeof verifyToken); // should log 'function'
 console.log('✅ kycController keys:', Object.keys(kycController));
-console.log('✅ typeof uploadKYC:', typeof kycController.uploadKYC); // should be 'function'
+console.log('✅ typeof uploadKYC:', typeof kycController.uploadKYC);
 
 // ✅ Multer setup
 const storage = multer.diskStorage({
@@ -32,7 +31,7 @@ const upload = multer({
   }
 });
 
-// ✅ Upload KYC documents — using inline middleware to avoid undefined
+// ✅ Upload KYC documents
 const uploadMiddleware = upload.fields([
   { name: 'idFront', maxCount: 1 },
   { name: 'idBack', maxCount: 1 }
