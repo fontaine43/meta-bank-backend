@@ -4,99 +4,22 @@
   <meta charset="UTF-8">
   <title>Meta Bank IRA Accounts</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f9;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 250px;
-      background-color: #006644;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .sidebar h2 {
-      margin-top: 0;
-      font-size: 1.5em;
-      margin-bottom: 30px;
-    }
-
-    .sidebar a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      margin-bottom: 15px;
-      font-weight: 500;
-    }
-
-    .sidebar a:hover {
-      text-decoration: underline;
-    }
-
-    .main {
-      flex: 1;
-      padding: 30px;
-      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
-    }
-
-    .greeting {
-      font-size: 1.4em;
-      margin-bottom: 20px;
-      color: #006644;
-    }
-
-    .ira-info, .ira-apply {
-      background-color: white;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-      max-width: 700px;
-    }
-
-    .ira-info h3, .ira-apply h3 {
-      margin-top: 0;
-      color: #006644;
-    }
-
-    .ira-info p {
-      font-size: 1em;
-      margin: 10px 0;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 1em;
-    }
-
-    button {
-      margin-top: 20px;
-      background-color: #006644;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+    body { margin:0; font-family:'Segoe UI',sans-serif; background-color:#f4f6f9; display:flex; }
+    .sidebar { width:250px; background-color:#006644; color:white; height:100vh; padding:20px; box-sizing:border-box; }
+    .sidebar h2 { margin-top:0; font-size:1.5em; margin-bottom:30px; }
+    .sidebar a { display:block; color:white; text-decoration:none; margin-bottom:15px; font-weight:500; }
+    .sidebar a:hover { text-decoration:underline; }
+    .main { flex:1; padding:30px; background:linear-gradient(to bottom right,#ffffff,#e0f7e9); }
+    .greeting { font-size:1.4em; margin-bottom:20px; color:#006644; }
+    .ira-info,.ira-apply { background-color:white; padding:25px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.05); margin-bottom:30px; max-width:700px; }
+    .ira-info h3,.ira-apply h3 { margin-top:0; color:#006644; }
+    .ira-info p { font-size:1em; margin:10px 0; }
+    label { display:block; margin-top:15px; font-weight:bold; }
+    input,select { width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:4px; font-size:1em; }
+    button { margin-top:20px; background-color:#006644; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; }
   </style>
 </head>
 <body>
-
 <div class="sidebar">
   <h2>Meta Bank</h2>
   <a href="dashboard.html">Dashboard</a>
@@ -113,111 +36,53 @@
 </div>
 
 <div class="main">
-  <!-- ✅ Placeholder greeting -->
   <div class="greeting">Loading IRA Center...</div>
-
   <div class="ira-info">
     <h3>IRA Account Overview</h3>
     <p><strong>Traditional IRA:</strong> Tax-deferred growth with pre-tax contributions.</p>
     <p><strong>Roth IRA:</strong> Tax-free growth with after-tax contributions.</p>
     <p><strong>Contribution Limit:</strong> $6,500/year (under 50), $7,500/year (50+)</p>
     <p><strong>Withdrawals:</strong> Penalty-free after age 59½ or for qualified exceptions.</p>
-    <!-- ✅ Placeholder for live IRA balance -->
     <p><strong>Your IRA Balance:</strong> <span id="iraBalance">Loading...</span></p>
   </div>
-
   <div class="ira-apply">
     <h3>Open an IRA Account</h3>
     <form id="iraForm">
       <label for="iraType">IRA Type</label>
-      <select id="iraType" required>
-        <option value="">Select type</option>
-        <option>Traditional IRA</option>
-        <option>Roth IRA</option>
-      </select>
-
+      <select id="iraType" required><option value="">Select type</option><option>Traditional IRA</option><option>Roth IRA</option></select>
       <label for="initialAmount">Initial Contribution</label>
       <input type="number" id="initialAmount" placeholder="Enter amount" required>
-
       <button type="submit">Submit Application</button>
     </form>
   </div>
 </div>
 
 <script>
-async function loadIRAInfo() {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
-  }
-
+window.API=(function(){ const BASE='https://meta-bank-backend.onrender.com'; function getToken(){ const t=localStorage.getItem('metaBankToken'); if(!t){ alert('Session expired. Please log in again.'); window.location.href='login.html'; throw new Error('No token'); } return t; }
+async function request(path,opts={}){ const token=getToken(); const headers=opts.headers||{}; headers['Authorization']='Bearer '+token; if(opts.json) headers['Content-Type']='application/json';
+  const res=await fetch(`${BASE}${path}`,{method:opts.method||'GET',headers,body:opts.body||null});
+  const ct=res.headers.get('content-type')||''; const data=ct.includes('application/json')?await res.json():{};
+  if(!res.ok) throw new Error(data.message||`Request failed (${res.status})`); return data; }
+return { request };})();
+async function loadIRAInfo(){
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/ira', {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await res.json();
-
-    if (res.ok) {
-      document.querySelector('.greeting').textContent = `IRA Center – ${data.fullName || data.username}`;
-      document.getElementById('iraBalance').textContent = `$${Number(data.balance || 0).toLocaleString()}`;
-    } else {
-      document.querySelector('.greeting').textContent = 'Failed to load IRA info';
-    }
-  } catch (err) {
-    console.error('Error fetching IRA info:', err);
-    document.querySelector('.greeting').textContent = 'Error connecting to server';
-  }
+    const v = await API.request('/api/user/profile');
+    document.querySelector('.greeting').textContent = `IRA Center – ${v.fullName || v.username || ''}`;
+    const data = await API.request('/api/user/ira');
+    document.getElementById('iraBalance').textContent = `$${Number(data.balance||0).toLocaleString()}`;
+  } catch(err){ console.error(err); alert(err.message || 'Failed to load IRA info'); }
 }
-
-document.getElementById('iraForm').addEventListener('submit', async function(e) {
+document.getElementById('iraForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
-  }
-
-  const payload = {
-    iraType: document.getElementById('iraType').value,
-    initialAmount: document.getElementById('initialAmount').value
-  };
-
-  try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/ira', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      alert('IRA application submitted successfully!');
-      loadIRAInfo(); // ✅ Refresh IRA info live
-    } else {
-      alert(data.message || 'Failed to submit IRA application');
-    }
-  } catch (err) {
-    console.error('IRA submission error:', err);
-    alert('Error connecting to server');
-  }
+  const payload = { iraType: document.getElementById('iraType').value, initialAmount: document.getElementById('initialAmount').value };
+  try { 
+    await API.request('/api/user/ira', { method:'POST', json:true, body: JSON.stringify(payload) });
+    alert('IRA application submitted successfully!');
+    loadIRAInfo();
+  } catch(err){ console.error(err); alert(err.message || 'Failed to submit IRA application'); }
 });
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
-}
-
+function logout(){ localStorage.clear(); window.location.href='login.html'; }
 window.addEventListener('DOMContentLoaded', loadIRAInfo);
 </script>
-
 </body>
 </html>

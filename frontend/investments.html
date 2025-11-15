@@ -4,94 +4,23 @@
   <meta charset="UTF-8">
   <title>Meta Bank Investments</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f9;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 250px;
-      background-color: #006644;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .sidebar h2 {
-      margin-top: 0;
-      font-size: 1.5em;
-      margin-bottom: 30px;
-    }
-
-    .sidebar a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      margin-bottom: 15px;
-      font-weight: 500;
-    }
-
-    .sidebar a:hover {
-      text-decoration: underline;
-    }
-
-    .main {
-      flex: 1;
-      padding: 30px;
-      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
-    }
-
-    .greeting {
-      font-size: 1.4em;
-      margin-bottom: 20px;
-      color: #006644;
-    }
-
-    .portfolio, .activity {
-      background-color: white;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-    }
-
-    .portfolio h3, .activity h3 {
-      margin-top: 0;
-      color: #006644;
-    }
-
-    .portfolio p {
-      margin: 10px 0;
-      font-size: 1em;
-    }
-
-    .portfolio strong {
-      color: #003322;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-    }
-
-    th {
-      background-color: #e0f7e9;
-      color: #006644;
-    }
+    body { margin:0; font-family:'Segoe UI',sans-serif; background-color:#f4f6f9; display:flex; }
+    .sidebar { width:250px; background-color:#006644; color:white; height:100vh; padding:20px; box-sizing:border-box; }
+    .sidebar h2 { margin-top:0; font-size:1.5em; margin-bottom:30px; }
+    .sidebar a { display:block; color:white; text-decoration:none; margin-bottom:15px; font-weight:500; }
+    .sidebar a:hover { text-decoration:underline; }
+    .main { flex:1; padding:30px; background:linear-gradient(to bottom right,#ffffff,#e0f7e9); }
+    .greeting { font-size:1.4em; margin-bottom:20px; color:#006644; }
+    .portfolio,.activity { background-color:white; padding:25px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.05); margin-bottom:30px; }
+    .portfolio h3,.activity h3 { margin-top:0; color:#006644; }
+    .portfolio p { margin:10px 0; font-size:1em; }
+    .portfolio strong { color:#003322; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td { padding:10px; border-bottom:1px solid #ddd; text-align:left; }
+    th { background-color:#e0f7e9; color:#006644; }
   </style>
 </head>
 <body>
-
 <div class="sidebar">
   <h2>Meta Bank</h2>
   <a href="dashboard.html">Dashboard</a>
@@ -108,110 +37,52 @@
 </div>
 
 <div class="main">
-  <!-- ✅ Placeholder greeting -->
   <div class="greeting">Loading investment portfolio...</div>
-
   <div class="portfolio">
     <h3>Portfolio Summary</h3>
-    <!-- ✅ Placeholder summary -->
     <p><strong>Total Investment Value:</strong> <span id="totalValue">Loading...</span></p>
     <p><strong>Crypto Assets:</strong> <span id="cryptoValue">Loading...</span></p>
     <p><strong>Stocks:</strong> <span id="stocksValue">Loading...</span></p>
     <p><strong>Bonds:</strong> <span id="bondsValue">Loading...</span></p>
     <p><strong>Real Estate:</strong> <span id="realEstateValue">Loading...</span></p>
   </div>
-
   <div class="activity">
     <h3>Recent Investment Activity</h3>
     <table id="activityTable">
-      <tr>
-        <th>Date</th>
-        <th>Asset</th>
-        <th>Type</th>
-        <th>Amount</th>
-        <th>Status</th>
-      </tr>
+      <tr><th>Date</th><th>Asset</th><th>Type</th><th>Amount</th><th>Status</th></tr>
       <tr><td colspan="5">Loading activity...</td></tr>
     </table>
   </div>
 </div>
 
 <script>
-async function loadInvestments() {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
-  }
-
+window.API=(function(){ const BASE='https://meta-bank-backend.onrender.com'; function getToken(){ const t=localStorage.getItem('metaBankToken'); if(!t){ alert('Session expired. Please log in again.'); window.location.href='login.html'; throw new Error('No token'); } return t; }
+async function request(path,opts={}){ const token=getToken(); const headers=opts.headers||{}; headers['Authorization']='Bearer '+token; const res=await fetch(`${BASE}${path}`,{method:opts.method||'GET',headers}); const ct=res.headers.get('content-type')||''; const data=ct.includes('application/json')?await res.json():{}; if(!res.ok) throw new Error(data.message||`Request failed (${res.status})`); return data; }
+return { request };})();
+async function loadInvestments(){
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/investments', {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await res.json();
+    const data = await API.request('/api/user/investments');
+    document.querySelector('.greeting').textContent = `Investment Portfolio – ${data.fullName || data.username || ''}`;
+    document.getElementById('totalValue').textContent = `$${Number(data.totalValue||0).toLocaleString()}`;
+    document.getElementById('cryptoValue').textContent = `$${Number(data.crypto||0).toLocaleString()}`;
+    document.getElementById('stocksValue').textContent = `$${Number(data.stocks||0).toLocaleString()}`;
+    document.getElementById('bondsValue').textContent = `$${Number(data.bonds||0).toLocaleString()}`;
+    document.getElementById('realEstateValue').textContent = `$${Number(data.realEstate||0).toLocaleString()}`;
 
-    if (res.ok) {
-      // Greeting with real user
-      document.querySelector('.greeting').textContent = `Investment Portfolio – ${data.fullName || data.username}`;
-
-      // Portfolio summary
-      document.getElementById('totalValue').textContent = `$${Number(data.totalValue || 0).toLocaleString()}`;
-      document.getElementById('cryptoValue').textContent = `$${Number(data.crypto || 0).toLocaleString()}`;
-      document.getElementById('stocksValue').textContent = `$${Number(data.stocks || 0).toLocaleString()}`;
-      document.getElementById('bondsValue').textContent = `$${Number(data.bonds || 0).toLocaleString()}`;
-      document.getElementById('realEstateValue').textContent = `$${Number(data.realEstate || 0).toLocaleString()}`;
-
-      // Activity table
-      const table = document.getElementById('activityTable');
-      if (data.activity && data.activity.length > 0) {
-        table.innerHTML = `
-          <tr>
-            <th>Date</th>
-            <th>Asset</th>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Status</th>
-          </tr>
-          ${data.activity.map(act => `
-            <tr>
-              <td>${act.date}</td>
-              <td>${act.asset}</td>
-              <td>${act.type}</td>
-              <td>$${Number(act.amount).toLocaleString()}</td>
-              <td>${act.status}</td>
-            </tr>
-          `).join('')}
-        `;
-      } else {
-        table.innerHTML = `
-          <tr>
-            <th>Date</th>
-            <th>Asset</th>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Status</th>
-          </tr>
-          <tr><td colspan="5">No recent activity</td></tr>
-        `;
-      }
-    } else {
-      document.querySelector('.greeting').textContent = 'Failed to load investments';
-    }
-  } catch (err) {
-    console.error('Error fetching investments:', err);
-    document.querySelector('.greeting').textContent = 'Error connecting to server';
-  }
+    const table = document.getElementById('activityTable');
+    const rows = (data.activity || []).map(act => `
+      <tr>
+        <td>${act.date}</td><td>${act.asset}</td><td>${act.type}</td><td>$${Number(act.amount||0).toLocaleString()}</td><td>${act.status}</td>
+      </tr>
+    `).join('');
+    table.innerHTML = `
+      <tr><th>Date</th><th>Asset</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+      ${rows || '<tr><td colspan="5">No recent activity</td></tr>'}
+    `;
+  } catch(err) { console.error(err); alert(err.message || 'Failed to load investments'); }
 }
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
-}
-
+function logout(){ localStorage.clear(); window.location.href='login.html'; }
 window.addEventListener('DOMContentLoaded', loadInvestments);
 </script>
-
 </body>
 </html>

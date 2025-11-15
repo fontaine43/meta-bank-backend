@@ -4,111 +4,24 @@
   <meta charset="UTF-8">
   <title>Meta Bank External Accounts</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f9;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 250px;
-      background-color: #006644;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .sidebar h2 {
-      margin-top: 0;
-      font-size: 1.5em;
-      margin-bottom: 30px;
-    }
-
-    .sidebar a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      margin-bottom: 15px;
-      font-weight: 500;
-    }
-
-    .sidebar a:hover {
-      text-decoration: underline;
-    }
-
-    .main {
-      flex: 1;
-      padding: 30px;
-      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
-    }
-
-    .greeting {
-      font-size: 1.4em;
-      margin-bottom: 20px;
-      color: #006644;
-    }
-
-    .linked-accounts, .add-account {
-      background-color: white;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-      max-width: 700px;
-    }
-
-    .linked-accounts h3, .add-account h3 {
-      margin-top: 0;
-      color: #006644;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-    }
-
-    th {
-      background-color: #e0f7e9;
-      color: #006644;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 1em;
-    }
-
-    button {
-      margin-top: 20px;
-      background-color: #006644;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+    body { margin:0; font-family:'Segoe UI',sans-serif; background-color:#f4f6f9; display:flex; }
+    .sidebar { width:250px; background-color:#006644; color:white; height:100vh; padding:20px; box-sizing:border-box; }
+    .sidebar h2 { margin-top:0; font-size:1.5em; margin-bottom:30px; }
+    .sidebar a { display:block; color:white; text-decoration:none; margin-bottom:15px; font-weight:500; }
+    .sidebar a:hover { text-decoration:underline; }
+    .main { flex:1; padding:30px; background:linear-gradient(to bottom right,#ffffff,#e0f7e9); }
+    .greeting { font-size:1.4em; margin-bottom:20px; color:#006644; }
+    .linked-accounts,.add-account { background-color:white; padding:25px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.05); margin-bottom:30px; max-width:700px; }
+    .linked-accounts h3,.add-account h3 { margin-top:0; color:#006644; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td { padding:10px; border-bottom:1px solid #ddd; text-align:left; }
+    th { background-color:#e0f7e9; color:#006644; }
+    label { display:block; margin-top:15px; font-weight:bold; }
+    input,select { width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:4px; font-size:1em; }
+    button { margin-top:20px; background-color:#006644; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; }
   </style>
 </head>
 <body>
-
 <div class="sidebar">
   <h2>Meta Bank</h2>
   <a href="dashboard.html">Dashboard</a>
@@ -125,155 +38,74 @@
 </div>
 
 <div class="main">
-  <!-- ✅ Placeholder greeting -->
   <div class="greeting">Loading user info...</div>
-
   <div class="linked-accounts">
     <h3>Linked Accounts</h3>
-    <!-- ✅ Placeholder table -->
     <table id="linkedAccountsTable">
-      <tr>
-        <th>Bank Name</th>
-        <th>Account Type</th>
-        <th>Account Number</th>
-        <th>Status</th>
-      </tr>
+      <tr><th>Bank Name</th><th>Account Type</th><th>Account Number</th><th>Status</th></tr>
       <tr><td colspan="4">Loading linked accounts...</td></tr>
     </table>
   </div>
-
   <div class="add-account">
     <h3>Add External Account</h3>
     <form id="externalAccountForm">
       <label for="bankName">Bank Name</label>
       <input type="text" id="bankName" placeholder="e.g. Chase Bank" required>
-
       <label for="accountNumber">Account Number</label>
       <input type="text" id="accountNumber" placeholder="Enter account number" required>
-
       <label for="routingNumber">Routing Number</label>
       <input type="text" id="routingNumber" placeholder="Enter routing number" required>
-
       <label for="accountType">Account Type</label>
       <select id="accountType" required>
-        <option value="">Select type</option>
-        <option>Checking</option>
-        <option>Savings</option>
-        <option>Business</option>
+        <option value="">Select type</option><option>Checking</option><option>Savings</option><option>Business</option>
       </select>
-
       <button type="submit">Link Account</button>
     </form>
   </div>
 </div>
 
 <script>
-// ✅ Load user info and linked accounts
-async function loadUserInfo() {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
-  }
-
-  try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await res.json();
-
-    if (res.ok) {
-      document.querySelector('.greeting').textContent = `External Accounts – ${data.fullName || data.username}`;
-
-      // Replace linked accounts table with live data if available
-      const table = document.getElementById('linkedAccountsTable');
-      if (data.externalAccounts && data.externalAccounts.length > 0) {
-        table.innerHTML = `
-          <tr>
-            <th>Bank Name</th>
-            <th>Account Type</th>
-            <th>Account Number</th>
-            <th>Status</th>
-          </tr>
-          ${data.externalAccounts.map(acc => `
-            <tr>
-              <td>${acc.bankName}</td>
-              <td>${acc.accountType}</td>
-              <td>****${acc.accountNumber.slice(-4)}</td>
-              <td>${acc.status}</td>
-            </tr>
-          `).join('')}
-        `;
-      } else {
-        table.innerHTML = `
-          <tr>
-            <th>Bank Name</th>
-            <th>Account Type</th>
-            <th>Account Number</th>
-            <th>Status</th>
-          </tr>
-          <tr><td colspan="4">No linked accounts yet</td></tr>
-        `;
-      }
-    } else {
-      document.querySelector('.greeting').textContent = 'Failed to load user info';
-    }
-  } catch (err) {
-    console.error('Error fetching user info:', err);
-    document.querySelector('.greeting').textContent = 'Error connecting to server';
-  }
+window.API=(function(){ const BASE='https://meta-bank-backend.onrender.com'; function getToken(){ const t=localStorage.getItem('metaBankToken'); if(!t){ alert('Session expired. Please log in again.'); window.location.href='login.html'; throw new Error('No token'); } return t; }
+async function request(path,opts={}){ const token=getToken(); const headers=opts.headers||{}; headers['Authorization']='Bearer '+token; if(opts.json) headers['Content-Type']='application/json';
+  const res=await fetch(`${BASE}${path}`,{method:opts.method||'GET',headers,body:opts.body||null});
+  const ct=res.headers.get('content-type')||''; const data=ct.includes('application/json')?await res.json():{};
+  if(!res.ok) throw new Error(data.message||`Request failed (${res.status})`); return data; }
+return { request };})();
+async function loadUserInfo(){
+  try{
+    const data = await API.request('/api/user/profile');
+    document.querySelector('.greeting').textContent = `External Accounts – ${data.fullName || data.username || ''}`;
+  } catch(err){ console.error(err); alert(err.message || 'Failed to load user info'); }
 }
-
-document.getElementById('externalAccountForm').addEventListener('submit', async function(e) {
+async function loadExternalAccounts(){
+  try {
+    const data = await API.request('/api/user/external-accounts');
+    const table = document.getElementById('linkedAccountsTable');
+    const rows = (data.externalAccounts || []).map(acc => `
+      <tr><td>${acc.bankName}</td><td>${acc.accountType}</td><td>****${String(acc.accountNumber||'').slice(-4)}</td><td>${acc.status}</td></tr>
+    `).join('');
+    table.innerHTML = `
+      <tr><th>Bank Name</th><th>Account Type</th><th>Account Number</th><th>Status</th></tr>
+      ${rows || '<tr><td colspan="4">No linked accounts yet</td></tr>'}
+    `;
+  } catch(err){ console.error(err); alert(err.message || 'Failed to load external accounts'); }
+}
+document.getElementById('externalAccountForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
-  }
-
   const payload = {
     bankName: document.getElementById('bankName').value.trim(),
     accountNumber: document.getElementById('accountNumber').value.trim(),
     routingNumber: document.getElementById('routingNumber').value.trim(),
     accountType: document.getElementById('accountType').value
   };
-
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/external-accounts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      alert('Account linked successfully!');
-      loadUserInfo(); // ✅ Refresh linked accounts live
-    } else {
-      alert(data.message || 'Failed to link account');
-    }
-  } catch (err) {
-    console.error('Link account error:', err);
-    alert('Error connecting to server');
-  }
+    await API.request('/api/user/external-accounts', { method:'POST', json:true, body: JSON.stringify(payload) });
+    alert('Account linked successfully!');
+    loadExternalAccounts();
+  } catch(err){ console.error(err); alert(err.message || 'Failed to link account'); }
 });
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
-}
-
-window.addEventListener('DOMContentLoaded', loadUserInfo);
+function logout(){ localStorage.clear(); window.location.href='login.html'; }
+window.addEventListener('DOMContentLoaded', ()=>{ loadUserInfo(); loadExternalAccounts(); });
 </script>
-
 </body>
 </html>
