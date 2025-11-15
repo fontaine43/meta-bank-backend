@@ -201,9 +201,12 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 
     if (res.ok && data.success) {
       statusMessage.textContent = '✅ Account created successfully! Redirecting to login...';
-      localStorage.setItem('metaBankToken', data.token);
+      // Store token if needed for later use
+      if (data.token) {
+        localStorage.setItem('metaBankToken', data.token);
+      }
       setTimeout(() => {
-        window.location.href = 'login.html';
+        window.location.href = 'login.html'; // ✅ Redirect to login page
       }, 1500);
     } else {
       statusMessage.textContent = data.message || 'Registration failed';

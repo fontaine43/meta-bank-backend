@@ -91,7 +91,7 @@
 
 <div class="sidebar">
   <h2>Meta Bank</h2>
-  <a href="dashboard.html">Dashboard</a> <!-- ✅ Added -->
+  <a href="dashboard.html">Dashboard</a>
   <a href="overview.html">Overview</a>
   <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
@@ -105,31 +105,87 @@
 </div>
 
 <div class="main">
-  <div class="greeting">Statements – Micheal Fontaine</div>
+  <!-- ✅ Placeholder greeting -->
+  <div class="greeting">Loading statements...</div>
 
   <div class="statements">
     <h3>Monthly Statements</h3>
-    <table>
+    <table id="statementsTable">
       <tr>
         <th>Month</th>
         <th>Account</th>
         <th>Type</th>
         <th>Download</th>
       </tr>
-      <tr><td>October 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/october-2025.pdf" class="download" target="_blank">Download</a></td></tr>
-      <tr><td>September 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/september-2025.pdf" class="download" target="_blank">Download</a></td></tr>
-      <tr><td>August 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/august-2025.pdf" class="download" target="_blank">Download</a></td></tr>
-      <tr><td>July 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/july-2025.pdf" class="download" target="_blank">Download</a></td></tr>
-      <tr><td>June 2025</td><td>Checking</td><td>PDF</td><td><a href="/api/user/statements/june-2025.pdf" class="download" target="_blank">Download</a></td></tr>
+      <tr><td colspan="4">Loading statements...</td></tr>
     </table>
   </div>
 </div>
 
 <script>
+async function loadStatements() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/statements', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      document.querySelector('.greeting').textContent = `Statements – ${data.fullName || data.username}`;
+
+      const table = document.getElementById('statementsTable');
+      if (data.statements && data.statements.length > 0) {
+        table.innerHTML = `
+          <tr>
+            <th>Month</th>
+            <th>Account</th>
+            <th>Type</th>
+            <th>Download</th>
+          </tr>
+          ${data.statements.map(st => `
+            <tr>
+              <td>${st.month}</td>
+              <td>${st.account}</td>
+              <td>${st.type}</td>
+              <td><a href="${st.url}" class="download" target="_blank">Download</a></td>
+            </tr>
+          `).join('')}
+        `;
+      } else {
+        table.innerHTML = `
+          <tr>
+            <th>Month</th>
+            <th>Account</th>
+            <th>Type</th>
+            <th>Download</th>
+          </tr>
+          <tr><td colspan="4">No statements available</td></tr>
+        `;
+      }
+    } else {
+      alert(data.message || 'Failed to load statements');
+    }
+  } catch (err) {
+    console.error('Statements fetch error:', err);
+    alert('Error connecting to server');
+  }
+}
+
 function logout() {
   localStorage.clear();
   window.location.href = 'login.html';
 }
+
+window.addEventListener('DOMContentLoaded', loadStatements);
 </script>
 
 </body>

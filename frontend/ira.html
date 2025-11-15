@@ -99,7 +99,7 @@
 
 <div class="sidebar">
   <h2>Meta Bank</h2>
-  <a href="dashboard.html">Dashboard</a> <!-- ✅ Added -->
+  <a href="dashboard.html">Dashboard</a>
   <a href="overview.html">Overview</a>
   <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
@@ -113,7 +113,8 @@
 </div>
 
 <div class="main">
-  <div class="greeting">IRA Center – Micheal Fontaine</div>
+  <!-- ✅ Placeholder greeting -->
+  <div class="greeting">Loading IRA Center...</div>
 
   <div class="ira-info">
     <h3>IRA Account Overview</h3>
@@ -121,6 +122,8 @@
     <p><strong>Roth IRA:</strong> Tax-free growth with after-tax contributions.</p>
     <p><strong>Contribution Limit:</strong> $6,500/year (under 50), $7,500/year (50+)</p>
     <p><strong>Withdrawals:</strong> Penalty-free after age 59½ or for qualified exceptions.</p>
+    <!-- ✅ Placeholder for live IRA balance -->
+    <p><strong>Your IRA Balance:</strong> <span id="iraBalance">Loading...</span></p>
   </div>
 
   <div class="ira-apply">
@@ -142,6 +145,33 @@
 </div>
 
 <script>
+async function loadIRAInfo() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/ira', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      document.querySelector('.greeting').textContent = `IRA Center – ${data.fullName || data.username}`;
+      document.getElementById('iraBalance').textContent = `$${Number(data.balance || 0).toLocaleString()}`;
+    } else {
+      document.querySelector('.greeting').textContent = 'Failed to load IRA info';
+    }
+  } catch (err) {
+    console.error('Error fetching IRA info:', err);
+    document.querySelector('.greeting').textContent = 'Error connecting to server';
+  }
+}
+
 document.getElementById('iraForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -171,7 +201,7 @@ document.getElementById('iraForm').addEventListener('submit', async function(e) 
 
     if (res.ok) {
       alert('IRA application submitted successfully!');
-      location.reload();
+      loadIRAInfo(); // ✅ Refresh IRA info live
     } else {
       alert(data.message || 'Failed to submit IRA application');
     }
@@ -185,6 +215,8 @@ function logout() {
   localStorage.clear();
   window.location.href = 'login.html';
 }
+
+window.addEventListener('DOMContentLoaded', loadIRAInfo);
 </script>
 
 </body>

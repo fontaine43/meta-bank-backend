@@ -103,7 +103,7 @@
 
 <div class="sidebar">
   <h2>Meta Bank</h2>
-  <a href="dashboard.html">Dashboard</a> <!-- ✅ Added -->
+  <a href="dashboard.html">Dashboard</a>
   <a href="overview.html">Overview</a>
   <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
@@ -117,7 +117,8 @@
 </div>
 
 <div class="main">
-  <div class="greeting">Loan Center – Micheal Fontaine</div>
+  <!-- ✅ Placeholder greeting -->
+  <div class="greeting">Loading Loan Center...</div>
 
   <div class="loan-form">
     <h3>Apply for a Loan</h3>
@@ -146,15 +147,54 @@
 
   <div class="loan-summary">
     <h3>My Active Loans</h3>
-    <p><strong>Loan Type:</strong> Business Loan</p>
-    <p><strong>Amount:</strong> $200,000.00</p>
-    <p><strong>Term:</strong> 24 months</p>
-    <p><strong>Status:</strong> Approved</p>
-    <p><strong>Next Payment Due:</strong> Nov 15, 2025</p>
+    <!-- ✅ Placeholder summary -->
+    <div id="loanSummaryContent">
+      <p>Loading active loans...</p>
+    </div>
   </div>
 </div>
 
 <script>
+async function loadLoans() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      document.querySelector('.greeting').textContent = `Loan Center – ${data.fullName || data.username}`;
+
+      const summary = document.getElementById('loanSummaryContent');
+      if (data.loans && data.loans.length > 0) {
+        summary.innerHTML = data.loans.map(loan => `
+          <p><strong>Loan Type:</strong> ${loan.loanType}</p>
+          <p><strong>Amount:</strong> $${Number(loan.amount).toLocaleString()}</p>
+          <p><strong>Term:</strong> ${loan.term} months</p>
+          <p><strong>Status:</strong> ${loan.status}</p>
+          <p><strong>Next Payment Due:</strong> ${loan.nextPaymentDue || 'N/A'}</p>
+          <hr>
+        `).join('');
+      } else {
+        summary.innerHTML = '<p>No active loans</p>';
+      }
+    } else {
+      document.querySelector('.greeting').textContent = 'Failed to load loan info';
+    }
+  } catch (err) {
+    console.error('Error fetching loans:', err);
+    document.querySelector('.greeting').textContent = 'Error connecting to server';
+  }
+}
+
 document.getElementById('loanForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -186,7 +226,7 @@ document.getElementById('loanForm').addEventListener('submit', async function(e)
 
     if (res.ok) {
       alert('Loan application submitted successfully!');
-      location.reload();
+      loadLoans(); // ✅ Refresh loan info live
     } else {
       alert(data.message || 'Failed to submit loan application');
     }
@@ -200,6 +240,8 @@ function logout() {
   localStorage.clear();
   window.location.href = 'login.html';
 }
+
+window.addEventListener('DOMContentLoaded', loadLoans);
 </script>
 
 </body>

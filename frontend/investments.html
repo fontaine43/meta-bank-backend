@@ -94,7 +94,7 @@
 
 <div class="sidebar">
   <h2>Meta Bank</h2>
-  <a href="dashboard.html">Dashboard</a> <!-- ✅ Added -->
+  <a href="dashboard.html">Dashboard</a>
   <a href="overview.html">Overview</a>
   <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
@@ -108,20 +108,22 @@
 </div>
 
 <div class="main">
-  <div class="greeting">Investment Portfolio – Micheal Fontaine</div>
+  <!-- ✅ Placeholder greeting -->
+  <div class="greeting">Loading investment portfolio...</div>
 
   <div class="portfolio">
     <h3>Portfolio Summary</h3>
-    <p><strong>Total Investment Value:</strong> $1,250,000.00</p>
-    <p><strong>Crypto Assets:</strong> $450,000.00</p>
-    <p><strong>Stocks:</strong> $500,000.00</p>
-    <p><strong>Bonds:</strong> $200,000.00</p>
-    <p><strong>Real Estate:</strong> $100,000.00</p>
+    <!-- ✅ Placeholder summary -->
+    <p><strong>Total Investment Value:</strong> <span id="totalValue">Loading...</span></p>
+    <p><strong>Crypto Assets:</strong> <span id="cryptoValue">Loading...</span></p>
+    <p><strong>Stocks:</strong> <span id="stocksValue">Loading...</span></p>
+    <p><strong>Bonds:</strong> <span id="bondsValue">Loading...</span></p>
+    <p><strong>Real Estate:</strong> <span id="realEstateValue">Loading...</span></p>
   </div>
 
   <div class="activity">
     <h3>Recent Investment Activity</h3>
-    <table>
+    <table id="activityTable">
       <tr>
         <th>Date</th>
         <th>Asset</th>
@@ -129,20 +131,86 @@
         <th>Amount</th>
         <th>Status</th>
       </tr>
-      <tr><td>Nov 5, 2025</td><td>Bitcoin</td><td>Buy</td><td>$50,000.00</td><td>Completed</td></tr>
-      <tr><td>Nov 3, 2025</td><td>Apple Stock</td><td>Buy</td><td>$25,000.00</td><td>Completed</td></tr>
-      <tr><td>Nov 2, 2025</td><td>Government Bonds</td><td>Buy</td><td>$10,000.00</td><td>Completed</td></tr>
-      <tr><td>Nov 1, 2025</td><td>Ethereum</td><td>Sell</td><td>$20,000.00</td><td>Completed</td></tr>
-      <tr><td>Oct 30, 2025</td><td>Real Estate Fund</td><td>Buy</td><td>$100,000.00</td><td>Completed</td></tr>
+      <tr><td colspan="5">Loading activity...</td></tr>
     </table>
   </div>
 </div>
 
 <script>
+async function loadInvestments() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/investments', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      // Greeting with real user
+      document.querySelector('.greeting').textContent = `Investment Portfolio – ${data.fullName || data.username}`;
+
+      // Portfolio summary
+      document.getElementById('totalValue').textContent = `$${Number(data.totalValue || 0).toLocaleString()}`;
+      document.getElementById('cryptoValue').textContent = `$${Number(data.crypto || 0).toLocaleString()}`;
+      document.getElementById('stocksValue').textContent = `$${Number(data.stocks || 0).toLocaleString()}`;
+      document.getElementById('bondsValue').textContent = `$${Number(data.bonds || 0).toLocaleString()}`;
+      document.getElementById('realEstateValue').textContent = `$${Number(data.realEstate || 0).toLocaleString()}`;
+
+      // Activity table
+      const table = document.getElementById('activityTable');
+      if (data.activity && data.activity.length > 0) {
+        table.innerHTML = `
+          <tr>
+            <th>Date</th>
+            <th>Asset</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+          ${data.activity.map(act => `
+            <tr>
+              <td>${act.date}</td>
+              <td>${act.asset}</td>
+              <td>${act.type}</td>
+              <td>$${Number(act.amount).toLocaleString()}</td>
+              <td>${act.status}</td>
+            </tr>
+          `).join('')}
+        `;
+      } else {
+        table.innerHTML = `
+          <tr>
+            <th>Date</th>
+            <th>Asset</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+          <tr><td colspan="5">No recent activity</td></tr>
+        `;
+      }
+    } else {
+      document.querySelector('.greeting').textContent = 'Failed to load investments';
+    }
+  } catch (err) {
+    console.error('Error fetching investments:', err);
+    document.querySelector('.greeting').textContent = 'Error connecting to server';
+  }
+}
+
 function logout() {
   localStorage.clear();
   window.location.href = 'login.html';
 }
+
+window.addEventListener('DOMContentLoaded', loadInvestments);
 </script>
 
 </body>

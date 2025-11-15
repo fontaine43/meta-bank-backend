@@ -111,7 +111,7 @@
 
 <div class="sidebar">
   <h2>Meta Bank</h2>
-  <a href="dashboard.html">Dashboard</a> <!-- ✅ Added -->
+  <a href="dashboard.html">Dashboard</a>
   <a href="overview.html">Overview</a>
   <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
@@ -125,7 +125,8 @@
 </div>
 
 <div class="main">
-  <div class="greeting">Transfer Center – Micheal Fontaine</div>
+  <!-- ✅ Placeholder greeting -->
+  <div class="greeting">Loading Transfer Center...</div>
 
   <div class="transfer-form">
     <h3>Initiate a Transfer</h3>
@@ -157,7 +158,7 @@
 
   <div class="transfer-history">
     <h3>Recent Transfers</h3>
-    <table>
+    <table id="transferTable">
       <tr>
         <th>Date</th>
         <th>To</th>
@@ -165,16 +166,72 @@
         <th>Amount</th>
         <th>Status</th>
       </tr>
-      <tr><td>Nov 4, 2025</td><td>H</td><td>Domestic</td><td>$19,820.00</td><td>Submitted</td></tr>
-      <tr><td>Nov 4, 2025</td><td>A</td><td>Wire</td><td>$18,500.00</td><td>Submitted</td></tr>
-      <tr><td>Nov 3, 2025</td><td>Here</td><td>Domestic</td><td>$20,000.00</td><td>Processing</td></tr>
-      <tr><td>Nov 2, 2025</td><td>Medical</td><td>Domestic</td><td>$1,000.00</td><td>Submitted</td></tr>
-      <tr><td>Nov 1, 2025</td><td>Business</td><td>Wire</td><td>$50,000.00</td><td>Submitted</td></tr>
+      <tr><td colspan="5">Loading transfers...</td></tr>
     </table>
   </div>
 </div>
 
 <script>
+async function loadTransfers() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      document.querySelector('.greeting').textContent = `Transfer Center – ${data.fullName || data.username}`;
+
+      const table = document.getElementById('transferTable');
+      if (data.transfers && data.transfers.length > 0) {
+        table.innerHTML = `
+          <tr>
+            <th>Date</th>
+            <th>To</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+          ${data.transfers.map(tr => `
+            <tr>
+              <td>${tr.date}</td>
+              <td>${tr.to}</td>
+              <td>${tr.type}</td>
+              <td>$${Number(tr.amount).toLocaleString()}</td>
+              <td>${tr.status}</td>
+            </tr>
+          `).join('')}
+        `;
+      } else {
+        table.innerHTML = `
+          <tr>
+            <th>Date</th>
+            <th>To</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+          <tr><td colspan="5">No transfers found</td></tr>
+        `;
+      }
+    } else {
+      alert(data.message || 'Failed to load transfers');
+    }
+  } catch (err) {
+    console.error('Transfers fetch error:', err);
+    alert('Error connecting to server');
+  }
+}
+
 document.getElementById('transferForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -207,7 +264,7 @@ document.getElementById('transferForm').addEventListener('submit', async functio
 
     if (res.ok) {
       alert('Transfer submitted successfully!');
-      location.reload();
+      loadTransfers(); // ✅ Refresh transfers live
     } else {
       alert(data.message || 'Failed to submit transfer');
     }
@@ -221,6 +278,8 @@ function logout() {
   localStorage.clear();
   window.location.href = 'login.html';
 }
+
+window.addEventListener('DOMContentLoaded', loadTransfers);
 </script>
 
 </body>

@@ -111,7 +111,7 @@
 
 <div class="sidebar">
   <h2>Meta Bank</h2>
-  <a href="dashboard.html">Dashboard</a> <!-- ✅ Added -->
+  <a href="dashboard.html">Dashboard</a>
   <a href="overview.html">Overview</a>
   <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
@@ -125,20 +125,20 @@
 </div>
 
 <div class="main">
-  <div class="greeting">External Accounts – Micheal Fontaine</div>
+  <!-- ✅ Placeholder greeting -->
+  <div class="greeting">Loading user info...</div>
 
   <div class="linked-accounts">
     <h3>Linked Accounts</h3>
-    <table>
+    <!-- ✅ Placeholder table -->
+    <table id="linkedAccountsTable">
       <tr>
         <th>Bank Name</th>
         <th>Account Type</th>
         <th>Account Number</th>
         <th>Status</th>
       </tr>
-      <tr><td>Chase Bank</td><td>Checking</td><td>****9834</td><td>Active</td></tr>
-      <tr><td>Wells Fargo</td><td>Savings</td><td>****1120</td><td>Active</td></tr>
-      <tr><td>Bank of America</td><td>Business</td><td>****7450</td><td>Inactive</td></tr>
+      <tr><td colspan="4">Loading linked accounts...</td></tr>
     </table>
   </div>
 
@@ -168,6 +168,64 @@
 </div>
 
 <script>
+// ✅ Load user info and linked accounts
+async function loadUserInfo() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      document.querySelector('.greeting').textContent = `External Accounts – ${data.fullName || data.username}`;
+
+      // Replace linked accounts table with live data if available
+      const table = document.getElementById('linkedAccountsTable');
+      if (data.externalAccounts && data.externalAccounts.length > 0) {
+        table.innerHTML = `
+          <tr>
+            <th>Bank Name</th>
+            <th>Account Type</th>
+            <th>Account Number</th>
+            <th>Status</th>
+          </tr>
+          ${data.externalAccounts.map(acc => `
+            <tr>
+              <td>${acc.bankName}</td>
+              <td>${acc.accountType}</td>
+              <td>****${acc.accountNumber.slice(-4)}</td>
+              <td>${acc.status}</td>
+            </tr>
+          `).join('')}
+        `;
+      } else {
+        table.innerHTML = `
+          <tr>
+            <th>Bank Name</th>
+            <th>Account Type</th>
+            <th>Account Number</th>
+            <th>Status</th>
+          </tr>
+          <tr><td colspan="4">No linked accounts yet</td></tr>
+        `;
+      }
+    } else {
+      document.querySelector('.greeting').textContent = 'Failed to load user info';
+    }
+  } catch (err) {
+    console.error('Error fetching user info:', err);
+    document.querySelector('.greeting').textContent = 'Error connecting to server';
+  }
+}
+
 document.getElementById('externalAccountForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -199,7 +257,7 @@ document.getElementById('externalAccountForm').addEventListener('submit', async 
 
     if (res.ok) {
       alert('Account linked successfully!');
-      location.reload();
+      loadUserInfo(); // ✅ Refresh linked accounts live
     } else {
       alert(data.message || 'Failed to link account');
     }
@@ -213,6 +271,8 @@ function logout() {
   localStorage.clear();
   window.location.href = 'login.html';
 }
+
+window.addEventListener('DOMContentLoaded', loadUserInfo);
 </script>
 
 </body>

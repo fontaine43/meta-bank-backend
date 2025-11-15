@@ -87,7 +87,7 @@
 
 <div class="sidebar">
   <h2>Meta Bank</h2>
-  <a href="dashboard.html">Dashboard</a> <!-- ✅ Added -->
+  <a href="dashboard.html">Dashboard</a>
   <a href="overview.html">Overview</a>
   <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
@@ -101,7 +101,8 @@
 </div>
 
 <div class="main">
-  <div class="greeting" id="greeting">Hello, Micheal Fontaine</div>
+  <!-- ✅ Placeholder greeting -->
+  <div class="greeting" id="greeting">Loading profile...</div>
 
   <div class="profile-card" id="profileCard">
     <h3>My Profile</h3>
@@ -130,7 +131,6 @@ async function loadProfile() {
     const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token
       }
     });
@@ -138,7 +138,7 @@ async function loadProfile() {
     const data = await res.json();
 
     if (res.ok) {
-      document.getElementById('greeting').textContent = `Hello, ${data.fullName || 'User'}`;
+      document.getElementById('greeting').textContent = `Hello, ${data.fullName || data.username || 'User'}`;
       document.getElementById('fullName').textContent = data.fullName || 'N/A';
       document.getElementById('username').textContent = data.username || 'N/A';
       document.getElementById('email').textContent = data.email || 'N/A';
