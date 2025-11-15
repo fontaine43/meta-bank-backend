@@ -37,8 +37,15 @@
 
     h2 {
       color: #006644;
-      margin-bottom: 20px;
+      margin-bottom: 5px;
       text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 1.1em;
+      color: #333;
+      margin-bottom: 20px;
     }
 
     form {
@@ -57,7 +64,8 @@
     input[type="email"],
     input[type="password"],
     input[type="date"],
-    input[type="file"] {
+    input[type="file"],
+    select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -100,7 +108,8 @@
 
 <div class="container">
   <div class="form-box">
-    <h2>Registration Form</h2>
+    <h2>Create an Account</h2>
+    <div class="subtitle">Join Meta Bank today</div>
     <form id="registerForm">
       <div>
         <label for="fullname">Full Name</label>
@@ -152,7 +161,19 @@
         <input type="file" id="idBack" accept="image/*" required>
       </div>
 
-      <div class="full-width">
+      <div>
+        <label for="accountType">Account Type</label>
+        <select id="accountType" required>
+          <option value="">Select account type</option>
+          <option value="savings">Savings Account</option>
+          <option value="investment">Investment Account</option>
+          <option value="checking">Checking Account</option>
+          <option value="business">Business Account</option>
+          <option value="student">Student Account</option>
+        </select>
+      </div>
+
+      <div>
         <label for="bankName">Bank Name</label>
         <input type="text" id="bankName" placeholder="e.g. Meta Bank" required>
       </div>
@@ -173,13 +194,11 @@ document.getElementById('registerForm').addEventListener('submit', async functio
   const formElement = document.getElementById('registerForm');
   const submitButton = formElement.querySelector('button[type="submit"]');
 
-  // Create spinner
   let spinner = document.createElement('div');
   spinner.innerText = 'Processing registration...';
   spinner.style.cssText = 'grid-column: span 2; text-align: center; color: #006644; font-weight: bold; margin-top: 10px;';
   formElement.appendChild(spinner);
 
-  // Disable button
   submitButton.disabled = true;
   submitButton.style.opacity = '0.6';
 
@@ -192,6 +211,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
   form.append('confirmPassword', document.getElementById('confirm').value);
   form.append('dob', document.getElementById('dob').value);
   form.append('ssn', document.getElementById('ssn').value.trim());
+  form.append('accountType', document.getElementById('accountType').value);
   form.append('bankName', document.getElementById('bankName').value.trim());
 
   const idFront = document.getElementById('idFront').files[0];
