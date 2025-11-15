@@ -16,7 +16,10 @@ exports.getProfile = async (req, res) => {
     res.status(200).json(user);
   } catch (err) {
     console.error('❌ Profile fetch error:', err);
-    res.status(500).json({ message: 'Failed to fetch profile', details: err.message });
+    res.status(500).json({
+      message: 'Failed to fetch profile',
+      details: err.message
+    });
   }
 };
 
@@ -41,12 +44,15 @@ exports.getUserDashboard = async (req, res) => {
       bankName: user.bankName || 'Meta Bank',
       accountNumber: user.accountNumber || '**** 9281',
       routingNumber: user.routingNumber || '1100001',
-      balance: user.balance || 1250000,
-      availableBalance: user.availableBalance || 1248500
+      balance: user.balance ?? 1250000,
+      availableBalance: user.availableBalance ?? 1248500
     });
   } catch (err) {
     console.error('❌ Dashboard fetch error:', err);
-    res.status(500).json({ message: 'Failed to fetch dashboard', details: err.message });
+    res.status(500).json({
+      message: 'Failed to fetch dashboard',
+      details: err.message
+    });
   }
 };
 
@@ -57,7 +63,8 @@ exports.getUserDashboard = async (req, res) => {
 // POST /api/user/loan
 exports.applyLoan = async (req, res) => {
   try {
-    if (!req.body || !req.body.amount || !req.body.purpose) {
+    const { amount, purpose } = req.body;
+    if (!amount || !purpose) {
       return res.status(400).json({ message: 'Loan amount and purpose are required' });
     }
 
@@ -67,14 +74,18 @@ exports.applyLoan = async (req, res) => {
     res.status(201).json({ message: 'Loan application submitted successfully' });
   } catch (err) {
     console.error('❌ Loan application error:', err);
-    res.status(500).json({ message: 'Loan application failed', details: err.message });
+    res.status(500).json({
+      message: 'Loan application failed',
+      details: err.message
+    });
   }
 };
 
 // POST /api/user/transfer
 exports.makeTransfer = async (req, res) => {
   try {
-    if (!req.body || !req.body.amount || !req.body.recipientAccount) {
+    const { amount, recipientAccount } = req.body;
+    if (!amount || !recipientAccount) {
       return res.status(400).json({ message: 'Transfer amount and recipient account are required' });
     }
 
@@ -84,7 +95,10 @@ exports.makeTransfer = async (req, res) => {
     res.status(201).json({ message: 'Transfer initiated successfully' });
   } catch (err) {
     console.error('❌ Transfer error:', err);
-    res.status(500).json({ message: 'Transfer failed', details: err.message });
+    res.status(500).json({
+      message: 'Transfer failed',
+      details: err.message
+    });
   }
 };
 
@@ -95,7 +109,10 @@ exports.getLoans = async (req, res) => {
     res.status(200).json(loans);
   } catch (err) {
     console.error('❌ Fetch loans error:', err);
-    res.status(500).json({ message: 'Failed to fetch loans', details: err.message });
+    res.status(500).json({
+      message: 'Failed to fetch loans',
+      details: err.message
+    });
   }
 };
 
@@ -106,7 +123,10 @@ exports.getTransfers = async (req, res) => {
     res.status(200).json(transfers);
   } catch (err) {
     console.error('❌ Fetch transfers error:', err);
-    res.status(500).json({ message: 'Failed to fetch transfers', details: err.message });
+    res.status(500).json({
+      message: 'Failed to fetch transfers',
+      details: err.message
+    });
   }
 };
 
@@ -118,6 +138,9 @@ exports.getTransfers = async (req, res) => {
 exports.verifyAccount = async (req, res) => {
   try {
     const { token } = req.query;
+    if (!token) {
+      return res.status(400).json({ success: false, message: 'Verification token is required' });
+    }
 
     const user = await User.findOne({
       verificationToken: token,
@@ -136,6 +159,10 @@ exports.verifyAccount = async (req, res) => {
     res.json({ success: true, message: 'Account verified successfully!' });
   } catch (err) {
     console.error('❌ Verification error:', err);
-    res.status(500).json({ success: false, message: 'Server error verifying account', details: err.message });
+    res.status(500).json({
+      success: false,
+      message: 'Server error verifying account',
+      details: err.message
+    });
   }
 };

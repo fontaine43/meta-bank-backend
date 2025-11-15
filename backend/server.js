@@ -29,9 +29,22 @@ if (!fs.existsSync(uploadsPath)) {
 // Middleware
 // =======================
 
-// CORS — allow only your frontend domain
+// Allowed origins (production + local dev)
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'https://meta-bank-frontend.onrender.com',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'https://meta-bank-frontend.onrender.com',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`❌ Blocked by CORS: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -40,6 +53,12 @@ app.use(express.json());
 
 // Serve static uploads
 app.use('/uploads', express.static(uploadsPath));
+
+// Log every request (for debugging frontend calls)
+app.use((req, res, next) => {
+  console.log(`➡️  ${req.method} ${req.url}`);
+  next();
+});
 
 // =======================
 // Routes

@@ -1,4 +1,3 @@
-// routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../middleware/authMiddleware');
@@ -16,33 +15,33 @@ const {
 // User Profile & Dashboard
 // =======================
 
-// Basic profile info
+// GET /api/user/profile — Basic profile info
 router.get('/profile', verifyToken, getProfile);
 
-// Dashboard-style detailed profile
+// GET /api/user/account — Dashboard-style detailed profile
 router.get('/account', verifyToken, getUserDashboard);
 
 // =======================
 // Loans & Transfers
 // =======================
 
-// Loan application
+// POST /api/user/loan — Loan application
 router.post('/loan', verifyToken, applyLoan);
 
-// Transfer initiation
+// POST /api/user/transfer — Transfer initiation
 router.post('/transfer', verifyToken, makeTransfer);
 
-// Loan history
+// GET /api/user/loans — Loan history
 router.get('/loans', verifyToken, getLoans);
 
-// Transfer history
+// GET /api/user/transfers — Transfer history
 router.get('/transfers', verifyToken, getTransfers);
 
 // =======================
 // Email Verification
 // =======================
 
-// Public route (no token required) for email verification
+// GET /api/user/verify?token=XYZ — Public route (no token required)
 router.get('/verify', verifyAccount);
 
 module.exports = router;

@@ -3,7 +3,9 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { sendVerificationEmail, notifyAdminOfNewUser } = require('../utils/email');
 
-// ✅ REGISTER CONTROLLER
+// =======================
+// REGISTER CONTROLLER
+// =======================
 const register = async (req, res) => {
   try {
     const {
@@ -37,7 +39,7 @@ const register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Handle file uploads
+    // Handle file uploads (optional KYC docs)
     const idFront = req.files?.idFront?.[0]?.filename || '';
     const idBack = req.files?.idBack?.[0]?.filename || '';
 
@@ -54,7 +56,7 @@ const register = async (req, res) => {
       idFront,
       idBack,
       isVerified: false,
-      kycStatus: 'Pending'
+      kycStatus: 'pending' // ✅ fixed to lowercase to match schema enum
     });
 
     await newUser.save();
@@ -70,7 +72,7 @@ const register = async (req, res) => {
     sendVerificationEmail(newUser.email, newUser.fullName, verificationToken).catch(console.error);
     notifyAdminOfNewUser(newUser).catch(console.error);
 
-    // ✅ Final response for frontend
+    // Final response
     return res.status(201).json({
       success: true,
       message: 'Account created successfully. Verification email sent.',
@@ -86,7 +88,9 @@ const register = async (req, res) => {
   }
 };
 
-// ✅ LOGIN CONTROLLER
+// =======================
+// LOGIN CONTROLLER
+// =======================
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -115,7 +119,7 @@ const login = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    // ✅ Final response for frontend
+    // Final response
     return res.status(200).json({
       success: true,
       message: 'Login successful',
