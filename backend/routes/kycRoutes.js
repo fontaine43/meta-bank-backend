@@ -28,14 +28,11 @@ const upload = multer({
   }
 });
 
-// ✅ Upload KYC documents
+// ✅ Upload KYC documents (fallback to .any() to avoid field config crash)
 router.post(
   '/upload',
   verifyToken,
-  upload.fields([
-    { name: 'idFront', maxCount: 1 },
-    { name: 'idBack', maxCount: 1 }
-  ]),
+  upload.any(), // safer than upload.fields(...) for now
   kycController.uploadKYC
 );
 
