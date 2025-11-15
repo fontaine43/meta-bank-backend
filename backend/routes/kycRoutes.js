@@ -7,7 +7,7 @@ const { verifyToken } = require('../middleware/authMiddleware');
 // ✅ Confirm multer is loaded
 console.log('✅ multer loaded:', typeof multer); // should log 'function'
 
-// ✅ Multer setup — must come BEFORE any route uses `upload`
+// ✅ Multer setup
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
@@ -28,11 +28,11 @@ const upload = multer({
   }
 });
 
-// ✅ Upload KYC documents (fallback to .any() to avoid field config crash)
+// ✅ TEMPORARY: Use upload.single() to isolate issue
 router.post(
   '/upload',
   verifyToken,
-  upload.any(), // safer than upload.fields(...) for now
+  upload.single('idFront'), // TEMP: just one field to test multer
   kycController.uploadKYC
 );
 
