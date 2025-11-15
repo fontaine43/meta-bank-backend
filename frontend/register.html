@@ -100,6 +100,18 @@
       color: #006644;
       text-decoration: underline;
     }
+
+    .status {
+      grid-column: span 2;
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #006644;
+    }
+
+    .error {
+      color: #cc0000;
+    }
   </style>
 </head>
 <body>
@@ -111,56 +123,17 @@
     <h2>Create an Account</h2>
     <div class="subtitle">Join Meta Bank today</div>
     <form id="registerForm">
-      <div>
-        <label for="fullname">Full Name</label>
-        <input type="text" id="fullname" required>
-      </div>
-
-      <div>
-        <label for="email">Email</label>
-        <input type="email" id="email" required>
-      </div>
-
-      <div>
-        <label for="phone">Phone</label>
-        <input type="text" id="phone" required>
-      </div>
-
-      <div>
-        <label for="username">Username</label>
-        <input type="text" id="username" required>
-      </div>
-
-      <div>
-        <label for="password">Password</label>
-        <input type="password" id="password" required>
-      </div>
-
-      <div>
-        <label for="confirm">Confirm Password</label>
-        <input type="password" id="confirm" required>
-      </div>
-
-      <div>
-        <label for="dob">Date of Birth</label>
-        <input type="date" id="dob" required>
-      </div>
-
-      <div>
-        <label for="ssn">Social Security Number</label>
-        <input type="text" id="ssn" placeholder="XXX-XX-XXXX" required>
-      </div>
-
-      <div>
-        <label for="idFront">Front of ID</label>
-        <input type="file" id="idFront" accept="image/*" required>
-      </div>
-
-      <div>
-        <label for="idBack">Back of ID</label>
-        <input type="file" id="idBack" accept="image/*" required>
-      </div>
-
+      <!-- Form Fields -->
+      <div><label for="fullname">Full Name</label><input type="text" id="fullname" required></div>
+      <div><label for="email">Email</label><input type="email" id="email" required></div>
+      <div><label for="phone">Phone</label><input type="text" id="phone" required></div>
+      <div><label for="username">Username</label><input type="text" id="username" required></div>
+      <div><label for="password">Password</label><input type="password" id="password" required></div>
+      <div><label for="confirm">Confirm Password</label><input type="password" id="confirm" required></div>
+      <div><label for="dob">Date of Birth</label><input type="date" id="dob" required></div>
+      <div><label for="ssn">Social Security Number</label><input type="text" id="ssn" placeholder="XXX-XX-XXXX" required></div>
+      <div><label for="idFront">Front of ID</label><input type="file" id="idFront" accept="image/*" required></div>
+      <div><label for="idBack">Back of ID</label><input type="file" id="idBack" accept="image/*" required></div>
       <div>
         <label for="accountType">Account Type</label>
         <select id="accountType" required>
@@ -170,20 +143,14 @@
           <option value="checking">Checking Account</option>
           <option value="business">Business Account</option>
           <option value="student">Student Account</option>
-          <option value="ira">IRA Account</option> <!-- ✅ Added IRA -->
+          <option value="ira">IRA Account</option>
         </select>
       </div>
-
-      <div>
-        <label for="bankName">Bank Name</label>
-        <input type="text" id="bankName" placeholder="e.g. Meta Bank" required>
-      </div>
+      <div><label for="bankName">Bank Name</label><input type="text" id="bankName" placeholder="e.g. Meta Bank" required></div>
 
       <button type="submit">Register</button>
-
-      <div class="link">
-        <p>Already have an account? <a href="login.html">Login</a></p>
-      </div>
+      <div class="link"><p>Already have an account? <a href="login.html">Login</a></p></div>
+      <div id="statusMessage" class="status"></div>
     </form>
   </div>
 </div>
@@ -194,12 +161,10 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 
   const formElement = document.getElementById('registerForm');
   const submitButton = formElement.querySelector('button[type="submit"]');
+  const statusMessage = document.getElementById('statusMessage');
 
-  let spinner = document.createElement('div');
-  spinner.innerText = 'Processing registration...';
-  spinner.style.cssText = 'grid-column: span 2; text-align: center; color: #006644; font-weight: bold; margin-top: 10px;';
-  formElement.appendChild(spinner);
-
+  statusMessage.textContent = 'Processing registration...';
+  statusMessage.classList.remove('error');
   submitButton.disabled = true;
   submitButton.style.opacity = '0.6';
 
@@ -231,25 +196,25 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     const contentType = res.headers.get('content-type');
     const data = contentType && contentType.includes('application/json') ? await res.json() : {};
 
-    spinner.remove();
     submitButton.disabled = false;
     submitButton.style.opacity = '1';
 
-    if (res.ok) {
-      alert('Account created successfully! Please check your email for verification.');
-      if (data.token) {
-        localStorage.setItem('metaBankToken', data.token);
-      }
-      window.location.href = 'dashboard.html'; // ✅ Redirect after success
+    if (res.ok && data.success) {
+      statusMessage.textContent = '✅ Account created successfully! Redirecting to login...';
+      localStorage.setItem('metaBankToken', data.token);
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 1500);
     } else {
-      alert(data.message || 'Registration failed');
+      statusMessage.textContent = data.message || 'Registration failed';
+      statusMessage.classList.add('error');
     }
   } catch (err) {
-    spinner.remove();
+    console.error('Registration error:', err);
+    statusMessage.textContent = 'Error connecting to server';
+    statusMessage.classList.add('error');
     submitButton.disabled = false;
     submitButton.style.opacity = '1';
-    console.error('Registration error:', err);
-    alert('Error connecting to server');
   }
 });
 </script>

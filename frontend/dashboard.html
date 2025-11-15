@@ -144,7 +144,7 @@
   <a href="transfer.html">Transfer</a>
   <a href="external-accounts.html">External Accounts</a>
   <a href="statements.html">Statements</a>
-  <a href="#" onclick="logout()">Sign Out</a>
+  <a href="#" id="signOutLink">Sign Out</a>
 </div>
 
 <div class="main">
@@ -230,43 +230,59 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx =        data: [206500, 148800, 57700],
-        backgroundColor: ['#009933', '#cc0000', '#0066cc']
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        title: {
-          display: true,
-          text: 'Bank Analytics Overview'
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
+  // Immediate sign-out wiring
+  function logout() {
+    localStorage.removeItem('metaBankToken');
+    localStorage.clear();
+    window.location.href = 'login.html';
+  }
+  document.getElementById('signOutLink').addEventListener('click', function(e) {
+    e.preventDefault();
+    logout();
   });
 
-  // Function to get USA Pacific Time greeting
+  // Chart init fix
+  function initChart() {
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Deposits', 'Withdrawals', 'Net Growth'],
+        datasets: [{
+          label: 'USD',
+          data: [206500, 148800, 57700],
+          backgroundColor: ['#009933', '#cc0000', '#0066cc']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Bank Analytics Overview'
+          }
+        },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // USA Pacific Time greeting
   function getUSGreeting(name) {
     const now = new Date();
     const options = { timeZone: 'America/Los_Angeles', hour: 'numeric', hour12: false };
-    const pacificHour = new Intl.DateTimeFormat('en-US', options).format(now);
-    const hour = parseInt(pacificHour, 10);
+    const pacificHour = parseInt(new Intl.DateTimeFormat('en-US', options).format(now), 10);
 
     let greeting;
-    if (hour < 12) greeting = "Good Morning";
-    else if (hour < 18) greeting = "Good Afternoon";
-    else greeting = "Good Evening";
+    if (pacificHour < 12) greeting = 'Good Morning';
+    else if (pacificHour < 18) greeting = 'Good Afternoon';
+    else greeting = 'Good Evening';
 
     return `${greeting}, ${name}!`;
   }
 
-  // Function to update live US Pacific clock
+  // Live US Pacific clock
   function updateClock() {
     const now = new Date();
     const options = {
@@ -281,10 +297,26 @@
   }
 
   async function loadDashboard() {
+    const greetingEl = document.querySelector('.greeting');
     const token = localStorage.getItem('metaBankToken');
+
+    // Show immediate greeting using cached username if available
+    const cachedUser = localStorage.getItem('metaBankUser');
+    if (cachedUser) {
+      try {
+        const parsed = JSON.parse(cachedUser);
+        greetingEl.textContent = getUSGreeting(parsed.username || parsed.fullName || 'User');
+      } catch {}
+    }
+
+    // Start live clock regardless
+    updateClock();
+    setInterval(updateClock, 1000);
+
     if (!token) {
-      alert('Session expired. Please log in again.');
-      window.location.href = 'login.html';
+      // No session — force login
+      greetingEl.textContent = 'Session expired. Redirecting to login...';
+      setTimeout(() => (window.location.href = 'login.html'), 800);
       return;
     }
 
@@ -292,7 +324,6 @@
       const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         }
       });
@@ -300,12 +331,13 @@
       const data = await res.json();
 
       if (res.ok) {
-        // ✅ Use real USA Pacific Time greeting
-        document.querySelector('.greeting').textContent = getUSGreeting(data.username || 'Micheal');
+        // Persist minimal user info for faster next paint
+        localStorage.setItem('metaBankUser', JSON.stringify({
+          username: data.username,
+          fullName: data.fullName
+        }));
 
-        // Start live clock
-        updateClock();
-        setInterval(updateClock, 1000);
+        greetingEl.textContent = getUSGreeting(data.username || data.fullName || 'User');
 
         const row = `
           <tr>
@@ -313,8 +345,8 @@
             <td>${data.bankName || 'Meta Bank'}</td>
             <td>${data.accountNumber || '**** 9281'}</td>
             <td>${data.routingNumber || '1100001'}</td>
-            <td>$${(data.balance || 1250000).toLocaleString()}</td>
-            <td>$${(data.availableBalance || 1248500).toLocaleString()} 🔒</td>
+            <td>$${Number(data.balance ?? 1250000).toLocaleString()}</td>
+            <td>$${Number(data.availableBalance ?? 1248500).toLocaleString()} 🔒</td>
           </tr>
         `;
 
@@ -330,23 +362,16 @@
           </tr>
           ${row}
         `;
-
-        const note = document.createElement('div');
-        note.className = 'restriction-note';
-        note.textContent = '🔒 Available Balance is restricted due to pending verification or transfer limits.';
-        table.parentElement.appendChild(note);
       } else {
-        alert(data.message || 'Failed to load dashboard');
+        greetingEl.textContent = 'Unable to load dashboard. Please re-login.';
       }
     } catch (err) {
       console.error('Dashboard fetch error:', err);
-      alert('Error connecting to server');
+      greetingEl.textContent = 'Connection issue. Please try again.';
     }
-  }
 
-  function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
+    // Initialize chart after layout is ready
+    initChart();
   }
 
   window.addEventListener('DOMContentLoaded', loadDashboard);
