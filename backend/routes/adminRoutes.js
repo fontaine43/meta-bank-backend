@@ -17,6 +17,23 @@ const {
 } = require('../controllers/adminController');
 
 // =======================
+// Debug Logging
+// =======================
+console.log('🔍 Admin Controller Imports:', {
+  getAllUsers,
+  changeUserRole,
+  deleteUser,
+  getOpenTickets,
+  resolveTicket,
+  getStats,
+  getPendingKYC,
+  approveKYC,
+  rejectKYC,
+  promoteUser,
+  suspendUser
+});
+
+// =======================
 // Analytics & Stats
 // =======================
 router.get('/stats', verifyToken, isAdmin, getStats);
