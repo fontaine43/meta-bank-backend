@@ -2,7 +2,11 @@ const User = require('../models/User');
 const Loan = require('../models/Loan');
 const Transfer = require('../models/Transfer');
 
-// ✅ GET /api/user/profile — Basic profile
+// =======================
+// Profile & Dashboard
+// =======================
+
+// GET /api/user/profile — Basic profile
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -16,7 +20,7 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// ✅ GET /api/user/account — Detailed dashboard profile
+// GET /api/user/account — Detailed dashboard profile
 exports.getUserDashboard = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -33,12 +37,12 @@ exports.getUserDashboard = async (req, res) => {
       address: user.address || 'Not provided',
       kycStatus: user.kycStatus || 'Pending',
       accountStatus: user.isVerified ? 'Active' : 'Inactive',
-      accountType: 'Checking',
+      accountType: user.accountType || 'Checking',
       bankName: user.bankName || 'Meta Bank',
-      accountNumber: '**** 9281',
-      routingNumber: '1100001',
-      balance: 1250000,
-      availableBalance: 1248500
+      accountNumber: user.accountNumber || '**** 9281',
+      routingNumber: user.routingNumber || '1100001',
+      balance: user.balance || 1250000,
+      availableBalance: user.availableBalance || 1248500
     });
   } catch (err) {
     console.error('❌ Dashboard fetch error:', err);
@@ -46,7 +50,11 @@ exports.getUserDashboard = async (req, res) => {
   }
 };
 
-// ✅ POST /api/user/loan
+// =======================
+// Loans & Transfers
+// =======================
+
+// POST /api/user/loan
 exports.applyLoan = async (req, res) => {
   try {
     if (!req.body || !req.body.amount || !req.body.purpose) {
@@ -63,7 +71,7 @@ exports.applyLoan = async (req, res) => {
   }
 };
 
-// ✅ POST /api/user/transfer
+// POST /api/user/transfer
 exports.makeTransfer = async (req, res) => {
   try {
     if (!req.body || !req.body.amount || !req.body.recipientAccount) {
@@ -80,7 +88,7 @@ exports.makeTransfer = async (req, res) => {
   }
 };
 
-// ✅ GET /api/user/loans
+// GET /api/user/loans
 exports.getLoans = async (req, res) => {
   try {
     const loans = await Loan.find({ userId: req.user.id });
@@ -91,7 +99,7 @@ exports.getLoans = async (req, res) => {
   }
 };
 
-// ✅ GET /api/user/transfers
+// GET /api/user/transfers
 exports.getTransfers = async (req, res) => {
   try {
     const transfers = await Transfer.find({ userId: req.user.id });
@@ -99,5 +107,35 @@ exports.getTransfers = async (req, res) => {
   } catch (err) {
     console.error('❌ Fetch transfers error:', err);
     res.status(500).json({ message: 'Failed to fetch transfers', details: err.message });
+  }
+};
+
+// =======================
+// Email Verification
+// =======================
+
+// GET /api/user/verify?token=XYZ
+exports.verifyAccount = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpiry: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired token' });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiry = undefined;
+    await user.save();
+
+    res.json({ success: true, message: 'Account verified successfully!' });
+  } catch (err) {
+    console.error('❌ Verification error:', err);
+    res.status(500).json({ success: false, message: 'Server error verifying account', details: err.message });
   }
 };

@@ -113,20 +113,20 @@
 
 <div class="sidebar">
   <h2>Admin Panel</h2>
-  <a href="#">Dashboard</a>
-  <a href="#">KYC Approvals</a>
-  <a href="#">User Management</a>
-  <a href="#">Support Tickets</a>
-  <a href="#">Analytics</a>
-  <a href="login.html">Logout</a>
+  <a href="admin.html">Dashboard</a>
+  <a href="#kyc">KYC Approvals</a>
+  <a href="#users">User Management</a>
+  <a href="#tickets">Support Tickets</a>
+  <a href="#analytics">Analytics</a>
+  <a href="#" onclick="logout()">Logout</a>
 </div>
 
 <div class="main">
-  <div class="greeting">Welcome Admin – Micheal Fontaine</div>
+  <div class="greeting">Welcome Admin</div>
 
-  <div class="panel">
+  <div class="panel" id="kyc">
     <h3>KYC Approvals</h3>
-    <table>
+    <table id="kycTable">
       <tr>
         <th>User</th>
         <th>DOB</th>
@@ -135,23 +135,12 @@
         <th>ID Back</th>
         <th>Action</th>
       </tr>
-      <tr>
-        <td>Jane Doe</td>
-        <td>1990-04-12</td>
-        <td>***-**-1234</td>
-        <td><a href="/uploads/idFront-jane.jpg" target="_blank">View</a></td>
-        <td><a href="/uploads/idBack-jane.jpg" target="_blank">View</a></td>
-        <td>
-          <button>Approve</button>
-          <button class="reject">Reject</button>
-        </td>
-      </tr>
     </table>
   </div>
 
-  <div class="panel">
+  <div class="panel" id="users">
     <h3>User Management</h3>
-    <table>
+    <table id="userTable">
       <tr>
         <th>Name</th>
         <th>Email</th>
@@ -159,22 +148,12 @@
         <th>Status</th>
         <th>Action</th>
       </tr>
-      <tr>
-        <td>John Smith</td>
-        <td>john@example.com</td>
-        <td>User</td>
-        <td>Active</td>
-        <td>
-          <button>Promote</button>
-          <button class="reject">Suspend</button>
-        </td>
-      </tr>
     </table>
   </div>
 
-  <div class="panel">
+  <div class="panel" id="tickets">
     <h3>Support Tickets</h3>
-    <table>
+    <table id="ticketTable">
       <tr>
         <th>Ticket ID</th>
         <th>User</th>
@@ -182,37 +161,150 @@
         <th>Status</th>
         <th>Action</th>
       </tr>
-      <tr>
-        <td>#1024</td>
-        <td>alice@example.com</td>
-        <td>Transfer not received</td>
-        <td>Open</td>
-        <td><button>Resolve</button></td>
-      </tr>
     </table>
   </div>
 
-  <div class="panel">
+  <div class="panel" id="analytics">
     <h3>Analytics Summary</h3>
-    <p>Total Users: <strong id="userCount">1,245</strong></p>
-    <p>Pending KYC: <strong id="kycCount">32</strong></p>
-    <p>Active Loans: <strong id="loanCount">210</strong></p>
-    <p>Open Tickets: <strong id="ticketCount">12</strong></p>
+    <p>Total Users: <strong id="userCount">--</strong></p>
+    <p>Pending KYC: <strong id="kycCount">--</strong></p>
+    <p>Active Loans: <strong id="loanCount">--</strong></p>
+    <p>Open Tickets: <strong id="ticketCount">--</strong></p>
   </div>
 </div>
 
 <script>
-fetch('https://meta-bank-backend.onrender.com/api/admin/stats')
+const token = localStorage.getItem('metaBankToken');
+if (!token) {
+  alert('Session expired. Please log in again.');
+  window.location.href = 'login.html';
+}
+
+// Load analytics
+fetch('https://meta-bank-backend.onrender.com/api/admin/stats', {
+  headers: { 'Authorization': `Bearer ${token}` }
+})
   .then(res => res.json())
   .then(data => {
-    document.getElementById('userCount').innerText = data.users;
-    document.getElementById('kycCount').innerText = data.pendingKYC;
-    document.getElementById('loanCount').innerText = data.activeLoans;
-    document.getElementById('ticketCount').innerText = data.openTickets;
+    document.getElementById('userCount').innerText = data.users || '--';
+    document.getElementById('kycCount').innerText = data.pendingKYC || '--';
+    document.getElementById('loanCount').innerText = data.activeLoans || '--';
+    document.getElementById('ticketCount').innerText = data.openTickets || '--';
   })
   .catch(() => {
     console.warn('Analytics fetch failed. Using static fallback.');
   });
+
+// Load KYC approvals
+fetch('https://meta-bank-backend.onrender.com/api/admin/kyc', {
+  headers: { 'Authorization': `Bearer ${token}` }
+})
+  .then(res => res.json())
+  .then(data => {
+    const table = document.getElementById('kycTable');
+    data.forEach(user => {
+      const row = `
+        <tr>
+          <td>${user.fullName}</td>
+          <td>${user.dob}</td>
+          <td>${user.ssn}</td>
+          <td><a href="${user.idFront}" target="_blank">View</a></td>
+          <td><a href="${user.idBack}" target="_blank">View</a></td>
+          <td>
+            <button onclick="approveKYC('${user._id}')">Approve</button>
+            <button class="reject" onclick="rejectKYC('${user._id}')">Reject</button>
+          </td>
+        </tr>`;
+      table.insertAdjacentHTML('beforeend', row);
+    });
+  });
+
+// Load users
+fetch('https://meta-bank-backend.onrender.com/api/admin/users', {
+  headers: { 'Authorization': `Bearer ${token}` }
+})
+  .then(res => res.json())
+  .then(data => {
+    const table = document.getElementById('userTable');
+    data.forEach(user => {
+      const row = `
+        <tr>
+          <td>${user.fullName}</td>
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td>${user.isVerified ? 'Active' : 'Inactive'}</td>
+          <td>
+            <button onclick="promoteUser('${user._id}')">Promote</button>
+            <button class="reject" onclick="suspendUser('${user._id}')">Suspend</button>
+          </td>
+        </tr>`;
+      table.insertAdjacentHTML('beforeend', row);
+    });
+  });
+
+// Load tickets
+fetch('https://meta-bank-backend.onrender.com/api/admin/tickets', {
+  headers: { 'Authorization': `Bearer ${token}` }
+})
+  .then(res => res.json())
+  .then(data => {
+    const table = document.getElementById('ticketTable');
+    data.forEach(ticket => {
+      const row = `
+        <tr>
+          <td>#${ticket.ticketId}</td>
+          <td>${ticket.userEmail}</td>
+          <td>${ticket.issue}</td>
+          <td>${ticket.status}</td>
+          <td><button onclick="resolveTicket('${ticket._id}')">Resolve</button></td>
+        </tr>`;
+      table.insertAdjacentHTML('beforeend', row);
+    });
+  });
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+// Action handlers
+function approveKYC(id) {
+  fetch(`https://meta-bank-backend.onrender.com/api/admin/kyc/${id}/approve`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  }).then(() => location.reload());
+}
+
+function rejectKYC(id) {
+  fetch(`https://meta-bank-backend.onrender.com/api/admin/kyc/${id}/reject`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  }).then(() => location.reload());
+}
+
+function promoteUser(id) {
+  fetch(`https://meta-bank-backend.onrender.com/api/admin/users/${id}/promote`, {
+    method: 'POST',
+function promoteUser(id) {
+  fetch(`https://meta-bank-backend.onrender.com/api/admin/users/${id}/promote`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  }).then(() => location.reload());
+}
+
+function suspendUser(id) {
+  fetch(`https://meta-bank-backend.onrender.com/api/admin/users/${id}/suspend`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  }).then(() => location.reload());
+}
+
+function resolveTicket(id) {
+  fetch(`https://meta-bank-backend.onrender.com/api/admin/tickets/${id}/resolve`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  }).then(() => location.reload());
+}
 </script>
 
 </body>

@@ -1,34 +1,48 @@
+// routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { verifyToken } = require('../middleware/authMiddleware'); // ✅ fixed: destructure properly
+const { verifyToken } = require('../middleware/authMiddleware');
 const {
   getProfile,
   getUserDashboard,
   applyLoan,
   makeTransfer,
   getLoans,
-  getTransfers
+  getTransfers,
+  verifyAccount // ✅ added for email verification
 } = require('../controllers/userController');
 
-// ✅ Confirm middleware and controller functions
-console.log('✅ typeof verifyToken:', typeof verifyToken); // should be 'function'
+// =======================
+// User Profile & Dashboard
+// =======================
 
-// ✅ Basic profile info
+// Basic profile info
 router.get('/profile', verifyToken, getProfile);
 
-// ✅ Dashboard-style detailed profile
+// Dashboard-style detailed profile
 router.get('/account', verifyToken, getUserDashboard);
 
-// ✅ Loan application
+// =======================
+// Loans & Transfers
+// =======================
+
+// Loan application
 router.post('/loan', verifyToken, applyLoan);
 
-// ✅ Transfer initiation
+// Transfer initiation
 router.post('/transfer', verifyToken, makeTransfer);
 
-// ✅ Loan history
+// Loan history
 router.get('/loans', verifyToken, getLoans);
 
-// ✅ Transfer history
+// Transfer history
 router.get('/transfers', verifyToken, getTransfers);
+
+// =======================
+// Email Verification
+// =======================
+
+// Public route (no token required) for email verification
+router.get('/verify', verifyAccount);
 
 module.exports = router;

@@ -50,6 +50,12 @@
       color: #006644;
     }
 
+    .clock {
+      font-size: 1em;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
     .welcome {
       font-size: 1em;
       margin-bottom: 10px;
@@ -128,7 +134,7 @@
 
 <div class="sidebar">
   <h2>Meta Bank</h2>
-  <a href="dashboard.html">Dashboard</a> <!-- ✅ Added -->
+  <a href="dashboard.html">Dashboard</a>
   <a href="overview.html">Overview</a>
   <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
@@ -142,10 +148,12 @@
 </div>
 
 <div class="main">
-  <div class="greeting">Good Afternoon, Micheal!</div>
+  <div class="greeting">Loading greeting...</div>
+  <div class="clock">Loading US Pacific Time...</div>
   <div class="welcome">Welcome back to your dashboard. Here’s a quick look at your account activity.</div>
   <div class="total-balance"><strong>Total Balance:</strong> $1,250,000.00</div>
 
+  <!-- Account Info -->
   <div class="account-info">
     <h3>Your Accounts</h3>
     <table id="accountTable">
@@ -169,6 +177,7 @@
     <div class="restriction-note">🔒 Available Balance is restricted due to pending verification or transfer limits.</div>
   </div>
 
+  <!-- Transactions -->
   <div class="transactions">
     <h3>Recent Transactions</h3>
     <table>
@@ -179,18 +188,19 @@
         <th>Amount</th>
       </tr>
       <tr><td>Nov 2, 2025</td><td>Transfer to Here</td><td>Withdrawal</td><td>-$20,000.00</td></tr>
-<tr><td>Oct 30, 2025</td><td>Transfer to D</td><td>Withdrawal</td><td>-$1,000.00</td></tr>
-<tr><td>Oct 29, 2025</td><td>Loan disbursement</td><td>Deposit</td><td>+$200,000.00</td></tr>
-<tr><td>Oct 25, 2025</td><td>ATM Withdrawal</td><td>Withdrawal</td><td>-$500.00</td></tr>
-<tr><td>Oct 22, 2025</td><td>Salary Credit</td><td>Deposit</td><td>+$8,500.00</td></tr>
-<tr><td>Oct 18, 2025</td><td>Utility Payment</td><td>Withdrawal</td><td>-$320.75</td></tr>
-<tr><td>Oct 15, 2025</td><td>Transfer to Savings</td><td>Withdrawal</td><td>-$5,000.00</td></tr>
-<tr><td>Oct 12, 2025</td><td>Freelance Income</td><td>Deposit</td><td>+$2,750.00</td></tr>
-<tr><td>Oct 9, 2025</td><td>Loan Repayment</td><td>Withdrawal</td><td>-$3,200.00</td></tr>
-<tr><td>Oct 5, 2025</td><td>Investment Return</td><td>Deposit</td><td>+$4,300.00</td></tr>
+      <tr><td>Oct 30, 2025</td><td>Transfer to D</td><td>Withdrawal</td><td>-$1,000.00</td></tr>
+      <tr><td>Oct 29, 2025</td><td>Loan disbursement</td><td>Deposit</td><td>+$200,000.00</td></tr>
+      <tr><td>Oct 25, 2025</td><td>ATM Withdrawal</td><td>Withdrawal</td><td>-$500.00</td></tr>
+      <tr><td>Oct 22, 2025</td><td>Salary Credit</td><td>Deposit</td><td>+$8,500.00</td></tr>
+      <tr><td>Oct 18, 2025</td><td>Utility Payment</td><td>Withdrawal</td><td>-$320.75</td></tr>
+      <tr><td>Oct 15, 2025</td><td>Transfer to Savings</td><td>Withdrawal</td><td>-$5,000.00</td></tr>
+      <tr><td>Oct 12, 2025</td><td>Freelance Income</td><td>Deposit</td><td>+$2,750.00</td></tr>
+      <tr><td>Oct 9, 2025</td><td>Loan Repayment</td><td>Withdrawal</td><td>-$3,200.00</td></tr>
+      <tr><td>Oct 5, 2025</td><td>Investment Return</td><td>Deposit</td><td>+$4,300.00</td></tr>
     </table>
   </div>
 
+  <!-- Transfers & Analytics -->
   <div class="flex-row">
     <div class="transfers">
       <h3>Scheduled Transfers</h3>
@@ -220,14 +230,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx = document.getElementById('analyticsChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Deposits', 'Withdrawals', 'Net Growth'],
-      datasets: [{
-        label: 'Bank Analytics ($)',
-        data: [206500, 148800, 57700],
+  const ctx =        data: [206500, 148800, 57700],
         backgroundColor: ['#009933', '#cc0000', '#0066cc']
       }]
     },
@@ -247,6 +250,35 @@
       }
     }
   });
+
+  // Function to get USA Pacific Time greeting
+  function getUSGreeting(name) {
+    const now = new Date();
+    const options = { timeZone: 'America/Los_Angeles', hour: 'numeric', hour12: false };
+    const pacificHour = new Intl.DateTimeFormat('en-US', options).format(now);
+    const hour = parseInt(pacificHour, 10);
+
+    let greeting;
+    if (hour < 12) greeting = "Good Morning";
+    else if (hour < 18) greeting = "Good Afternoon";
+    else greeting = "Good Evening";
+
+    return `${greeting}, ${name}!`;
+  }
+
+  // Function to update live US Pacific clock
+  function updateClock() {
+    const now = new Date();
+    const options = {
+      timeZone: 'America/Los_Angeles',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    };
+    const pacificTime = new Intl.DateTimeFormat('en-US', options).format(now);
+    document.querySelector('.clock').textContent = `Current US Pacific Time: ${pacificTime}`;
+  }
 
   async function loadDashboard() {
     const token = localStorage.getItem('metaBankToken');
@@ -268,7 +300,12 @@
       const data = await res.json();
 
       if (res.ok) {
-                document.querySelector('.greeting').textContent = `Good Afternoon, ${data.username || 'Micheal'}!`;
+        // ✅ Use real USA Pacific Time greeting
+        document.querySelector('.greeting').textContent = getUSGreeting(data.username || 'Micheal');
+
+        // Start live clock
+        updateClock();
+        setInterval(updateClock, 1000);
 
         const row = `
           <tr>
@@ -276,7 +313,7 @@
             <td>${data.bankName || 'Meta Bank'}</td>
             <td>${data.accountNumber || '**** 9281'}</td>
             <td>${data.routingNumber || '1100001'}</td>
-            <td>$${(data.balance || 1250000).toLocaleString()} 🔒</td>
+            <td>$${(data.balance || 1250000).toLocaleString()}</td>
             <td>$${(data.availableBalance || 1248500).toLocaleString()} 🔒</td>
           </tr>
         `;

@@ -170,6 +170,7 @@
           <option value="checking">Checking Account</option>
           <option value="business">Business Account</option>
           <option value="student">Student Account</option>
+          <option value="ira">IRA Account</option> <!-- ✅ Added IRA -->
         </select>
       </div>
 
@@ -235,7 +236,11 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     submitButton.style.opacity = '1';
 
     if (res.ok) {
-      window.location.href = 'dashboard.html';
+      alert('Account created successfully! Please check your email for verification.');
+      if (data.token) {
+        localStorage.setItem('metaBankToken', data.token);
+      }
+      window.location.href = 'dashboard.html'; // ✅ Redirect after success
     } else {
       alert(data.message || 'Registration failed');
     }

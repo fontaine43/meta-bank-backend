@@ -25,17 +25,25 @@ if (!fs.existsSync(uploadsPath)) {
   console.log('📁 Created uploads directory');
 }
 
+// =======================
+// Middleware
+// =======================
+
 // CORS — allow only your frontend domain
 app.use(cors({
-  origin: 'https://meta-bank-frontend.onrender.com',
+  origin: process.env.FRONTEND_URL || 'https://meta-bank-frontend.onrender.com',
   credentials: true
 }));
 
-// Middleware
+// Parse JSON bodies
 app.use(express.json());
+
+// Serve static uploads
 app.use('/uploads', express.static(uploadsPath));
 
+// =======================
 // Routes
+// =======================
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
@@ -46,12 +54,14 @@ app.get('/', (req, res) => {
   res.send('✅ Meta Bank backend is running');
 });
 
-// Start server after DB connects
+// =======================
+// Start Server
+// =======================
 connectDB()
   .then(() => {
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🚀 Meta Bank backend running on port ${PORT}`);
     });
   })
   .catch(err => {

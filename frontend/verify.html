@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Bank – Email Verification</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .verify-box {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #006644;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.1em;
+      margin: 15px 0;
+      color: #333;
+    }
+
+    .status {
+      font-weight: bold;
+      margin-top: 20px;
+      color: #006644;
+    }
+
+    button {
+      margin-top: 25px;
+      background-color: #006644;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    button:hover {
+      background-color: #004d33;
+    }
+  </style>
+</head>
+<body>
+
+<div class="verify-box">
+  <h2>Email Verification</h2>
+  <p id="message">Verifying your account, please wait...</p>
+  <p class="status" id="status"></p>
+  <button id="loginBtn" style="display:none;" onclick="window.location.href='login.html'">Go to Login</button>
+</div>
+
+<script>
+async function verifyAccount() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+
+  if (!token) {
+    document.getElementById('message').textContent = "Invalid verification link.";
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://meta-bank-backend.onrender.com/api/user/verify?token=${token}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      document.getElementById('message').textContent = "✅ Your account has been verified successfully!";
+      document.getElementById('status').textContent = "You may now log in and access your dashboard.";
+      document.getElementById('loginBtn').style.display = "inline-block";
+    } else {
+      document.getElementById('message').textContent = "❌ Verification failed.";
+      document.getElementById('status').textContent = data.message || "This link may have expired.";
+    }
+  } catch (err) {
+    console.error('Verification error:', err);
+    document.getElementById('message').textContent = "⚠️ Error connecting to server.";
+  }
+}
+
+window.addEventListener('DOMContentLoaded', verifyAccount);
+</script>
+
+</body>
+</html>
