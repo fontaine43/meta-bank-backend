@@ -48,43 +48,65 @@
   </div>
 </div>
 
-<!-- Shared API helper -->
-<script>
-window.API = (function(){
-  const BASE='https://meta-bank-backend.onrender.com';
-  function getToken(){ const t=localStorage.getItem('metaBankToken'); if(!t){ alert('Session expired. Please log in again.'); window.location.href='login.html'; throw new Error('No token'); } return t; }
-  async function request(path,opts={}){ const token=getToken(); const headers=opts.headers||{}; headers['Authorization']='Bearer '+token; const res=await fetch(`${BASE}${path}`,{method:opts.method||'GET',headers,body:opts.body||null}); const ct=res.headers.get('content-type')||''; const data=ct.includes('application/json')?await res.json():{}; if(!res.ok) throw new Error(data.message||`Request failed (${res.status})`); return data; }
-  return { request };
-})();
-</script>
 <script>
 async function loadStatements() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
   try {
-    const data = await API.request('/api/user/statements');
-    document.querySelector('.greeting').textContent = `Statements – ${data.fullName || data.username || ''}`;
+    // Fetch profile for greeting
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Statements – ${profileData.fullName || profileData.username || 'User'}`;
+    }
 
-    const rows = (data.statements || []).map(st => `
-      <tr>
-        <td>${st.month}</td>
-        <td>${st.account}</td>
-        <td>${st.type}</td>
-        <td><a href="${st.url}" class="download" target="_blank">Download</a></td>
-      </tr>
-    `).join('');
+    // Fetch statements
+    const resStatements = await fetch('https://meta-bank-backend.onrender.com/api/user/statements', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resStatements.json();
 
-    const table = document.getElementById('statementsTable');
-    table.innerHTML = `
-      <tr>
-        <th>Month</th><th>Account</th><th>Type</th><th>Download</th>
-      </tr>
-      ${rows || '<tr><td colspan="4">No statements available</td></tr>'}
-    `;
+    if (resStatements.ok) {
+      const rows = (data.statements || []).map(st => `
+        <tr>
+          <td>${st.month}</td>
+          <td>${st.account}</td>
+          <td>${st.type}</td>
+          <td><a href="${st.url}" class="download" target="_blank">Download</a></td>
+        </tr>
+      `).join('');
+
+      const table = document.getElementById('statementsTable');
+      table.innerHTML = `
+        <tr>
+          <th>Month</th><th>Account</th><th>Type</th><th>Download</th>
+        </tr>
+        ${rows || '<tr><td colspan="4">No statements available</td></tr>'}
+      `;
+    } else {
+      alert(data.message || 'Failed to load statements');
+    }
   } catch (err) {
-    console.error(err);
-    alert(err.message || 'Failed to load statements');
+    console.error('Statements fetch error:', err);
+    alert('Error connecting to server');
   }
 }
-function logout(){ localStorage.clear(); window.location.href='login.html'; }
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
 window.addEventListener('DOMContentLoaded', loadStatements);
 </script>
 </body>

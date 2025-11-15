@@ -108,7 +108,6 @@
 </div>
 
 <div class="main">
-  <!-- ✅ Placeholder greeting -->
   <div class="greeting">Loading verification center...</div>
 
   <div class="verification-status" id="verificationStatus">
@@ -142,15 +141,25 @@ async function loadVerification() {
   }
 
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/verification', {
+    // Fetch profile for greeting
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       method: 'GET',
       headers: { 'Authorization': 'Bearer ' + token }
     });
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Verification Center – ${profileData.fullName || profileData.username || 'User'}`;
+    }
 
-    const data = await res.json();
+    // Fetch verification status
+    const resVerification = await fetch('https://meta-bank-backend.onrender.com/api/user/verification', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resVerification.json();
 
-    if (res.ok) {
-      document.querySelector('.greeting').textContent = `Verification Center – ${data.fullName || data.username}`;
+    if (resVerification.ok) {
       const statusBox = document.getElementById('verificationStatus');
       statusBox.innerHTML = `
         <h3>KYC Status</h3>
@@ -169,7 +178,6 @@ async function loadVerification() {
 
 document.getElementById('kycForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-
   const token = localStorage.getItem('metaBankToken');
   if (!token) {
     alert('Session expired. Please log in again.');
@@ -184,15 +192,14 @@ document.getElementById('kycForm').addEventListener('submit', async function(e) 
   try {
     const res = await fetch('https://meta-bank-backend.onrender.com/api/kyc/upload', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { 'Authorization': 'Bearer ' + token },
       body: form
     });
-
     const data = await res.json();
 
     if (res.ok) {
       alert('Documents submitted successfully!');
-      loadVerification(); // ✅ Refresh status after upload
+      loadVerification(); // Refresh status after upload
     } else {
       alert(data.message || 'Submission failed');
     }

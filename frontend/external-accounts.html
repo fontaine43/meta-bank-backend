@@ -57,7 +57,10 @@
       <input type="text" id="routingNumber" placeholder="Enter routing number" required>
       <label for="accountType">Account Type</label>
       <select id="accountType" required>
-        <option value="">Select type</option><option>Checking</option><option>Savings</option><option>Business</option>
+        <option value="">Select type</option>
+        <option>Checking</option>
+        <option>Savings</option>
+        <option>Business</option>
       </select>
       <button type="submit">Link Account</button>
     </form>
@@ -65,47 +68,111 @@
 </div>
 
 <script>
-window.API=(function(){ const BASE='https://meta-bank-backend.onrender.com'; function getToken(){ const t=localStorage.getItem('metaBankToken'); if(!t){ alert('Session expired. Please log in again.'); window.location.href='login.html'; throw new Error('No token'); } return t; }
-async function request(path,opts={}){ const token=getToken(); const headers=opts.headers||{}; headers['Authorization']='Bearer '+token; if(opts.json) headers['Content-Type']='application/json';
-  const res=await fetch(`${BASE}${path}`,{method:opts.method||'GET',headers,body:opts.body||null});
-  const ct=res.headers.get('content-type')||''; const data=ct.includes('application/json')?await res.json():{};
-  if(!res.ok) throw new Error(data.message||`Request failed (${res.status})`); return data; }
-return { request };})();
-async function loadUserInfo(){
-  try{
-    const data = await API.request('/api/user/profile');
-    document.querySelector('.greeting').textContent = `External Accounts – ${data.fullName || data.username || ''}`;
-  } catch(err){ console.error(err); alert(err.message || 'Failed to load user info'); }
-}
-async function loadExternalAccounts(){
+async function loadUserInfo() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
   try {
-    const data = await API.request('/api/user/external-accounts');
-    const table = document.getElementById('linkedAccountsTable');
-    const rows = (data.externalAccounts || []).map(acc => `
-      <tr><td>${acc.bankName}</td><td>${acc.accountType}</td><td>****${String(acc.accountNumber||'').slice(-4)}</td><td>${acc.status}</td></tr>
-    `).join('');
-    table.innerHTML = `
-      <tr><th>Bank Name</th><th>Account Type</th><th>Account Number</th><th>Status</th></tr>
-      ${rows || '<tr><td colspan="4">No linked accounts yet</td></tr>'}
-    `;
-  } catch(err){ console.error(err); alert(err.message || 'Failed to load external accounts'); }
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      document.querySelector('.greeting').textContent =
+        `External Accounts – ${data.fullName || data.username || 'User'}`;
+    } else {
+      alert(data.message || 'Failed to load user info');
+    }
+  } catch (err) {
+    console.error('Profile fetch error:', err);
+    alert('Error connecting to server');
+  }
 }
-document.getElementById('externalAccountForm').addEventListener('submit', async (e)=>{
+
+async function loadExternalAccounts() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) return;
+
+  try {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/external-accounts', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      const table = document.getElementById('linkedAccountsTable');
+      const rows = (data.externalAccounts || []).map(acc => `
+        <tr>
+          <td>${acc.bankName}</td>
+          <td>${acc.accountType}</td>
+          <td>****${String(acc.accountNumber || '').slice(-4)}</td>
+          <td>${acc.status}</td>
+        </tr>
+      `).join('');
+      table.innerHTML = `
+        <tr><th>Bank Name</th><th>Account Type</th><th>Account Number</th><th>Status</th></tr>
+        ${rows || '<tr><td colspan="4">No linked accounts yet</td></tr>'}
+      `;
+    } else {
+      alert(data.message || 'Failed to load external accounts');
+    }
+  } catch (err) {
+    console.error('External accounts fetch error:', err);
+    alert('Error connecting to server');
+  }
+}
+
+document.getElementById('externalAccountForm').addEventListener('submit', async function(e) {
   e.preventDefault();
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) return;
+
   const payload = {
     bankName: document.getElementById('bankName').value.trim(),
     accountNumber: document.getElementById('accountNumber').value.trim(),
     routingNumber: document.getElementById('routingNumber').value.trim(),
     accountType: document.getElementById('accountType').value
   };
+
   try {
-    await API.request('/api/user/external-accounts', { method:'POST', json:true, body: JSON.stringify(payload) });
-    alert('Account linked successfully!');
-    loadExternalAccounts();
-  } catch(err){ console.error(err); alert(err.message || 'Failed to link account'); }
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/external-accounts', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      alert('Account linked successfully!');
+      loadExternalAccounts();
+    } else {
+      alert(data.message || 'Failed to link account');
+    }
+  } catch (err) {
+    console.error('Link account error:', err);
+    alert('Error connecting to server');
+  }
 });
-function logout(){ localStorage.clear(); window.location.href='login.html'; }
-window.addEventListener('DOMContentLoaded', ()=>{ loadUserInfo(); loadExternalAccounts(); });
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadUserInfo();
+  loadExternalAccounts();
+});
 </script>
 </body>
 </html>

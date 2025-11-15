@@ -42,9 +42,7 @@
       text-align: center;
       color: #006644;
     }
-    .features h3 {
-      margin-bottom: 10px;
-    }
+    .features h3 { margin-bottom: 10px; }
     .features ul {
       list-style: none;
       padding: 0;
@@ -89,10 +87,7 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-    .actions {
-      margin-top: 20px;
-      text-align: center;
-    }
+    .actions { margin-top: 20px; text-align: center; }
     .actions button {
       background-color: #006644;
       color: white;
@@ -101,34 +96,13 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .links {
-      margin-top: 10px;
-      text-align: center;
-    }
-    .links a {
-      color: #006644;
-      text-decoration: none;
-      margin: 0 10px;
-    }
-    footer {
-      background-color: #003322;
-      color: white;
-      padding: 40px 30px;
-    }
-    footer h4 {
-      margin-bottom: 15px;
-    }
-    footer ul {
-      list-style: none;
-      padding: 0;
-    }
-    footer ul li {
-      margin-bottom: 8px;
-    }
-    footer ul li a {
-      color: white;
-      text-decoration: none;
-    }
+    .links { margin-top: 10px; text-align: center; }
+    .links a { color: #006644; text-decoration: none; margin: 0 10px; }
+    footer { background-color: #003322; color: white; padding: 40px 30px; }
+    footer h4 { margin-bottom: 15px; }
+    footer ul { list-style: none; padding: 0; }
+    footer ul li { margin-bottom: 8px; }
+    footer ul li a { color: white; text-decoration: none; }
     .footer-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -172,9 +146,7 @@
     <label for="password">Password</label>
     <input type="password" id="password" placeholder="Enter your password" required>
 
-    <label>
-      <input type="checkbox"> Remember me
-    </label>
+    <label><input type="checkbox"> Remember me</label>
 
     <div class="actions">
       <button type="submit">Log In</button>
@@ -235,13 +207,12 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     return;
   }
 
-  // Create spinner
+  // Spinner
   let spinner = document.createElement('div');
   spinner.innerText = 'Authenticating...';
   spinner.style.cssText = 'text-align:center; color:#006644; font-weight:bold; margin-top:15px;';
   formElement.appendChild(spinner);
 
-  // Disable button
   submitButton.disabled = true;
   submitButton.style.opacity = '0.6';
 
@@ -249,38 +220,38 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ username, password })
     });
 
-    let data;
-    try {
-      data = await res.json();
-    } catch (jsonErr) {
-      throw new Error('Invalid JSON response from server');
-    }
+    const data = await res.json();
 
-    spinner.remove();
-    submitButton.disabled = false;
-    submitButton.style.opacity = '1';
-
-    if (!res.ok) {
+    if (!res.ok || !data.token) {
       throw new Error(data.message || 'Login failed');
     }
 
     localStorage.setItem('metaBankToken', data.token);
-    localStorage.setItem('metaBankUser', JSON.stringify(data.user));
+    if (data.user) {
+      localStorage.setItem('metaBankUser', JSON.stringify(data.user));
+    }
 
-    window.location.href = 'dashboard.html';
+    // Keep spinner visible briefly before redirect
+    spinner.innerText = 'Redirecting...';
+    setTimeout(() => {
+      window.location.href = 'dashboard.html';
+    }, 800);
   } catch (err) {
-    spinner.remove();
+    console.error('Login error:', err);
+    alert(err.message.includes('Failed to fetch')
+      ? 'Cannot reach server. Check backend URL or CORS.'
+      : err.message);
+  } finally {
+    // Always clean up button state
     submitButton.disabled = false;
     submitButton.style.opacity = '1';
-    console.error('Login error:', err);
-    alert(err.message.includes('Failed to fetch') ? 'Cannot reach server. Check backend URL or CORS.' : err.message);
+    // Remove spinner only if not redirecting
+    if (!localStorage.getItem('metaBankToken')) {
+      spinner.remove();
+    }
   }
 });
-</script>
-
-</body>
-</html>
+</

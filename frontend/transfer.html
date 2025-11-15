@@ -49,7 +49,11 @@
       <label for="amount">Amount</label>
       <input type="number" id="amount" placeholder="Enter amount" required>
       <label for="type">Transfer Type</label>
-      <select id="type" required><option value="">Select type</option><option>Domestic</option><option>Wire</option></select>
+      <select id="type" required>
+        <option value="">Select type</option>
+        <option>Domestic</option>
+        <option>Wire</option>
+      </select>
       <label for="notes">Notes</label>
       <textarea id="notes" rows="3" placeholder="Optional notes"></textarea>
       <button type="submit">Submit Transfer</button>
@@ -65,31 +69,66 @@
 </div>
 
 <script>
-window.API = (function(){
-  const BASE='https://meta-bank-backend.onrender.com';
-  function getToken(){ const t=localStorage.getItem('metaBankToken'); if(!t){ alert('Session expired. Please log in again.'); window.location.href='login.html'; throw new Error('No token'); } return t; }
-  async function request(path,opts={}){ const token=getToken(); const headers=opts.headers||{}; headers['Authorization']='Bearer '+token; if(opts.json) headers['Content-Type']='application/json';
-    const res=await fetch(`${BASE}${path}`,{method:opts.method||'GET',headers,body:opts.body||null});
-    const ct=res.headers.get('content-type')||''; const data=ct.includes('application/json')?await res.json():{};
-    if(!res.ok) throw new Error(data.message||`Request failed (${res.status})`); return data; }
-  return { request };
-})();
-async function loadTransfers(){
+async function loadTransfers() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
   try {
-    const data = await API.request('/api/user/transfers');
-    document.querySelector('.greeting').textContent = `Transfer Center – ${data.fullName || data.username || ''}`;
-    const table = document.getElementById('transferTable');
-    const rows = (data.transfers || []).map(tr => `
-      <tr><td>${tr.date}</td><td>${tr.to}</td><td>${tr.type}</td><td>$${Number(tr.amount||0).toLocaleString()}</td><td>${tr.status}</td></tr>
-    `).join('');
-    table.innerHTML = `
-      <tr><th>Date</th><th>To</th><th>Type</th><th>Amount</th><th>Status</th></tr>
-      ${rows || '<tr><td colspan="5">No transfers found</td></tr>'}
-    `;
-  } catch(err) { console.error(err); alert(err.message || 'Failed to load transfers'); }
+    // Fetch profile for greeting
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Transfer Center – ${profileData.fullName || profileData.username || 'User'}`;
+    }
+
+    // Fetch transfers
+    const resTransfers = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resTransfers.json();
+
+    if (resTransfers.ok) {
+      const table = document.getElementById('transferTable');
+      const rows = (data.transfers || []).map(tr => `
+        <tr>
+          <td>${tr.date}</td>
+          <td>${tr.to}</td>
+          <td>${tr.type}</td>
+          <td>$${Number(tr.amount || 0).toLocaleString()}</td>
+          <td>${tr.status}</td>
+        </tr>
+      `).join('');
+      table.innerHTML = `
+        <tr><th>Date</th><th>To</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+        ${rows || '<tr><td colspan="5">No transfers found</td></tr>'}
+      `;
+    } else {
+      alert(data.message || 'Failed to load transfers');
+    }
+  } catch (err) {
+    console.error('Transfers fetch error:', err);
+    alert('Error connecting to server');
+  }
 }
-document.getElementById('transferForm').addEventListener('submit', async (e)=>{
+
+document.getElementById('transferForm').addEventListener('submit', async function(e) {
   e.preventDefault();
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+
   const payload = {
     fromAccount: document.getElementById('fromAccount').value,
     toAccount: document.getElementById('toAccount').value.trim(),
@@ -97,13 +136,35 @@ document.getElementById('transferForm').addEventListener('submit', async (e)=>{
     type: document.getElementById('type').value,
     notes: document.getElementById('notes').value.trim()
   };
+
   try {
-    await API.request('/api/user/transfers', { method:'POST', json:true, body: JSON.stringify(payload) });
-    alert('Transfer submitted successfully!');
-    loadTransfers();
-  } catch(err) { console.error(err); alert(err.message || 'Failed to submit transfer'); }
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      alert('Transfer submitted successfully!');
+      loadTransfers(); // Refresh transfers live
+    } else {
+      alert(data.message || 'Failed to submit transfer');
+    }
+  } catch (err) {
+    console.error('Transfer submission error:', err);
+    alert('Error connecting to server');
+  }
 });
-function logout(){ localStorage.clear(); window.location.href='login.html'; }
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
 window.addEventListener('DOMContentLoaded', loadTransfers);
 </script>
 </body>

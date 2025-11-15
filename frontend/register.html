@@ -4,23 +4,92 @@
   <meta charset="UTF-8">
   <title>Meta Bank – Create Account</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom right, #ffffff, #e0f7e9); margin: 0; padding: 0; }
-    header { background-color: #006644; color: white; padding: 20px; text-align: center; font-size: 1.5em; font-weight: bold; }
-    .container { display: flex; justify-content: center; align-items: flex-start; padding: 40px; }
-    .form-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 700px; }
-    h2 { color: #006644; margin-bottom: 5px; text-align: center; }
-    .subtitle { text-align: center; font-size: 1.1em; color: #333; margin-bottom: 20px; }
-    form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    label { font-weight: bold; margin-top: 10px; display: block; }
-    input[type="text"], input[type="email"], input[type="password"], input[type="date"], input[type="file"], select {
-      width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+      margin: 0;
+      padding: 0;
     }
-    .full-width { grid-column: span 2; }
-    button { grid-column: span 2; margin-top: 20px; background-color: #006644; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; }
-    .link { grid-column: span 2; text-align: center; margin-top: 15px; }
-    .link a { color: #006644; text-decoration: underline; }
-    .status { grid-column: span 2; text-align: center; font-weight: bold; margin-top: 10px; color: #006644; }
-    .error { color: #cc0000; }
+    header {
+      background-color: #006644;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+    }
+    .form-box {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 700px;
+    }
+    h2 {
+      color: #006644;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 1.1em;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input[type="text"], input[type="email"], input[type="password"], input[type="date"], input[type="file"], select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      grid-column: span 2;
+      margin-top: 20px;
+      background-color: #006644;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .link {
+      grid-column: span 2;
+      text-align: center;
+      margin-top: 15px;
+    }
+    .link a {
+      color: #006644;
+      text-decoration: underline;
+    }
+    .status {
+      grid-column: span 2;
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #006644;
+    }
+    .error {
+      color: #cc0000;
+    }
   </style>
 </head>
 <body>
@@ -61,69 +130,57 @@
   </div>
 </div>
 
-<!-- Shared API helper -->
-<script>
-window.API = (function(){ /* same helper as above, but only expose request for register */ 
-  const BASE='https://meta-bank-backend.onrender.com';
-  async function request(path, opts={}) {
-    const res = await fetch(`${BASE}${path}`, opts);
-    const ct = res.headers.get('content-type')||'';
-    const data = ct.includes('application/json') ? await res.json() : {};
-    if (!res.ok) throw new Error(data.message || `Request failed (${res.status})`);
-    return data;
-  }
-  return { request };
-})();
-</script>
-
 <script>
 document.getElementById('registerForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const statusMessage = document.getElementById('statusMessage');
-  const submitButton = this.querySelector('button[type="submit"]');
-
   statusMessage.textContent = 'Processing registration...';
   statusMessage.classList.remove('error');
-  submitButton.disabled = true; submitButton.style.opacity = '0.6';
 
   const password = document.getElementById('password').value;
   const confirm = document.getElementById('confirm').value;
   if (password !== confirm) {
     statusMessage.textContent = 'Passwords do not match';
     statusMessage.classList.add('error');
-    submitButton.disabled = false; submitButton.style.opacity = '1';
     return;
   }
 
-  const form = new FormData();
-  form.append('fullName', document.getElementById('fullname').value.trim());
-  form.append('email', document.getElementById('email').value.trim());
-  form.append('phone', document.getElementById('phone').value.trim());
-  form.append('username', document.getElementById('username').value.trim());
-  form.append('password', password);
-  form.append('dob', document.getElementById('dob').value);
-  form.append('ssn', document.getElementById('ssn').value.trim());
-  form.append('accountType', document.getElementById('accountType').value);
-  form.append('bankName', document.getElementById('bankName').value.trim());
-  if (document.getElementById('idFront').files[0]) form.append('idFront', document.getElementById('idFront').files[0]);
-  if (document.getElementById('idBack').files[0]) form.append('idBack', document.getElementById('idBack').files[0]);
+  const formData = new FormData();
+  formData.append('fullName', document.getElementById('fullname').value.trim());
+  formData.append('email', document.getElementById('email').value.trim());
+  formData.append('phone', document.getElementById('phone').value.trim());
+  formData.append('username', document.getElementById('username').value.trim());
+  formData.append('password', password);
+  formData.append('dob', document.getElementById('dob').value);
+  formData.append('ssn', document.getElementById('ssn').value.trim());
+  formData.append('accountType', document.getElementById('accountType').value);
+  formData.append('bankName', document.getElementById('bankName').value.trim());
+  if (document.getElementById('idFront').files[0]) formData.append('idFront', document.getElementById('idFront').files[0]);
+  if (document.getElementById('idBack').files[0]) formData.append('idBack', document.getElementById('idBack').files[0]);
 
   try {
-    // Ensure this endpoint matches your backend controller
-    const data = await API.request('/api/auth/register', { method: 'POST', body: form, credentials: 'include' });
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/register', {
+      method: 'POST',
+      body: formData
+    });
 
-    statusMessage.textContent = '✅ Account created successfully! Redirecting to login...';
-    statusMessage.classList.remove('error');
+    const data = await res.json();
 
-    if (data.token) localStorage.setItem('metaBankToken', data.token);
-    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+    if (res.ok) {
+      statusMessage.textContent = '✅ Account created successfully! Redirecting to login...';
+      if (data.token) localStorage.setItem('metaBankToken', data.token);
+      setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+    } else {
+      statusMessage.textContent = data.message || 'Registration failed';
+      statusMessage.classList.add('error');
+    }
   } catch (err) {
-    statusMessage.textContent = err.message || 'Registration failed';
+    console.error('Registration error:', err);
+    statusMessage.textContent = 'Error connecting to server';
     statusMessage.classList.add('error');
-  } finally {
-    submitButton.disabled = false; submitButton.style.opacity = '1';
   }
 });
 </script>
+
 </body>
 </html>

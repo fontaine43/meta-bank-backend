@@ -117,7 +117,6 @@
 </div>
 
 <div class="main">
-  <!-- ✅ Placeholder greeting -->
   <div class="greeting">Loading Loan Center...</div>
 
   <div class="loan-form">
@@ -147,7 +146,6 @@
 
   <div class="loan-summary">
     <h3>My Active Loans</h3>
-    <!-- ✅ Placeholder summary -->
     <div id="loanSummaryContent">
       <p>Loading active loans...</p>
     </div>
@@ -164,15 +162,25 @@ async function loadLoans() {
   }
 
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
+    // Fetch profile for greeting
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { 'Authorization': 'Bearer ' + token }
     });
-    const data = await res.json();
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Loan Center – ${profileData.fullName || profileData.username || 'User'}`;
+    }
 
-    if (res.ok) {
-      document.querySelector('.greeting').textContent = `Loan Center – ${data.fullName || data.username}`;
+    // Fetch loans
+    const resLoans = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resLoans.json();
 
+    if (resLoans.ok) {
       const summary = document.getElementById('loanSummaryContent');
       if (data.loans && data.loans.length > 0) {
         summary.innerHTML = data.loans.map(loan => `
@@ -187,11 +195,13 @@ async function loadLoans() {
         summary.innerHTML = '<p>No active loans</p>';
       }
     } else {
-      document.querySelector('.greeting').textContent = 'Failed to load loan info';
+      document.getElementById('loanSummaryContent').innerHTML =
+        '<p>Failed to load loan info</p>';
     }
   } catch (err) {
     console.error('Error fetching loans:', err);
-    document.querySelector('.greeting').textContent = 'Error connecting to server';
+    document.getElementById('loanSummaryContent').innerHTML =
+      '<p>Error connecting to server</p>';
   }
 }
 
@@ -216,17 +226,16 @@ document.getElementById('loanForm').addEventListener('submit', async function(e)
     const res = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
     });
-
     const data = await res.json();
 
     if (res.ok) {
       alert('Loan application submitted successfully!');
-      loadLoans(); // ✅ Refresh loan info live
+      loadLoans(); // Refresh loan info live
     } else {
       alert(data.message || 'Failed to submit loan application');
     }
