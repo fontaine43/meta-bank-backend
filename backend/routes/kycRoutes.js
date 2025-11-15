@@ -7,6 +7,9 @@ const { verifyToken } = require('../middleware/authMiddleware');
 // ✅ Confirm multer is loaded
 console.log('✅ multer loaded:', typeof multer); // should log 'function'
 
+// ✅ Confirm controller functions are loaded
+console.log('✅ kycController keys:', Object.keys(kycController));
+
 // ✅ Multer setup
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -28,13 +31,13 @@ const upload = multer({
   }
 });
 
-// ✅ TEMPORARY: Use upload.single() to isolate issue
-router.post(
-  '/upload',
-  verifyToken,
-  upload.single('idFront'), // TEMP: just one field to test multer
-  kycController.uploadKYC
-);
+// ✅ Upload KYC documents — using inline middleware to avoid undefined
+const uploadMiddleware = upload.fields([
+  { name: 'idFront', maxCount: 1 },
+  { name: 'idBack', maxCount: 1 }
+]);
+
+router.post('/upload', verifyToken, uploadMiddleware, kycController.uploadKYC);
 
 // ✅ Get all users with pending KYC
 router.get('/pending', verifyToken, kycController.getPendingKYC);
