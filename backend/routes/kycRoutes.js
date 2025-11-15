@@ -9,6 +9,7 @@ console.log('✅ multer loaded:', typeof multer); // should log 'function'
 
 // ✅ Confirm controller functions are loaded
 console.log('✅ kycController keys:', Object.keys(kycController));
+console.log('✅ typeof uploadKYC:', typeof kycController.uploadKYC); // should be 'function'
 
 // ✅ Multer setup
 const storage = multer.diskStorage({
