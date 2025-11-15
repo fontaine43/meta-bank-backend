@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../middleware/authMiddleware');
+const { verifyToken } = require('../middleware/authMiddleware'); // ✅ fixed: destructure properly
 const {
   getProfile,
   getUserDashboard,
@@ -9,6 +9,9 @@ const {
   getLoans,
   getTransfers
 } = require('../controllers/userController');
+
+// ✅ Confirm middleware and controller functions
+console.log('✅ typeof verifyToken:', typeof verifyToken); // should be 'function'
 
 // ✅ Basic profile info
 router.get('/profile', verifyToken, getProfile);
