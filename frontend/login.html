@@ -217,7 +217,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   submitButton.style.opacity = '0.6';
 
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/login', {
+    const res = await fetch('/api/auth/login', { // ✅ relative path for deployment
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -229,29 +229,36 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       throw new Error(data.message || 'Login failed');
     }
 
+    // Save token and user info
     localStorage.setItem('metaBankToken', data.token);
     if (data.user) {
       localStorage.setItem('metaBankUser', JSON.stringify(data.user));
     }
 
-    // Keep spinner visible briefly before redirect
+    // Redirect to account dashboard
     spinner.innerText = 'Redirecting...';
     setTimeout(() => {
-      window.location.href = 'dashboard.html';
+      window.location.href = 'account.html';
     }, 800);
   } catch (err) {
     console.error('Login error:', err);
     alert(err.message.includes('Failed to fetch')
       ? 'Cannot reach server. Check backend URL or CORS.'
       : err.message);
+    spinner.remove();
   } finally {
-    // Always clean up button state
     submitButton.disabled = false;
     submitButton.style.opacity = '1';
-    // Remove spinner only if not redirecting
+  } finally {
+    submitButton.disabled = false;
+    submitButton.style.opacity = '1';
+    // Remove spinner only if login failed (token not saved)
     if (!localStorage.getItem('metaBankToken')) {
       spinner.remove();
     }
   }
 });
-</
+</script>
+
+</body>
+</html>

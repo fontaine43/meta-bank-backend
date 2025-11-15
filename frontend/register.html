@@ -1,186 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Meta Bank – Create Account</title>
+  <meta charset="UTF-8" />
+  <title>Meta Bank - Register</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
-      margin: 0;
-      padding: 0;
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5fdf9; }
+    .navbar {
+      background-color: #006644; color: white; display: flex; justify-content: space-between;
+      align-items: center; padding: 15px 30px; position: sticky; top: 0; z-index: 1000;
     }
-    header {
-      background-color: #006644;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 1.5em;
-      font-weight: bold;
-    }
+    .navbar h1 { margin: 0; font-size: 1.8em; cursor: pointer; }
     .container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 40px;
+      max-width: 650px; margin: 30px auto 80px; background-color: white; border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1); padding: 30px;
     }
-    .form-box {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 700px;
+    h2 { color: #006644; text-align: center; margin-bottom: 20px; }
+    label { display: block; margin-top: 12px; font-weight: 600; }
+    input, select {
+      width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 4px;
     }
-    h2 {
-      color: #006644;
-      margin-bottom: 5px;
-      text-align: center;
-    }
-    .subtitle {
-      text-align: center;
-      font-size: 1.1em;
-      color: #333;
-      margin-bottom: 20px;
-    }
-    form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    label {
-      font-weight: bold;
-      margin-top: 10px;
-      display: block;
-    }
-    input[type="text"], input[type="email"], input[type="password"], input[type="date"], input[type="file"], select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .actions { margin-top: 20px; text-align: center; }
     button {
-      grid-column: span 2;
-      margin-top: 20px;
-      background-color: #006644;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1em;
+      background-color: #006644; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;
     }
-    .link {
-      grid-column: span 2;
-      text-align: center;
-      margin-top: 15px;
-    }
-    .link a {
-      color: #006644;
-      text-decoration: underline;
-    }
-    .status {
-      grid-column: span 2;
-      text-align: center;
-      font-weight: bold;
-      margin-top: 10px;
-      color: #006644;
-    }
-    .error {
-      color: #cc0000;
-    }
+    .error { color: #b00020; margin-top: 10px; text-align: center; }
+    .success { color: #006644; margin-top: 10px; text-align: center; }
   </style>
 </head>
 <body>
-<header>Meta Bank – Create Account</header>
-<div class="container">
-  <div class="form-box">
-    <h2>Create an Account</h2>
-    <div class="subtitle">Join Meta Bank today</div>
-    <form id="registerForm">
-      <div><label for="fullname">Full Name</label><input type="text" id="fullname" required></div>
-      <div><label for="email">Email</label><input type="email" id="email" required></div>
-      <div><label for="phone">Phone</label><input type="text" id="phone" required></div>
-      <div><label for="username">Username</label><input type="text" id="username" required></div>
-      <div><label for="password">Password</label><input type="password" id="password" required></div>
-      <div><label for="confirm">Confirm Password</label><input type="password" id="confirm" required></div>
-      <div><label for="dob">Date of Birth</label><input type="date" id="dob" required></div>
-      <div><label for="ssn">Social Security Number</label><input type="text" id="ssn" placeholder="XXX-XX-XXXX" required></div>
-      <div><label for="idFront">Front of ID</label><input type="file" id="idFront" accept="image/*" required></div>
-      <div><label for="idBack">Back of ID</label><input type="file" id="idBack" accept="image/*" required></div>
-      <div>
-        <label for="accountType">Account Type</label>
-        <select id="accountType" required>
-          <option value="">Select account type</option>
-          <option value="savings">Savings Account</option>
-          <option value="investment">Investment Account</option>
-          <option value="checking">Checking Account</option>
-          <option value="business">Business Account</option>
-          <option value="student">Student Account</option>
-          <option value="ira">IRA Account</option>
-        </select>
-      </div>
-      <div><label for="bankName">Bank Name</label><input type="text" id="bankName" placeholder="e.g. Meta Bank" required></div>
+  <div class="navbar">
+    <h1 onclick="location.href='index.html'">Meta Bank</h1>
+    <div>
+      <a href="login.html" style="color:#fff;text-decoration:none;margin-right:15px;">Login</a>
+      <a href="register.html" style="background:#ffcc00;color:#003322;padding:6px 12px;border-radius:4px;text-decoration:none;">Sign Up</a>
+    </div>
+  </div>
 
-      <button type="submit">Register</button>
-      <div class="link"><p>Already have an account? <a href="login.html">Login</a></p></div>
-      <div id="statusMessage" class="status"></div>
+  <div class="container">
+    <h2>Create Your Account</h2>
+    <form id="registerForm">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" required>
+
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" required>
+
+      <div class="row">
+        <div>
+          <label for="username">Username</label>
+          <input type="text" id="username" required>
+        </div>
+        <div>
+          <label for="bankName">Bank Name</label>
+          <select id="bankName" required>
+            <option value="">Select</option>
+            <option value="Meta Bank">Meta Bank</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="password">Password</label>
+          <input type="password" id="password" required>
+        </div>
+        <div>
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="dob">Date of Birth</label>
+          <input type="date" id="dob" required>
+        </div>
+        <div>
+          <label for="ssn">SSN</label>
+          <input type="text" id="ssn" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="accountType">Account Type</label>
+          <select id="accountType" required>
+            <option value="">Select</option>
+            <option value="Checking">Checking Account</option>
+            <option value="Business">Business Account</option>
+            <option value="IRA">IRA Account</option>
+            <option value="Investment">Investment Account</option>
+            <option value="Student">Student Account</option>
+            <option value="Savings">Savings Account</option>
+          </select>
+        </div>
+        <div>
+          <label for="accountStatus">Account Status</label>
+          <select id="accountStatus" required>
+            <option value="">Select</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="idFront">ID Front (optional)</label>
+          <input type="file" id="idFront" accept="image/*">
+        </div>
+        <div>
+          <label for="idBack">ID Back (optional)</label>
+          <input type="file" id="idBack" accept="image/*">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Create Account</button>
+      </div>
+
+      <div id="msg" class="error" style="display:none;"></div>
+      <div id="ok" class="success" style="display:none;"></div>
     </form>
   </div>
-</div>
 
-<script>
-document.getElementById('registerForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const statusMessage = document.getElementById('statusMessage');
-  statusMessage.textContent = 'Processing registration...';
-  statusMessage.classList.remove('error');
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
 
-  const password = document.getElementById('password').value;
-  const confirm = document.getElementById('confirm').value;
-  if (password !== confirm) {
-    statusMessage.textContent = 'Passwords do not match';
-    statusMessage.classList.add('error');
-    return;
-  }
+      const msg = document.getElementById('msg');
+      const ok = document.getElementById('ok');
+      msg.style.display = 'none';
+      ok.style.display = 'none';
 
-  const formData = new FormData();
-  formData.append('fullName', document.getElementById('fullname').value.trim());
-  formData.append('email', document.getElementById('email').value.trim());
-  formData.append('phone', document.getElementById('phone').value.trim());
-  formData.append('username', document.getElementById('username').value.trim());
-  formData.append('password', password);
-  formData.append('dob', document.getElementById('dob').value);
-  formData.append('ssn', document.getElementById('ssn').value.trim());
-  formData.append('accountType', document.getElementById('accountType').value);
-  formData.append('bankName', document.getElementById('bankName').value.trim());
-  if (document.getElementById('idFront').files[0]) formData.append('idFront', document.getElementById('idFront').files[0]);
-  if (document.getElementById('idBack').files[0]) formData.append('idBack', document.getElementById('idBack').files[0]);
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.6';
 
-  try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/register', {
-      method: 'POST',
-      body: formData
+      // Collect values
+      const fullName = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
+      const dob = document.getElementById('dob').value.trim();
+      const ssn = document.getElementById('ssn').value.trim();
+      const bankName = document.getElementById('bankName').value.trim();
+      const accountType = document.getElementById('accountType').value.trim();
+      const accountStatus = document.getElementById('accountStatus').value.trim();
+
+      // Validate required fields
+      const required = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
+      for (const [key, val] of Object.entries(required)) {
+        if (!val) {
+          msg.textContent = 'All fields are required';
+          msg.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '1';
+          return;
+        }
+      }
+      if (password !== confirmPassword) {
+        msg.textContent = 'Passwords do not match';
+        msg.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        return;
+      }
+
+      const body = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || data.details || 'Registration failed');
+        }
+
+        ok.textContent = 'Account created successfully. Redirecting to login...';
+        ok.style.display = 'block';
+
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1200);
+      } catch (err) {
+        msg.textContent = err.message.includes('Failed to fetch')
+          ? 'Cannot reach server. Check backend URL or CORS.'
+          : err.message;
+        msg.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+      }
     });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      statusMessage.textContent = '✅ Account created successfully! Redirecting to login...';
-      if (data.token) localStorage.setItem('metaBankToken', data.token);
-      setTimeout(() => { window.location.href = 'login.html'; }, 1500);
-    } else {
-      statusMessage.textContent = data.message || 'Registration failed';
-      statusMessage.classList.add('error');
-    }
-  } catch (err) {
-    console.error('Registration error:', err);
-    statusMessage.textContent = 'Error connecting to server';
-    statusMessage.classList.add('error');
-  }
-});
-</script>
-
+  </script>
 </body>
 </html>
