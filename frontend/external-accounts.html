@@ -68,90 +68,33 @@
 </div>
 
 <script>
-// Shared helper for authenticated requests (used when token is required)
-async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) throw new Error('No token found');
-
-  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...(options.headers || {})
-    }
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
-  return data;
-}
-
-async function loadUserInfo() {
-  try {
-    const { user } = await apiFetch('/api/auth/profile');
-    document.querySelector('.greeting').textContent =
-      `External Accounts – ${user.fullName || user.username || 'User'}`;
-  } catch (err) {
-    console.error('Profile fetch error:', err);
-    alert(err.message);
-  }
-}
-
 async function loadExternalAccounts() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   try {
-    const data = await apiFetch('/api/user/external-accounts');
-    const table = document.getElementById('linkedAccountsTable');
-    const rows = (data.externalAccounts || []).map(acc => `
-      <tr>
-        <td>${acc.bankName}</td>
-        <td>${acc.accountType}</td>
-        <td>****${String(acc.accountNumber || '').slice(-4)}</td>
-        <td>${acc.status}</td>
-      </tr>
-    `).join('');
-    table.innerHTML = `
-      <tr><th>Bank Name</th><th>Account Type</th><th>Account Number</th><th>Status</th></tr>
-      ${rows || '<tr><td colspan="4">No linked accounts yet</td></tr>'}
-    `;
-  } catch (err) {
-    console.error('External accounts fetch error:', err);
-    alert(err.message);
-  }
-}
-
-document.getElementById('externalAccountForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const payload = {
-    bankName: document.getElementById('bankName').value.trim(),
-    accountNumber: document.getElementById('accountNumber').value.trim(),
-    routingNumber: document.getElementById('routingNumber').value.trim(),
-    accountType: document.getElementById('accountType').value
-  };
-
-  try {
-    await apiFetch('/api/user/external-accounts', {
-      method: 'POST',
-      body: JSON.stringify(payload)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+      headers: { 'Authorization': 'Bearer ' + token }
     });
-    alert('Account linked successfully!');
-    loadExternalAccounts();
-  } catch (err) {
-    console.error('Link account error:', err);
-    alert(err.message);
-  }
-});
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `External Accounts – ${profileData.fullName || profileData.username || 'User'}`;
+    }
+    const resAccounts = await fetch('https://meta-bank-backend.onrender.com/api/user/external-accounts', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resAccounts.json();
+    if (resAccounts.ok) {
+      const table = document.getElementById('externalAccountsTable');
+      const rows = (data.accounts || []).map(acc => `
+        <tr><td>${acc.bankName}</td><td>${acc.accountNumber}</td><td>${acc.type}</td><td>${acc.status}</td></tr>
+      `).join('');
+      table.innerHTML = `<tr><th>Bank</th><th>Account #</th><th>Type</th><th>Status</th></tr>${rows || '<tr><td colspan="4">No external accounts found</td></tr>'}`;
+    } else { alert(data.message || 'Failed to load external accounts'); }
+  } catch (err) { console.error('External accounts fetch error:', err); alert('Error connecting to server'); }
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-  loadUserInfo();
-  loadExternalAccounts();
-});
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+window.addEventListener('DOMContentLoaded', loadExternalAccounts);
 </script>
 
 </body>

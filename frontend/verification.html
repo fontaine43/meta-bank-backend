@@ -132,72 +132,29 @@
 </div>
 
 <script>
-// Shared helper for authenticated requests (used when token is required)
-async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) throw new Error('No token found');
-
-  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...(options.headers || {})
-    }
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
-  return data;
-}
-
 async function loadVerification() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   try {
-    // Fetch profile for greeting
-    const { user } = await apiFetch('/api/auth/profile');
-    document.querySelector('.greeting').textContent =
-      `Verification Center – ${user.fullName || user.username || 'User'}`;
-
-    // Fetch verification status
-    const data = await apiFetch('/api/user/verification');
-    const statusBox = document.getElementById('verificationStatus');
-    statusBox.innerHTML = `
-      <h3>KYC Status</h3>
-      <p><strong>Status:</strong> ${data.kycStatus || 'Pending'}</p>
-      <p><strong>Verified On:</strong> ${data.verifiedOn || 'N/A'}</p>
-      <p><strong>Verified By:</strong> ${data.verifiedBy || 'Meta Bank Compliance Team'}</p>
-    `;
-  } catch (err) {
-    console.error('Verification fetch error:', err);
-    alert(err.message);
-  }
-}
-
-document.getElementById('kycForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const form = new FormData();
-  form.append('idUpload', document.getElementById('idUpload').files[0]);
-  form.append('addressUpload', document.getElementById('addressUpload').files[0]);
-
-  try {
-    await apiFetch('/api/kyc/upload', {
-      method: 'POST',
-      body: form
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+      headers: { 'Authorization': 'Bearer ' + token }
     });
-    alert('Documents submitted successfully!');
-    loadVerification(); // Refresh status after upload
-  } catch (err) {
-    console.error('KYC upload error:', err);
-    alert(err.message);
-  }
-});
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Verification – ${profileData.fullName || profileData.username || 'User'}`;
+    }
+    const resVerification = await fetch('https://meta-bank-backend.onrender.com/api/user/verification', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resVerification.json();
+    if (resVerification.ok) {
+      const statusEl = document.getElementById('verificationStatus');
+      statusEl.textContent = data.status || 'Not verified';
+    } else { alert(data.message || 'Failed to load verification'); }
+  } catch (err) { console.error('Verification fetch error:', err); alert('Error connecting to server'); }
 }
-
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadVerification);
 </script>
 

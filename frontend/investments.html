@@ -55,73 +55,35 @@
   </div>
 </div>
 <script>
-// Shared helper for authenticated requests (used when token is required)
-async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) throw new Error('No token found');
-
-  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...(options.headers || {})
-    }
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
-  return data;
-}
-
 async function loadInvestments() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   try {
-    // First get the current user for greeting
-    const { user } = await apiFetch('/api/auth/profile');
-    document.querySelector('.greeting').textContent =
-      `Investment Portfolio – ${user.fullName || user.username || 'User'}`;
-
-    // Then get the investment portfolio
-    const data = await apiFetch('/api/user/investments');
-
-    document.getElementById('totalValue').textContent =
-      `$${Number(data.totalValue || 0).toLocaleString()}`;
-    document.getElementById('cryptoValue').textContent =
-      `$${Number(data.crypto || 0).toLocaleString()}`;
-    document.getElementById('stocksValue').textContent =
-      `$${Number(data.stocks || 0).toLocaleString()}`;
-    document.getElementById('bondsValue').textContent =
-      `$${Number(data.bonds || 0).toLocaleString()}`;
-    document.getElementById('realEstateValue').textContent =
-      `$${Number(data.realEstate || 0).toLocaleString()}`;
-
-    const table = document.getElementById('activityTable');
-    const rows = (data.activity || []).map(act => `
-      <tr>
-        <td>${act.date}</td>
-        <td>${act.asset}</td>
-        <td>${act.type}</td>
-        <td>$${Number(act.amount || 0).toLocaleString()}</td>
-        <td>${act.status}</td>
-      </tr>
-    `).join('');
-    table.innerHTML = `
-      <tr><th>Date</th><th>Asset</th><th>Type</th><th>Amount</th><th>Status</th></tr>
-      ${rows || '<tr><td colspan="5">No recent activity</td></tr>'}
-    `;
-  } catch (err) {
-    console.error('Investments fetch error:', err);
-    alert(err.message);
-  }
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Investments – ${profileData.fullName || profileData.username || 'User'}`;
+    }
+    const resInvestments = await fetch('https://meta-bank-backend.onrender.com/api/user/investments', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resInvestments.json();
+    if (resInvestments.ok) {
+      const table = document.getElementById('investmentTable');
+      const rows = (data.investments || []).map(inv => `
+        <tr><td>${inv.date}</td><td>${inv.asset}</td><td>${inv.type}</td><td>$${Number(inv.amount || 0).toLocaleString()}</td><td>${inv.status}</td></tr>
+      `).join('');
+      table.innerHTML = `<tr><th>Date</th><th>Asset</th><th>Type</th><th>Amount</th><th>Status</th></tr>${rows || '<tr><td colspan="5">No investments found</td></tr>'}`;
+    } else { alert(data.message || 'Failed to load investments'); }
+  } catch (err) { console.error('Investments fetch error:', err); alert('Error connecting to server'); }
 }
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
-}
-
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadInvestments);
 </script>
+
 
 </body>
 </html>

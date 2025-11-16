@@ -119,49 +119,31 @@
 </div>
 
 <script>
-// Shared helper for authenticated requests (used when token is required)
-async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) throw new Error('No token found');
-
-  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...(options.headers || {})
-    }
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
-  return data;
-}
-
 async function loadProfile() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
   try {
-    const { user } = await apiFetch('/api/auth/profile');
-
-    document.getElementById('greeting').textContent = `Hello, ${user.fullName || user.username || 'User'}`;
-    document.getElementById('fullName').textContent = user.fullName || 'N/A';
-    document.getElementById('username').textContent = user.username || 'N/A';
-    document.getElementById('email').textContent = user.email || 'N/A';
-    document.getElementById('phone').textContent = user.phone || 'N/A';
-    document.getElementById('dob').textContent = user.dob || 'N/A';
-    document.getElementById('address').textContent = user.address || 'N/A';
-    document.getElementById('kyc').textContent = user.kycStatus || 'Pending';
-    document.getElementById('status').textContent = user.accountStatus || 'Inactive';
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Welcome – ${profileData.fullName || profileData.username || 'User'}`;
+    } else {
+      alert(profileData.message || 'Failed to load profile');
+    }
   } catch (err) {
     console.error('Profile fetch error:', err);
-    alert(err.message);
+    alert('Error connecting to server');
   }
 }
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
-}
-
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadProfile);
 </script>
 

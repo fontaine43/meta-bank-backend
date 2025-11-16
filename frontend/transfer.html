@@ -69,57 +69,35 @@
 </div>
 
 <script>
-// Shared helper for authenticated requests (used when token is required)
-async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) throw new Error('No token found');
-
-  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...(options.headers || {})
-    }
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
-  return data;
-}
-
 async function loadTransfers() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   try {
-    // Fetch profile for greeting
-    const { user } = await apiFetch('/api/auth/profile');
-    document.querySelector('.greeting').textContent =
-      `Transfer Center – ${user.fullName || user.username || 'User'}`;
-
-    // Fetch transfers
-    const data = await apiFetch('/api/user/transfers');
-    const table = document.getElementById('transferTable');
-    const rows = (data.transfers || []).map(tr => `
-      <tr>
-        <td>${tr.date}</td>
-        <td>${tr.to}</td>
-        <td>${tr.type}</td>
-        <td>$${Number(tr.amount || 0).toLocaleString()}</td>
-        <td>${tr.status}</td>
-      </tr>
-    `).join('');
-    table.innerHTML = `
-      <tr><th>Date</th><th>To</th><th>Type</th><th>Amount</th><th>Status</th></tr>
-      ${rows || '<tr><td colspan="5">No transfers found</td></tr>'}
-    `;
-  } catch (err) {
-    console.error('Transfers fetch error:', err);
-    alert(err.message);
-  }
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Transfer Center – ${profileData.fullName || profileData.username || 'User'}`;
+    }
+    const resTransfers = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resTransfers.json();
+    if (resTransfers.ok) {
+      const table = document.getElementById('transferTable');
+      const rows = (data.transfers || []).map(tr => `
+        <tr><td>${tr.date}</td><td>${tr.to}</td><td>${tr.type}</td><td>$${Number(tr.amount || 0).toLocaleString()}</td><td>${tr.status}</td></tr>
+      `).join('');
+      table.innerHTML = `<tr><th>Date</th><th>To</th><th>Type</th><th>Amount</th><th>Status</th></tr>${rows || '<tr><td colspan="5">No transfers found</td></tr>'}`;
+    } else { alert(data.message || 'Failed to load transfers'); }
+  } catch (err) { console.error('Transfers fetch error:', err); alert('Error connecting to server'); }
 }
-
 document.getElementById('transferForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   const payload = {
     fromAccount: document.getElementById('fromAccount').value,
     toAccount: document.getElementById('toAccount').value.trim(),
@@ -127,25 +105,18 @@ document.getElementById('transferForm').addEventListener('submit', async functio
     type: document.getElementById('type').value,
     notes: document.getElementById('notes').value.trim()
   };
-
   try {
-    await apiFetch('/api/user/transfers', {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
       method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    alert('Transfer submitted successfully!');
-    loadTransfers(); // Refresh transfers live
-  } catch (err) {
-    console.error('Transfer submission error:', err);
-    alert(err.message);
-  }
+    const data = await res.json();
+    if (res.ok) { alert('Transfer submitted successfully!'); loadTransfers(); }
+    else { alert(data.message || 'Failed to submit transfer'); }
+  } catch (err) { console.error('Transfer submission error:', err); alert('Error connecting to server'); }
 });
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
-}
-
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadTransfers);
 </script>
 

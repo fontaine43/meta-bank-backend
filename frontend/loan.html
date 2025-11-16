@@ -153,83 +153,32 @@
 </div>
 
 <script>
-// Shared helper for authenticated requests (used when token is required)
-async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) throw new Error('No token found');
-
-  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...(options.headers || {})
-    }
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
-  return data;
-}
-
 async function loadLoans() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   try {
-    // Fetch profile for greeting
-    const { user } = await apiFetch('/api/auth/profile');
-    document.querySelector('.greeting').textContent =
-      `Loan Center – ${user.fullName || user.username || 'User'}`;
-
-    // Fetch loans
-    const data = await apiFetch('/api/user/loans');
-    const summary = document.getElementById('loanSummaryContent');
-
-    if (data.loans && data.loans.length > 0) {
-      summary.innerHTML = data.loans.map(loan => `
-        <p><strong>Loan Type:</strong> ${loan.loanType}</p>
-        <p><strong>Amount:</strong> $${Number(loan.amount).toLocaleString()}</p>
-        <p><strong>Term:</strong> ${loan.term} months</p>
-        <p><strong>Status:</strong> ${loan.status}</p>
-        <p><strong>Next Payment Due:</strong> ${loan.nextPaymentDue || 'N/A'}</p>
-        <hr>
-      `).join('');
-    } else {
-      summary.innerHTML = '<p>No active loans</p>';
-    }
-  } catch (err) {
-    console.error('Error fetching loans:', err);
-    document.getElementById('loanSummaryContent').innerHTML =
-      '<p>' + err.message + '</p>';
-  }
-}
-
-document.getElementById('loanForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const payload = {
-    loanType: document.getElementById('loanType').value,
-    amount: document.getElementById('amount').value,
-    term: document.getElementById('term').value,
-    purpose: document.getElementById('purpose').value.trim()
-  };
-
-  try {
-    await apiFetch('/api/user/loans', {
-      method: 'POST',
-      body: JSON.stringify(payload)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+      headers: { 'Authorization': 'Bearer ' + token }
     });
-    alert('Loan application submitted successfully!');
-    loadLoans(); // Refresh loan info live
-  } catch (err) {
-    console.error('Loan submission error:', err);
-    alert(err.message);
-  }
-});
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Loans – ${profileData.fullName || profileData.username || 'User'}`;
+    }
+    const resLoans = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resLoans.json();
+    if (resLoans.ok) {
+      const table = document.getElementById('loanTable');
+      const rows = (data.loans || []).map(loan => `
+        <tr><td>${loan.date}</td><td>${loan.type}</td><td>$${Number(loan.amount || 0).toLocaleString()}</td><td>${loan.status}</td></tr>
+      `).join('');
+      table.innerHTML = `<tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>${rows || '<tr><td colspan="4">No loans found</td></tr>'}`;
+    } else { alert(data.message || 'Failed to load loans'); }
+  } catch (err) { console.error('Loans fetch error:', err); alert('Error connecting to server'); }
 }
-
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadLoans);
 </script>
 
