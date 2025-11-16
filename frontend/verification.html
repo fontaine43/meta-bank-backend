@@ -144,13 +144,22 @@ async function apiFetch(endpoint, options = {}) {
   const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
     ...options,
     headers: {
+      // Default to JSON unless caller overrides (e.g. FormData uploads)
+      'Content-Type': options.body instanceof FormData ? undefined : 'application/json',
       'Authorization': 'Bearer ' + token,
       ...(options.headers || {})
     }
   });
 
+  // Safely parse JSON response
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
+
+  // Throw error if response not OK
+  if (!res.ok) {
+    throw new Error(data.message || 'Server error');
+  }
+
+  // Return parsed data
   return data;
 }
 

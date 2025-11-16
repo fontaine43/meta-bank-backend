@@ -87,7 +87,9 @@ async function apiFetch(endpoint, options = {}) {
   });
 
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
+  if (!res.ok) {
+    throw new Error(data.message || 'Server error');
+  }
   return data;
 }
 

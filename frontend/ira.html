@@ -62,6 +62,7 @@
 </div>
 <script>
 // Shared helper for authenticated requests
+// Shared helper for authenticated requests
 async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('metaBankToken');
   if (!token) {
@@ -79,8 +80,15 @@ async function apiFetch(endpoint, options = {}) {
     }
   });
 
+  // Safely parse JSON response
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
+
+  // Throw error if response not OK
+  if (!res.ok) {
+    throw new Error(data.message || 'Server error');
+  }
+
+  // Return parsed data
   return data;
 }
 
