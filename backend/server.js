@@ -18,10 +18,12 @@ const kycRoutes = require('./routes/kycRoutes');
 
 const app = express();
 
+// =======================
 // Ensure uploads folder exists
+// =======================
 const uploadsPath = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsPath)) {
-  fs.mkdirSync(uploadsPath);
+  fs.mkdirSync(uploadsPath, { recursive: true });
   console.log('📁 Created uploads directory');
 }
 
@@ -41,7 +43,7 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log(`❌ Blocked by CORS: ${origin}`);
+      console.warn(`❌ Blocked by CORS: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -56,7 +58,7 @@ app.use('/uploads', express.static(uploadsPath));
 
 // Log every request (for debugging frontend calls)
 app.use((req, res, next) => {
-  console.log(`➡️  ${req.method} ${req.url}`);
+  console.log(`➡️  ${req.method} ${req.originalUrl}`);
   next();
 });
 
@@ -70,7 +72,7 @@ app.use('/api/kyc', kycRoutes);
 
 // Health check
 app.get('/', (req, res) => {
-  res.send('✅ Meta Bank backend is running');
+  res.json({ success: true, message: '✅ Meta Bank backend is running' });
 });
 
 // =======================

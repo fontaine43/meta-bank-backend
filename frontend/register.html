@@ -129,81 +129,83 @@
   </div>
 
   <script>
-    document.getElementById('registerForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
 
-      const msg = document.getElementById('msg');
-      const ok = document.getElementById('ok');
-      msg.style.display = 'none';
-      ok.style.display = 'none';
+  const msg = document.getElementById('msg');
+  const ok = document.getElementById('ok');
+  msg.style.display = 'none';
+  ok.style.display = 'none';
 
-      const submitBtn = this.querySelector('button[type="submit"]');
-      submitBtn.disabled = true;
-      submitBtn.style.opacity = '0.6';
+  const submitBtn = this.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = '0.6';
 
-      // Collect values
-      const fullName = document.getElementById('fullName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const confirmPassword = document.getElementById('confirmPassword').value.trim();
-      const dob = document.getElementById('dob').value.trim();
-      const ssn = document.getElementById('ssn').value.trim();
-      const bankName = document.getElementById('bankName').value.trim();
-      const accountType = document.getElementById('accountType').value.trim();
-      const accountStatus = document.getElementById('accountStatus').value.trim();
+  // Collect values
+  const fullName = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const confirmPassword = document.getElementById('confirmPassword').value.trim();
+  const dob = document.getElementById('dob').value.trim();
+  const ssn = document.getElementById('ssn').value.trim();
+  const bankName = document.getElementById('bankName').value.trim();
+  const accountType = document.getElementById('accountType').value.trim();
+  const accountStatus = document.getElementById('accountStatus').value.trim();
 
-      // Validate required fields
-      const required = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
-      for (const [key, val] of Object.entries(required)) {
-        if (!val) {
-          msg.textContent = 'All fields are required';
-          msg.style.display = 'block';
-          submitBtn.disabled = false;
-          submitBtn.style.opacity = '1';
-          return;
-        }
-      }
-      if (password !== confirmPassword) {
-        msg.textContent = 'Passwords do not match';
-        msg.style.display = 'block';
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
-        return;
-      }
+  // Validate required fields
+  const required = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
+  for (const [key, val] of Object.entries(required)) {
+    if (!val) {
+      msg.textContent = 'All fields are required';
+      msg.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+      return;
+    }
+  }
+  if (password !== confirmPassword) {
+    msg.textContent = 'Passwords do not match';
+    msg.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = '1';
+    return;
+  }
 
-      const body = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
+  const body = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
 
-      try {
-        const res = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          throw new Error(data.message || data.details || 'Registration failed');
-        }
-
-        ok.textContent = 'Account created successfully. Redirecting to login...';
-        ok.style.display = 'block';
-
-        setTimeout(() => {
-          window.location.href = 'login.html';
-        }, 1200);
-      } catch (err) {
-        msg.textContent = err.message.includes('Failed to fetch')
-          ? 'Cannot reach server. Check backend URL or CORS.'
-          : err.message;
-        msg.style.display = 'block';
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
-      }
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
     });
-  </script>
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || data.details || 'Registration failed');
+    }
+
+    // ✅ Show success message and redirect to login
+    ok.textContent = 'Account created successfully. Redirecting to login...';
+    ok.style.display = 'block';
+
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 1500);
+  } catch (err) {
+    msg.textContent = err.message.includes('Failed to fetch')
+      ? 'Cannot reach server. Check backend URL or CORS.'
+      : err.message;
+    msg.style.display = 'block';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = '1';
+  }
+});
+</script>
+
 </body>
 </html>

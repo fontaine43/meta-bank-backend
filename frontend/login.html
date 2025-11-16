@@ -217,7 +217,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   submitButton.style.opacity = '0.6';
 
   try {
-    const res = await fetch('/api/auth/login', { // ✅ relative path for deployment
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -235,25 +235,22 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       localStorage.setItem('metaBankUser', JSON.stringify(data.user));
     }
 
-    // Redirect to account dashboard
+    // Redirect to dashboard
     spinner.innerText = 'Redirecting...';
     setTimeout(() => {
-      window.location.href = 'account.html';
+      window.location.href = 'dashboard.html';
     }, 800);
   } catch (err) {
     console.error('Login error:', err);
     alert(err.message.includes('Failed to fetch')
       ? 'Cannot reach server. Check backend URL or CORS.'
       : err.message);
-    spinner.remove();
-  } finally {
-    submitButton.disabled = false;
-    submitButton.style.opacity = '1';
+    if (spinner) spinner.remove();
   } finally {
     submitButton.disabled = false;
     submitButton.style.opacity = '1';
     // Remove spinner only if login failed (token not saved)
-    if (!localStorage.getItem('metaBankToken')) {
+    if (!localStorage.getItem('metaBankToken') && spinner) {
       spinner.remove();
     }
   }

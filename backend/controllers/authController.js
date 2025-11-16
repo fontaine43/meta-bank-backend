@@ -8,75 +8,92 @@ const { sendVerificationEmail, notifyAdminOfNewUser } = require('../utils/email'
 // =======================
 const register = async (req, res) => {
   try {
-    const {
-      fullName,
-      email,
-      phone,
-      username,
-      password,
-      confirmPassword,
-      dob,
-      ssn,
-      bankName
-    } = req.body;
+    const get = (key) => {
+      if (req.body && typeof req.body[key] !== 'undefined') return String(req.body[key]).trim();
+      return '';
+    };
+
+    const fullName = get('fullName');
+    const email = get('email');
+    const phone = get('phone');
+    const username = get('username');
+    const password = get('password');
+    const confirmPassword = get('confirmPassword');
+    const dob = get('dob');
+    const ssn = get('ssn');
+    const bankName = get('bankName');
+    const accountType = get('accountType');
+    const accountStatus = get('accountStatus');
+
+    const idFront = req.files?.idFront?.[0]?.filename || '';
+    const idBack = req.files?.idBack?.[0]?.filename || '';
 
     // Validate required fields
-    if (!fullName || !email || !phone || !username || !password || !confirmPassword || !dob || !ssn || !bankName) {
-      return res.status(400).json({ success: false, message: 'All fields are required' });
+    const required = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
+    for (const [k, v] of Object.entries(required)) {
+      if (!v) {
+        return res.status(400).json({ success: false, message: 'All fields are required', field: k });
+      }
     }
 
-    // Validate password match
     if (password !== confirmPassword) {
       return res.status(400).json({ success: false, message: 'Passwords do not match' });
     }
 
-    // Check for existing user
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    const normalizedEmail = email.toLowerCase();
+    const normalizedUsername = username.toLowerCase();
+
+    const existingUser = await User.findOne({
+      $or: [{ email: normalizedEmail }, { username: normalizedUsername }]
+    });
     if (existingUser) {
       return res.status(409).json({ success: false, message: 'Email or username already exists' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+    const dobDate = isNaN(Date.parse(dob)) ? null : new Date(dob);
 
-    // Handle file uploads (optional KYC docs)
-    const idFront = req.files?.idFront?.[0]?.filename || '';
-    const idBack = req.files?.idBack?.[0]?.filename || '';
-
-    // Create new user
     const newUser = new User({
       fullName,
-      email,
+      email: normalizedEmail,
       phone,
-      username,
+      username: normalizedUsername,
       password: hashedPassword,
-      dob,
+      dob: dobDate || dob,
       ssn,
       bankName,
       idFront,
       idBack,
       isVerified: false,
-      kycStatus: 'pending' // ✅ fixed to lowercase to match schema enum
+      kycStatus: 'pending',
+      accountType,
+      accountStatus
     });
 
     await newUser.save();
 
-    // Generate verification token
     const verificationToken = jwt.sign(
-      { id: newUser._id, role: newUser.role },
-      process.env.JWT_SECRET,
+      { id: newUser._id, role: newUser.role || 'user' },
+      process.env.JWT_SECRET || 'dev_secret_fallback',
       { expiresIn: '1d' }
     );
 
-    // Send verification email and notify admin (non-blocking)
     sendVerificationEmail(newUser.email, newUser.fullName, verificationToken).catch(console.error);
     notifyAdminOfNewUser(newUser).catch(console.error);
 
-    // Final response
     return res.status(201).json({
       success: true,
       message: 'Account created successfully. Verification email sent.',
-      token: verificationToken
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        fullName: newUser.fullName,
+        bankName: newUser.bankName,
+        accountType: newUser.accountType,
+        accountStatus: newUser.accountStatus,
+        kycStatus: newUser.kycStatus,
+        isVerified: newUser.isVerified
+      }
     });
   } catch (err) {
     console.error('❌ Registration error:', err);
@@ -93,33 +110,29 @@ const register = async (req, res) => {
 // =======================
 const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const username = (req.body?.username || '').trim().toLowerCase();
+    const password = (req.body?.password || '').trim();
 
-    // Validate required fields
     if (!username || !password) {
       return res.status(400).json({ success: false, message: 'Username and password are required' });
     }
 
-    // Find user
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Generate token
     const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      { id: user._id, role: user.role || 'user' },
+      process.env.JWT_SECRET || 'dev_secret_fallback',
       { expiresIn: '1d' }
     );
 
-    // Final response
     return res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -129,7 +142,11 @@ const login = async (req, res) => {
         username: user.username,
         fullName: user.fullName,
         role: user.role || 'user',
-        isVerified: user.isVerified
+        isVerified: user.isVerified,
+        bankName: user.bankName,
+        accountType: user.accountType,
+        accountStatus: user.accountStatus,
+        kycStatus: user.kycStatus
       }
     });
   } catch (err) {
