@@ -137,84 +137,93 @@
 </div>
 
 <script>
-async function loadOverview() {
+// Shared helper for authenticated requests
+async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('metaBankToken');
   if (!token) {
     alert('Session expired. Please log in again.');
     window.location.href = 'login.html';
-    return;
+    throw new Error('No token');
   }
 
+  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Server error');
+  return data;
+}
+
+async function loadOverview() {
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/account', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    // Fetch profile for greeting
+    const { user } = await apiFetch('/api/auth/profile');
+    document.querySelector('.greeting').textContent =
+      `Welcome, ${user.fullName || user.username}!`;
 
-    const data = await res.json();
+    // Fetch account overview
+    const data = await apiFetch('/api/user/account');
 
-    if (res.ok) {
-      document.querySelector('.greeting').textContent = `Welcome, ${data.fullName || data.username}!`;
+    // Account summary
+    const summaryBox = document.getElementById('accountSummary');
+    summaryBox.innerHTML = `
+      <h3>Account Summary</h3>
+      <p><strong>Account Type:</strong> ${data.accountType || 'Checking'}</p>
+      <p><strong>Total Balance:</strong> $${Number(data.balance || 1250000).toLocaleString()}</p>
+      <p><strong>Available Balance:</strong> $${Number(data.availableBalance || 1248500).toLocaleString()} 🔒</p>
+      <p><strong>Bank:</strong> ${data.bankName || 'Meta Bank'}</p>
+      <p><strong>Routing Number:</strong> ${data.routingNumber || '1100001'}</p>
+    `;
 
-      // Account summary
-      const summaryBox = document.getElementById('accountSummary');
-      summaryBox.innerHTML = `
-        <h3>Account Summary</h3>
-        <p><strong>Account Type:</strong> ${data.accountType || 'Checking'}</p>
-        <p><strong>Total Balance:</strong> $${Number(data.balance || 1250000).toLocaleString()}</p>
-        <p><strong>Available Balance:</strong> $${Number(data.availableBalance || 1248500).toLocaleString()} 🔒</p>
-        <p><strong>Bank:</strong> ${data.bankName || 'Meta Bank'}</p>
-        <p><strong>Routing Number:</strong> ${data.routingNumber || '1100001'}</p>
-      `;
+    // Quick stats
+    const statsBox = document.getElementById('quickStats');
+    statsBox.innerHTML = `
+      <h3>Quick Stats</h3>
+      <p><strong>Total Deposits:</strong> $${Number(data.totalDeposits || 206500).toLocaleString()}</p>
+      <p><strong>Total Withdrawals:</strong> $${Number(data.totalWithdrawals || 148800).toLocaleString()}</p>
+      <p><strong>Net Growth:</strong> $${Number(data.netGrowth || 57700).toLocaleString()}</p>
+      <p><strong>Last Login:</strong> ${data.lastLogin || 'Nov 9, 2025, 2:52 PM'}</p>
+    `;
 
-      // Quick stats
-      const statsBox = document.getElementById('quickStats');
-      statsBox.innerHTML = `
-        <h3>Quick Stats</h3>
-        <p><strong>Total Deposits:</strong> $${Number(data.totalDeposits || 206500).toLocaleString()}</p>
-        <p><strong>Total Withdrawals:</strong> $${Number(data.totalWithdrawals || 148800).toLocaleString()}</p>
-        <p><strong>Net Growth:</strong> $${Number(data.netGrowth || 57700).toLocaleString()}</p>
-        <p><strong>Last Login:</strong> ${data.lastLogin || 'Nov 9, 2025, 2:52 PM'}</p>
-      `;
-
-      // Recent activity
-      const table = document.getElementById('activityTable');
-      if (data.activity && data.activity.length > 0) {
-        table.innerHTML = `
+    // Recent activity
+    const table = document.getElementById('activityTable');
+    if (data.activity && data.activity.length > 0) {
+      table.innerHTML = `
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Amount</th>
+        </tr>
+        ${data.activity.map(act => `
           <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Amount</th>
+            <td>${act.date}</td>
+            <td>${act.description}</td>
+            <td>${act.type}</td>
+            <td>${act.amount}</td>
           </tr>
-          ${data.activity.map(act => `
-            <tr>
-              <td>${act.date}</td>
-              <td>${act.description}</td>
-              <td>${act.type}</td>
-              <td>${act.amount}</td>
-            </tr>
-          `).join('')}
-        `;
-      } else {
-        table.innerHTML = `
-          <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Amount</th>
-          </tr>
-          <tr><td colspan="4">No recent activity</td></tr>
-        `;
-      }
+        `).join('')}
+      `;
     } else {
-      alert(data.message || 'Failed to load overview');
+      table.innerHTML = `
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Amount</th>
+        </tr>
+        <tr><td colspan="4">No recent activity</td></tr>
+      `;
     }
   } catch (err) {
     console.error('Overview fetch error:', err);
-    alert('Error connecting to server');
+    alert(err.message);
   }
 }
 

@@ -60,50 +60,49 @@
     </form>
   </div>
 </div>
-
 <script>
-async function loadIRAInfo() {
+// Shared helper for authenticated requests
+async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('metaBankToken');
   if (!token) {
     alert('Session expired. Please log in again.');
     window.location.href = 'login.html';
-    return;
+    throw new Error('No token');
   }
 
+  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Server error');
+  return data;
+}
+
+async function loadIRAInfo() {
   try {
     // Fetch profile for greeting
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const profileData = await resProfile.json();
-    if (resProfile.ok) {
-      document.querySelector('.greeting').textContent =
-        `IRA Center – ${profileData.fullName || profileData.username || 'User'}`;
-    }
+    const { user } = await apiFetch('/api/auth/profile');
+    document.querySelector('.greeting').textContent =
+      `IRA Center – ${user.fullName || user.username || 'User'}`;
 
     // Fetch IRA balance
-    const resIRA = await fetch('https://meta-bank-backend.onrender.com/api/user/ira', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const iraData = await resIRA.json();
-    if (resIRA.ok) {
-      document.getElementById('iraBalance').textContent =
-        `$${Number(iraData.balance || 0).toLocaleString()}`;
-    } else {
-      alert(iraData.message || 'Failed to load IRA info');
-    }
+    const iraData = await apiFetch('/api/user/ira');
+    document.getElementById('iraBalance').textContent =
+      `$${Number(iraData.balance || 0).toLocaleString()}`;
   } catch (err) {
     console.error('IRA fetch error:', err);
-    alert('Error connecting to server');
+    alert(err.message);
   }
 }
 
 document.getElementById('iraForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) return;
 
   const payload = {
     iraType: document.getElementById('iraType').value,
@@ -111,25 +110,15 @@ document.getElementById('iraForm').addEventListener('submit', async function(e) 
   };
 
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/ira', {
+    await apiFetch('/api/user/ira', {
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + token,
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-
-    if (res.ok) {
-      alert('IRA application submitted successfully!');
-      loadIRAInfo();
-    } else {
-      alert(data.message || 'Failed to submit IRA application');
-    }
+    alert('IRA application submitted successfully!');
+    loadIRAInfo();
   } catch (err) {
     console.error('IRA submit error:', err);
-    alert('Error connecting to server');
+    alert(err.message);
   }
 });
 
@@ -140,5 +129,6 @@ function logout() {
 
 window.addEventListener('DOMContentLoaded', loadIRAInfo);
 </script>
+
 </body>
 </html>

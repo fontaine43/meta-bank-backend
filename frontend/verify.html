@@ -66,6 +66,25 @@
 </div>
 
 <script>
+// Shared helper for authenticated requests (used when token is required)
+async function apiFetch(endpoint, options = {}) {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) throw new Error('No token found');
+
+  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Server error');
+  return data;
+}
+
 async function verifyAccount() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
@@ -87,6 +106,15 @@ async function verifyAccount() {
       document.getElementById('message').textContent = "✅ Your account has been verified successfully!";
       document.getElementById('status').textContent = "You may now log in and access your dashboard.";
       document.getElementById('loginBtn').style.display = "inline-block";
+
+      // Optionally fetch profile for greeting if logged in
+      try {
+        const { user } = await apiFetch('/api/auth/profile');
+        document.querySelector('.greeting').textContent =
+          `Verification Center – ${user.fullName || user.username || 'User'}`;
+      } catch {
+        // ignore if not logged in yet
+      }
     } else {
       document.getElementById('message').textContent = "❌ Verification failed.";
       document.getElementById('status').textContent = data.message || "This link may have expired.";

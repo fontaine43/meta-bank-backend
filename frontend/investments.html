@@ -54,58 +54,68 @@
     </table>
   </div>
 </div>
-
 <script>
-async function loadInvestments() {
+// Shared helper for authenticated requests
+async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('metaBankToken');
   if (!token) {
     alert('Session expired. Please log in again.');
     window.location.href = 'login.html';
-    return;
+    throw new Error('No token');
   }
 
-  try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/investments', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const data = await res.json();
-
-    if (res.ok) {
-      document.querySelector('.greeting').textContent =
-        `Investment Portfolio – ${data.fullName || data.username || 'User'}`;
-
-      document.getElementById('totalValue').textContent =
-        `$${Number(data.totalValue || 0).toLocaleString()}`;
-      document.getElementById('cryptoValue').textContent =
-        `$${Number(data.crypto || 0).toLocaleString()}`;
-      document.getElementById('stocksValue').textContent =
-        `$${Number(data.stocks || 0).toLocaleString()}`;
-      document.getElementById('bondsValue').textContent =
-        `$${Number(data.bonds || 0).toLocaleString()}`;
-      document.getElementById('realEstateValue').textContent =
-        `$${Number(data.realEstate || 0).toLocaleString()}`;
-
-      const table = document.getElementById('activityTable');
-      const rows = (data.activity || []).map(act => `
-        <tr>
-          <td>${act.date}</td>
-          <td>${act.asset}</td>
-          <td>${act.type}</td>
-          <td>$${Number(act.amount || 0).toLocaleString()}</td>
-          <td>${act.status}</td>
-        </tr>
-      `).join('');
-      table.innerHTML = `
-        <tr><th>Date</th><th>Asset</th><th>Type</th><th>Amount</th><th>Status</th></tr>
-        ${rows || '<tr><td colspan="5">No recent activity</td></tr>'}
-      `;
-    } else {
-      alert(data.message || 'Failed to load investments');
+  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(options.headers || {})
     }
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Server error');
+  return data;
+}
+
+async function loadInvestments() {
+  try {
+    // First get the current user for greeting
+    const { user } = await apiFetch('/api/auth/profile');
+    document.querySelector('.greeting').textContent =
+      `Investment Portfolio – ${user.fullName || user.username || 'User'}`;
+
+    // Then get the investment portfolio
+    const data = await apiFetch('/api/user/investments');
+
+    document.getElementById('totalValue').textContent =
+      `$${Number(data.totalValue || 0).toLocaleString()}`;
+    document.getElementById('cryptoValue').textContent =
+      `$${Number(data.crypto || 0).toLocaleString()}`;
+    document.getElementById('stocksValue').textContent =
+      `$${Number(data.stocks || 0).toLocaleString()}`;
+    document.getElementById('bondsValue').textContent =
+      `$${Number(data.bonds || 0).toLocaleString()}`;
+    document.getElementById('realEstateValue').textContent =
+      `$${Number(data.realEstate || 0).toLocaleString()}`;
+
+    const table = document.getElementById('activityTable');
+    const rows = (data.activity || []).map(act => `
+      <tr>
+        <td>${act.date}</td>
+        <td>${act.asset}</td>
+        <td>${act.type}</td>
+        <td>$${Number(act.amount || 0).toLocaleString()}</td>
+        <td>${act.status}</td>
+      </tr>
+    `).join('');
+    table.innerHTML = `
+      <tr><th>Date</th><th>Asset</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+      ${rows || '<tr><td colspan="5">No recent activity</td></tr>'}
+    `;
   } catch (err) {
     console.error('Investments fetch error:', err);
-    alert('Error connecting to server');
+    alert(err.message);
   }
 }
 
@@ -116,5 +126,6 @@ function logout() {
 
 window.addEventListener('DOMContentLoaded', loadInvestments);
 </script>
+
 </body>
 </html>

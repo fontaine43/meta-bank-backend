@@ -119,40 +119,45 @@
 </div>
 
 <script>
-async function loadProfile() {
+// Shared helper for authenticated requests
+async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('metaBankToken');
   if (!token) {
     alert('Session expired. Please log in again.');
     window.location.href = 'login.html';
-    return;
+    throw new Error('No token');
   }
 
-  try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
-      method: 'GET',
-      headers: {
-        'Authorization': 'Bearer ' + token
-      }
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      document.getElementById('greeting').textContent = `Hello, ${data.fullName || data.username || 'User'}`;
-      document.getElementById('fullName').textContent = data.fullName || 'N/A';
-      document.getElementById('username').textContent = data.username || 'N/A';
-      document.getElementById('email').textContent = data.email || 'N/A';
-      document.getElementById('phone').textContent = data.phone || 'N/A';
-      document.getElementById('dob').textContent = data.dob || 'N/A';
-      document.getElementById('address').textContent = data.address || 'N/A';
-      document.getElementById('kyc').textContent = data.kycStatus || 'Pending';
-      document.getElementById('status').textContent = data.accountStatus || 'Inactive';
-    } else {
-      alert(data.message || 'Failed to load profile');
+  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(options.headers || {})
     }
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Server error');
+  return data;
+}
+
+async function loadProfile() {
+  try {
+    const { user } = await apiFetch('/api/auth/profile');
+
+    document.getElementById('greeting').textContent = `Hello, ${user.fullName || user.username || 'User'}`;
+    document.getElementById('fullName').textContent = user.fullName || 'N/A';
+    document.getElementById('username').textContent = user.username || 'N/A';
+    document.getElementById('email').textContent = user.email || 'N/A';
+    document.getElementById('phone').textContent = user.phone || 'N/A';
+    document.getElementById('dob').textContent = user.dob || 'N/A';
+    document.getElementById('address').textContent = user.address || 'N/A';
+    document.getElementById('kyc').textContent = user.kycStatus || 'Pending';
+    document.getElementById('status').textContent = user.accountStatus || 'Inactive';
   } catch (err) {
     console.error('Profile fetch error:', err);
-    alert('Error connecting to server');
+    alert(err.message);
   }
 }
 

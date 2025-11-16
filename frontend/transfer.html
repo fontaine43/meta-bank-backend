@@ -69,65 +69,60 @@
 </div>
 
 <script>
-async function loadTransfers() {
+// Shared helper for authenticated requests
+async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('metaBankToken');
   if (!token) {
     alert('Session expired. Please log in again.');
     window.location.href = 'login.html';
-    return;
+    throw new Error('No token');
   }
 
+  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Server error');
+  return data;
+}
+
+async function loadTransfers() {
   try {
     // Fetch profile for greeting
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const profileData = await resProfile.json();
-    if (resProfile.ok) {
-      document.querySelector('.greeting').textContent =
-        `Transfer Center – ${profileData.fullName || profileData.username || 'User'}`;
-    }
+    const { user } = await apiFetch('/api/auth/profile');
+    document.querySelector('.greeting').textContent =
+      `Transfer Center – ${user.fullName || user.username || 'User'}`;
 
     // Fetch transfers
-    const resTransfers = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const data = await resTransfers.json();
-
-    if (resTransfers.ok) {
-      const table = document.getElementById('transferTable');
-      const rows = (data.transfers || []).map(tr => `
-        <tr>
-          <td>${tr.date}</td>
-          <td>${tr.to}</td>
-          <td>${tr.type}</td>
-          <td>$${Number(tr.amount || 0).toLocaleString()}</td>
-          <td>${tr.status}</td>
-        </tr>
-      `).join('');
-      table.innerHTML = `
-        <tr><th>Date</th><th>To</th><th>Type</th><th>Amount</th><th>Status</th></tr>
-        ${rows || '<tr><td colspan="5">No transfers found</td></tr>'}
-      `;
-    } else {
-      alert(data.message || 'Failed to load transfers');
-    }
+    const data = await apiFetch('/api/user/transfers');
+    const table = document.getElementById('transferTable');
+    const rows = (data.transfers || []).map(tr => `
+      <tr>
+        <td>${tr.date}</td>
+        <td>${tr.to}</td>
+        <td>${tr.type}</td>
+        <td>$${Number(tr.amount || 0).toLocaleString()}</td>
+        <td>${tr.status}</td>
+      </tr>
+    `).join('');
+    table.innerHTML = `
+      <tr><th>Date</th><th>To</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+      ${rows || '<tr><td colspan="5">No transfers found</td></tr>'}
+    `;
   } catch (err) {
     console.error('Transfers fetch error:', err);
-    alert('Error connecting to server');
+    alert(err.message);
   }
 }
 
 document.getElementById('transferForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
-  }
 
   const payload = {
     fromAccount: document.getElementById('fromAccount').value,
@@ -138,25 +133,15 @@ document.getElementById('transferForm').addEventListener('submit', async functio
   };
 
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
+    await apiFetch('/api/user/transfers', {
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + token,
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-
-    if (res.ok) {
-      alert('Transfer submitted successfully!');
-      loadTransfers(); // Refresh transfers live
-    } else {
-      alert(data.message || 'Failed to submit transfer');
-    }
+    alert('Transfer submitted successfully!');
+    loadTransfers(); // Refresh transfers live
   } catch (err) {
     console.error('Transfer submission error:', err);
-    alert('Error connecting to server');
+    alert(err.message);
   }
 });
 
@@ -167,5 +152,6 @@ function logout() {
 
 window.addEventListener('DOMContentLoaded', loadTransfers);
 </script>
+
 </body>
 </html>

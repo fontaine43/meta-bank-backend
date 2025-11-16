@@ -153,67 +153,61 @@
 </div>
 
 <script>
-async function loadLoans() {
+// Shared helper for authenticated requests
+async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('metaBankToken');
   if (!token) {
     alert('Session expired. Please log in again.');
     window.location.href = 'login.html';
-    return;
+    throw new Error('No token');
   }
 
+  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Server error');
+  return data;
+}
+
+async function loadLoans() {
   try {
     // Fetch profile for greeting
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const profileData = await resProfile.json();
-    if (resProfile.ok) {
-      document.querySelector('.greeting').textContent =
-        `Loan Center – ${profileData.fullName || profileData.username || 'User'}`;
-    }
+    const { user } = await apiFetch('/api/auth/profile');
+    document.querySelector('.greeting').textContent =
+      `Loan Center – ${user.fullName || user.username || 'User'}`;
 
     // Fetch loans
-    const resLoans = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const data = await resLoans.json();
+    const data = await apiFetch('/api/user/loans');
+    const summary = document.getElementById('loanSummaryContent');
 
-    if (resLoans.ok) {
-      const summary = document.getElementById('loanSummaryContent');
-      if (data.loans && data.loans.length > 0) {
-        summary.innerHTML = data.loans.map(loan => `
-          <p><strong>Loan Type:</strong> ${loan.loanType}</p>
-          <p><strong>Amount:</strong> $${Number(loan.amount).toLocaleString()}</p>
-          <p><strong>Term:</strong> ${loan.term} months</p>
-          <p><strong>Status:</strong> ${loan.status}</p>
-          <p><strong>Next Payment Due:</strong> ${loan.nextPaymentDue || 'N/A'}</p>
-          <hr>
-        `).join('');
-      } else {
-        summary.innerHTML = '<p>No active loans</p>';
-      }
+    if (data.loans && data.loans.length > 0) {
+      summary.innerHTML = data.loans.map(loan => `
+        <p><strong>Loan Type:</strong> ${loan.loanType}</p>
+        <p><strong>Amount:</strong> $${Number(loan.amount).toLocaleString()}</p>
+        <p><strong>Term:</strong> ${loan.term} months</p>
+        <p><strong>Status:</strong> ${loan.status}</p>
+        <p><strong>Next Payment Due:</strong> ${loan.nextPaymentDue || 'N/A'}</p>
+        <hr>
+      `).join('');
     } else {
-      document.getElementById('loanSummaryContent').innerHTML =
-        '<p>Failed to load loan info</p>';
+      summary.innerHTML = '<p>No active loans</p>';
     }
   } catch (err) {
     console.error('Error fetching loans:', err);
     document.getElementById('loanSummaryContent').innerHTML =
-      '<p>Error connecting to server</p>';
+      '<p>' + err.message + '</p>';
   }
 }
 
 document.getElementById('loanForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
-  }
 
   const payload = {
     loanType: document.getElementById('loanType').value,
@@ -223,25 +217,15 @@ document.getElementById('loanForm').addEventListener('submit', async function(e)
   };
 
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
+    await apiFetch('/api/user/loans', {
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + token,
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-
-    if (res.ok) {
-      alert('Loan application submitted successfully!');
-      loadLoans(); // Refresh loan info live
-    } else {
-      alert(data.message || 'Failed to submit loan application');
-    }
+    alert('Loan application submitted successfully!');
+    loadLoans(); // Refresh loan info live
   } catch (err) {
     console.error('Loan submission error:', err);
-    alert('Error connecting to server');
+    alert(err.message);
   }
 });
 
