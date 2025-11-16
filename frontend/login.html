@@ -217,7 +217,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   submitButton.style.opacity = '0.6';
 
   try {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -249,8 +249,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   } finally {
     submitButton.disabled = false;
     submitButton.style.opacity = '1';
-    // Remove spinner only if login failed (token not saved)
-    if (!localStorage.getItem('metaBankToken') && spinner) {
+        if (!localStorage.getItem('metaBankToken') && spinner) {
       spinner.remove();
     }
   }
