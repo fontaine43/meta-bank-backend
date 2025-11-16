@@ -49,14 +49,10 @@
 </div>
 
 <script>
-// Shared helper for authenticated requests
+// Shared helper for authenticated requests (used when token is required)
 async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    throw new Error('No token');
-  }
+  if (!token) throw new Error('No token found');
 
   const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
     ...options,
@@ -67,15 +63,8 @@ async function apiFetch(endpoint, options = {}) {
     }
   });
 
-  // Safely parse JSON response
   const data = await res.json().catch(() => ({}));
-
-  // Throw error if response not OK
-  if (!res.ok) {
-    throw new Error(data.message || 'Server error');
-  }
-
-  // Return parsed data
+  if (!res.ok) throw new Error(data.message || 'Server error');
   return data;
 }
 
