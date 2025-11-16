@@ -8,6 +8,10 @@ const { sendVerificationEmail, notifyAdminOfNewUser } = require('../utils/email'
 // =======================
 const register = async (req, res) => {
   try {
+    console.log('📩 Incoming REGISTER request');
+    console.log('➡️ req.body:', req.body);
+    console.log('➡️ req.files:', req.files);
+
     const get = (key) => {
       if (req.body && typeof req.body[key] !== 'undefined') return String(req.body[key]).trim();
       return '';
@@ -32,11 +36,13 @@ const register = async (req, res) => {
     const required = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
     for (const [k, v] of Object.entries(required)) {
       if (!v) {
+        console.warn(`⚠️ Missing field: ${k}`);
         return res.status(400).json({ success: false, message: 'All fields are required', field: k });
       }
     }
 
     if (password !== confirmPassword) {
+      console.warn('⚠️ Passwords do not match');
       return res.status(400).json({ success: false, message: 'Passwords do not match' });
     }
 
@@ -47,6 +53,7 @@ const register = async (req, res) => {
       $or: [{ email: normalizedEmail }, { username: normalizedUsername }]
     });
     if (existingUser) {
+      console.warn('⚠️ Duplicate user detected:', existingUser.username);
       return res.status(409).json({ success: false, message: 'Email or username already exists' });
     }
 
@@ -71,15 +78,17 @@ const register = async (req, res) => {
     });
 
     await newUser.save();
+    console.log('✅ User saved:', newUser._id);
 
     const verificationToken = jwt.sign(
       { id: newUser._id, role: newUser.role || 'user' },
       process.env.JWT_SECRET || 'dev_secret_fallback',
       { expiresIn: '1d' }
     );
+    console.log('🔑 Verification token generated');
 
-    sendVerificationEmail(newUser.email, newUser.fullName, verificationToken).catch(console.error);
-    notifyAdminOfNewUser(newUser).catch(console.error);
+    sendVerificationEmail(newUser.email, newUser.fullName, verificationToken).catch(err => console.error('❌ Email error:', err));
+    notifyAdminOfNewUser(newUser).catch(err => console.error('❌ Admin notify error:', err));
 
     return res.status(201).json({
       success: true,
@@ -110,20 +119,26 @@ const register = async (req, res) => {
 // =======================
 const login = async (req, res) => {
   try {
+    console.log('📩 Incoming LOGIN request');
+    console.log('➡️ req.body:', req.body);
+
     const username = (req.body?.username || '').trim().toLowerCase();
     const password = (req.body?.password || '').trim();
 
     if (!username || !password) {
+      console.warn('⚠️ Missing username or password');
       return res.status(400).json({ success: false, message: 'Username and password are required' });
     }
 
     const user = await User.findOne({ username });
     if (!user) {
+      console.warn('⚠️ User not found:', username);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.warn('⚠️ Password mismatch for user:', username);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
@@ -132,6 +147,7 @@ const login = async (req, res) => {
       process.env.JWT_SECRET || 'dev_secret_fallback',
       { expiresIn: '1d' }
     );
+    console.log('🔑 JWT token generated for user:', username);
 
     return res.status(200).json({
       success: true,
