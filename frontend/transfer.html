@@ -71,9 +71,14 @@
 <script>
 async function loadTransfers() {
   const token = localStorage.getItem('metaBankToken');
-  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
   try {
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
+    // Greeting (updated to /api/auth/profile)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const profileData = await resProfile.json();
@@ -81,6 +86,8 @@ async function loadTransfers() {
       document.querySelector('.greeting').textContent =
         `Transfer Center – ${profileData.fullName || profileData.username || 'User'}`;
     }
+
+    // Transfers data
     const resTransfers = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -88,16 +95,32 @@ async function loadTransfers() {
     if (resTransfers.ok) {
       const table = document.getElementById('transferTable');
       const rows = (data.transfers || []).map(tr => `
-        <tr><td>${tr.date}</td><td>${tr.to}</td><td>${tr.type}</td><td>$${Number(tr.amount || 0).toLocaleString()}</td><td>${tr.status}</td></tr>
+        <tr>
+          <td>${tr.date}</td>
+          <td>${tr.to}</td>
+          <td>${tr.type}</td>
+          <td>$${Number(tr.amount || 0).toLocaleString()}</td>
+          <td>${tr.status}</td>
+        </tr>
       `).join('');
       table.innerHTML = `<tr><th>Date</th><th>To</th><th>Type</th><th>Amount</th><th>Status</th></tr>${rows || '<tr><td colspan="5">No transfers found</td></tr>'}`;
-    } else { alert(data.message || 'Failed to load transfers'); }
-  } catch (err) { console.error('Transfers fetch error:', err); alert('Error connecting to server'); }
+    } else {
+      alert(data.message || 'Failed to load transfers');
+    }
+  } catch (err) {
+    console.error('Transfers fetch error:', err);
+    alert('Error connecting to server');
+  }
 }
+
 document.getElementById('transferForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const token = localStorage.getItem('metaBankToken');
-  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
   const payload = {
     fromAccount: document.getElementById('fromAccount').value,
     toAccount: document.getElementById('toAccount').value.trim(),
@@ -112,10 +135,18 @@ document.getElementById('transferForm').addEventListener('submit', async functio
       body: JSON.stringify(payload)
     });
     const data = await res.json();
-    if (res.ok) { alert('Transfer submitted successfully!'); loadTransfers(); }
-    else { alert(data.message || 'Failed to submit transfer'); }
-  } catch (err) { console.error('Transfer submission error:', err); alert('Error connecting to server'); }
+    if (res.ok) {
+      alert('Transfer submitted successfully!');
+      loadTransfers(); // Refresh transfers live
+    } else {
+      alert(data.message || 'Failed to submit transfer');
+    }
+  } catch (err) {
+    console.error('Transfer submission error:', err);
+    alert('Error connecting to server');
+  }
 });
+
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadTransfers);
 </script>

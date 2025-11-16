@@ -157,6 +157,7 @@ async function loadLoans() {
   const token = localStorage.getItem('metaBankToken');
   if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   try {
+    // Greeting
     const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -165,6 +166,8 @@ async function loadLoans() {
       document.querySelector('.greeting').textContent =
         `Loans – ${profileData.fullName || profileData.username || 'User'}`;
     }
+
+    // Loans data
     const resLoans = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
       headers: { 'Authorization': 'Bearer ' + token }
     });

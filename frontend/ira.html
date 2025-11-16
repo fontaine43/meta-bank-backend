@@ -65,6 +65,7 @@ async function loadIRA() {
   const token = localStorage.getItem('metaBankToken');
   if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   try {
+    // Greeting
     const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -73,6 +74,8 @@ async function loadIRA() {
       document.querySelector('.greeting').textContent =
         `IRA – ${profileData.fullName || profileData.username || 'User'}`;
     }
+
+    // IRA data
     const resIRA = await fetch('https://meta-bank-backend.onrender.com/api/user/ira', {
       headers: { 'Authorization': 'Bearer ' + token }
     });

@@ -137,97 +137,45 @@
 </div>
 
 <script>
-// Shared helper for authenticated requests (used when token is required)
-async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) throw new Error('No token found');
-
-  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...(options.headers || {})
-    }
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
-  return data;
-}
-
 async function loadOverview() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    alert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
   try {
-    // Fetch profile for greeting
-    const { user } = await apiFetch('/api/auth/profile');
-    document.querySelector('.greeting').textContent =
-      `Welcome, ${user.fullName || user.username}!`;
-
-    // Fetch account overview
-    const data = await apiFetch('/api/user/account');
-
-    // Account summary
-    const summaryBox = document.getElementById('accountSummary');
-    summaryBox.innerHTML = `
-      <h3>Account Summary</h3>
-      <p><strong>Account Type:</strong> ${data.accountType || 'Checking'}</p>
-      <p><strong>Total Balance:</strong> $${Number(data.balance || 1250000).toLocaleString()}</p>
-      <p><strong>Available Balance:</strong> $${Number(data.availableBalance || 1248500).toLocaleString()} 🔒</p>
-      <p><strong>Bank:</strong> ${data.bankName || 'Meta Bank'}</p>
-      <p><strong>Routing Number:</strong> ${data.routingNumber || '1100001'}</p>
-    `;
-
-    // Quick stats
-    const statsBox = document.getElementById('quickStats');
-    statsBox.innerHTML = `
-      <h3>Quick Stats</h3>
-      <p><strong>Total Deposits:</strong> $${Number(data.totalDeposits || 206500).toLocaleString()}</p>
-      <p><strong>Total Withdrawals:</strong> $${Number(data.totalWithdrawals || 148800).toLocaleString()}</p>
-      <p><strong>Net Growth:</strong> $${Number(data.netGrowth || 57700).toLocaleString()}</p>
-      <p><strong>Last Login:</strong> ${data.lastLogin || 'Nov 9, 2025, 2:52 PM'}</p>
-    `;
-
-    // Recent activity
-    const table = document.getElementById('activityTable');
-    if (data.activity && data.activity.length > 0) {
-      table.innerHTML = `
-        <tr>
-          <th>Date</th>
-          <th>Description</th>
-          <th>Type</th>
-          <th>Amount</th>
-        </tr>
-        ${data.activity.map(act => `
-          <tr>
-            <td>${act.date}</td>
-            <td>${act.description}</td>
-            <td>${act.type}</td>
-            <td>${act.amount}</td>
-          </tr>
-        `).join('')}
-      `;
+    // Greeting
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const profileData = await resProfile.json();
+    if (resProfile.ok) {
+      document.querySelector('.greeting').textContent =
+        `Welcome – ${profileData.fullName || profileData.username || 'User'}`;
     } else {
-      table.innerHTML = `
-        <tr>
-          <th>Date</th>
-          <th>Description</th>
-          <th>Type</th>
-          <th>Amount</th>
-        </tr>
-        <tr><td colspan="4">No recent activity</td></tr>
-      `;
+      alert(profileData.message || 'Failed to load profile');
+    }
+
+    // Example: fetch balances or summary
+    const resSummary = await fetch('https://meta-bank-backend.onrender.com/api/user/summary', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resSummary.json();
+    if (resSummary.ok) {
+      document.getElementById('accountBalance').textContent =
+        `$${Number(data.balance || 0).toLocaleString()}`;
+      document.getElementById('recentActivity').textContent =
+        (data.recentActivity || []).join(', ');
+    } else {
+      alert(data.message || 'Failed to load overview');
     }
   } catch (err) {
     console.error('Overview fetch error:', err);
-    alert(err.message);
+    alert('Error connecting to server');
   }
 }
-
-function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
-}
-
+function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadOverview);
 </script>
 

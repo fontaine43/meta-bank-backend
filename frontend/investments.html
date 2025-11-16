@@ -54,11 +54,13 @@
     </table>
   </div>
 </div>
+
 <script>
 async function loadInvestments() {
   const token = localStorage.getItem('metaBankToken');
   if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   try {
+    // Greeting
     const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -67,6 +69,8 @@ async function loadInvestments() {
       document.querySelector('.greeting').textContent =
         `Investments – ${profileData.fullName || profileData.username || 'User'}`;
     }
+
+    // Investments data
     const resInvestments = await fetch('https://meta-bank-backend.onrender.com/api/user/investments', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -83,7 +87,6 @@ async function loadInvestments() {
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadInvestments);
 </script>
-
 
 </body>
 </html>

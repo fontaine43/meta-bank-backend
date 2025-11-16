@@ -134,8 +134,13 @@
 <script>
 async function loadVerification() {
   const token = localStorage.getItem('metaBankToken');
-  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
+  if (!token) { 
+    alert('Session expired. Please log in again.'); 
+    window.location.href = 'login.html'; 
+    return; 
+  }
   try {
+    // Greeting
     const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -144,6 +149,8 @@ async function loadVerification() {
       document.querySelector('.greeting').textContent =
         `Verification – ${profileData.fullName || profileData.username || 'User'}`;
     }
+
+    // Verification status
     const resVerification = await fetch('https://meta-bank-backend.onrender.com/api/user/verification', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -151,8 +158,13 @@ async function loadVerification() {
     if (resVerification.ok) {
       const statusEl = document.getElementById('verificationStatus');
       statusEl.textContent = data.status || 'Not verified';
-    } else { alert(data.message || 'Failed to load verification'); }
-  } catch (err) { console.error('Verification fetch error:', err); alert('Error connecting to server'); }
+    } else { 
+      alert(data.message || 'Failed to load verification'); 
+    }
+  } catch (err) { 
+    console.error('Verification fetch error:', err); 
+    alert('Error connecting to server'); 
+  }
 }
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadVerification);

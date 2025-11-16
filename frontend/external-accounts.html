@@ -72,6 +72,7 @@ async function loadExternalAccounts() {
   const token = localStorage.getItem('metaBankToken');
   if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
   try {
+    // Greeting
     const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -80,6 +81,8 @@ async function loadExternalAccounts() {
       document.querySelector('.greeting').textContent =
         `External Accounts – ${profileData.fullName || profileData.username || 'User'}`;
     }
+
+    // External accounts data
     const resAccounts = await fetch('https://meta-bank-backend.onrender.com/api/user/external-accounts', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
