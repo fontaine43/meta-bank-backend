@@ -17,21 +17,23 @@ const {
 } = require('../controllers/adminController');
 
 // =======================
-// Debug Logging
+// Debug Logging (optional, remove in production)
 // =======================
-console.log('🔍 Admin Controller Imports:', {
-  getAllUsers,
-  changeUserRole,
-  deleteUser,
-  getOpenTickets,
-  resolveTicket,
-  getStats,
-  getPendingKYC,
-  approveKYC,
-  rejectKYC,
-  promoteUser,
-  suspendUser
-});
+if (process.env.NODE_ENV !== 'production') {
+  console.log('🔍 Admin Controller Imports:', {
+    getAllUsers,
+    changeUserRole,
+    deleteUser,
+    getOpenTickets,
+    resolveTicket,
+    getStats,
+    getPendingKYC,
+    approveKYC,
+    rejectKYC,
+    promoteUser,
+    suspendUser
+  });
+}
 
 // =======================
 // Analytics & Stats
@@ -59,7 +61,8 @@ router.post('/kyc/:id/reject', verifyToken, isAdmin, rejectKYC);
 // =======================
 // Support Tickets
 // =======================
+// ⚠️ Changed to POST for consistency with frontend script
 router.get('/tickets', verifyToken, isAdmin, getOpenTickets);
-router.put('/tickets/:id/resolve', verifyToken, isAdmin, resolveTicket);
+router.post('/tickets/:id/resolve', verifyToken, isAdmin, resolveTicket);
 
 module.exports = router;

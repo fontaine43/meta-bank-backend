@@ -1,3 +1,4 @@
+// routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../middleware/authMiddleware');
@@ -8,7 +9,13 @@ const {
   makeTransfer,
   getLoans,
   getTransfers,
-  verifyAccount // ✅ added for email verification
+  verifyAccount,          // ✅ email verification
+  getStatements,          // ✅ statements
+  getInvestments,         // ✅ investments
+  getIRA,                 // ✅ IRA accounts
+  getExternalAccounts,    // ✅ external accounts
+  getSummary,             // ✅ account summary
+  getVerificationStatus   // ✅ verification status
 } = require('../controllers/userController');
 
 // =======================
@@ -43,5 +50,27 @@ router.get('/transfers', verifyToken, getTransfers);
 
 // GET /api/user/verify?token=XYZ — Public route (no token required)
 router.get('/verify', verifyAccount);
+
+// =======================
+// Extra Feature Endpoints
+// =======================
+
+// GET /api/user/statements — Transaction statements
+router.get('/statements', verifyToken, getStatements);
+
+// GET /api/user/investments — Investment records
+router.get('/investments', verifyToken, getInvestments);
+
+// GET /api/user/ira — IRA accounts
+router.get('/ira', verifyToken, getIRA);
+
+// GET /api/user/external-accounts — Linked external accounts
+router.get('/external-accounts', verifyToken, getExternalAccounts);
+
+// GET /api/user/summary — Account summary (balance + activity)
+router.get('/summary', verifyToken, getSummary);
+
+// GET /api/user/verification — Verification status
+router.get('/verification', verifyToken, getVerificationStatus);
 
 module.exports = router;

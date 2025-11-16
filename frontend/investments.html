@@ -58,10 +58,14 @@
 <script>
 async function loadInvestments() {
   const token = localStorage.getItem('metaBankToken');
-  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
+  if (!token) { 
+    alert('Session expired. Please log in again.'); 
+    window.location.href = 'login.html'; 
+    return; 
+  }
   try {
-    // Greeting
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+    // Greeting (fixed to /api/user/profile)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const profileData = await resProfile.json();
@@ -70,7 +74,7 @@ async function loadInvestments() {
         `Investments – ${profileData.fullName || profileData.username || 'User'}`;
     }
 
-    // Investments data
+    // Investments data (requires backend route)
     const resInvestments = await fetch('https://meta-bank-backend.onrender.com/api/user/investments', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -78,11 +82,22 @@ async function loadInvestments() {
     if (resInvestments.ok) {
       const table = document.getElementById('investmentTable');
       const rows = (data.investments || []).map(inv => `
-        <tr><td>${inv.date}</td><td>${inv.asset}</td><td>${inv.type}</td><td>$${Number(inv.amount || 0).toLocaleString()}</td><td>${inv.status}</td></tr>
+        <tr>
+          <td>${inv.date}</td>
+          <td>${inv.asset}</td>
+          <td>${inv.type}</td>
+          <td>$${Number(inv.amount || 0).toLocaleString()}</td>
+          <td>${inv.status}</td>
+        </tr>
       `).join('');
       table.innerHTML = `<tr><th>Date</th><th>Asset</th><th>Type</th><th>Amount</th><th>Status</th></tr>${rows || '<tr><td colspan="5">No investments found</td></tr>'}`;
-    } else { alert(data.message || 'Failed to load investments'); }
-  } catch (err) { console.error('Investments fetch error:', err); alert('Error connecting to server'); }
+    } else { 
+      alert(data.message || 'Failed to load investments'); 
+    }
+  } catch (err) { 
+    console.error('Investments fetch error:', err); 
+    alert('Error connecting to server'); 
+  }
 }
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadInvestments);

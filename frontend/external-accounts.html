@@ -68,12 +68,17 @@
 </div>
 
 <script>
+<script>
 async function loadExternalAccounts() {
   const token = localStorage.getItem('metaBankToken');
-  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
+  if (!token) { 
+    alert('Session expired. Please log in again.'); 
+    window.location.href = 'login.html'; 
+    return; 
+  }
   try {
-    // Greeting
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+    // Greeting (use /api/user/profile)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const profileData = await resProfile.json();
@@ -82,7 +87,7 @@ async function loadExternalAccounts() {
         `External Accounts – ${profileData.fullName || profileData.username || 'User'}`;
     }
 
-    // External accounts data
+    // External accounts data (this route must exist in backend)
     const resAccounts = await fetch('https://meta-bank-backend.onrender.com/api/user/external-accounts', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -93,8 +98,13 @@ async function loadExternalAccounts() {
         <tr><td>${acc.bankName}</td><td>${acc.accountNumber}</td><td>${acc.type}</td><td>${acc.status}</td></tr>
       `).join('');
       table.innerHTML = `<tr><th>Bank</th><th>Account #</th><th>Type</th><th>Status</th></tr>${rows || '<tr><td colspan="4">No external accounts found</td></tr>'}`;
-    } else { alert(data.message || 'Failed to load external accounts'); }
-  } catch (err) { console.error('External accounts fetch error:', err); alert('Error connecting to server'); }
+    } else { 
+      alert(data.message || 'Failed to load external accounts'); 
+    }
+  } catch (err) { 
+    console.error('External accounts fetch error:', err); 
+    alert('Error connecting to server'); 
+  }
 }
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadExternalAccounts);

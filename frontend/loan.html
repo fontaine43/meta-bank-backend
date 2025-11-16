@@ -155,10 +155,14 @@
 <script>
 async function loadLoans() {
   const token = localStorage.getItem('metaBankToken');
-  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
+  if (!token) { 
+    alert('Session expired. Please log in again.'); 
+    window.location.href = 'login.html'; 
+    return; 
+  }
   try {
-    // Greeting
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+    // Greeting (fixed to /api/user/profile)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const profileData = await resProfile.json();
@@ -167,23 +171,34 @@ async function loadLoans() {
         `Loans – ${profileData.fullName || profileData.username || 'User'}`;
     }
 
-    // Loans data
+    // Loans data (backend returns array directly)
     const resLoans = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await resLoans.json();
     if (resLoans.ok) {
       const table = document.getElementById('loanTable');
-      const rows = (data.loans || []).map(loan => `
-        <tr><td>${loan.date}</td><td>${loan.type}</td><td>$${Number(loan.amount || 0).toLocaleString()}</td><td>${loan.status}</td></tr>
+      const rows = (data || []).map(loan => `
+        <tr>
+          <td>${loan.date}</td>
+          <td>${loan.type}</td>
+          <td>$${Number(loan.amount || 0).toLocaleString()}</td>
+          <td>${loan.status}</td>
+        </tr>
       `).join('');
       table.innerHTML = `<tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>${rows || '<tr><td colspan="4">No loans found</td></tr>'}`;
-    } else { alert(data.message || 'Failed to load loans'); }
-  } catch (err) { console.error('Loans fetch error:', err); alert('Error connecting to server'); }
+    } else { 
+      alert(data.message || 'Failed to load loans'); 
+    }
+  } catch (err) { 
+    console.error('Loans fetch error:', err); 
+    alert('Error connecting to server'); 
+  }
 }
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadLoans);
 </script>
+
 
 </body>
 </html>

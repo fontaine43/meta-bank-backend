@@ -145,8 +145,8 @@ async function loadOverview() {
     return;
   }
   try {
-    // Greeting
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+    // Greeting (fixed to /api/user/profile)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const profileData = await resProfile.json();
@@ -157,7 +157,7 @@ async function loadOverview() {
       alert(profileData.message || 'Failed to load profile');
     }
 
-    // Example: fetch balances or summary
+    // Summary data (requires backend route)
     const resSummary = await fetch('https://meta-bank-backend.onrender.com/api/user/summary', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -178,6 +178,7 @@ async function loadOverview() {
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadOverview);
 </script>
+
 
 </body>
 </html>

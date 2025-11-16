@@ -127,7 +127,8 @@ async function loadProfile() {
     return;
   }
   try {
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+    // Fixed endpoint: /api/user/profile
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       method: 'GET',
       headers: { 'Authorization': 'Bearer ' + token }
     });

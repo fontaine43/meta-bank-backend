@@ -63,10 +63,14 @@
 <script>
 async function loadIRA() {
   const token = localStorage.getItem('metaBankToken');
-  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
+  if (!token) { 
+    alert('Session expired. Please log in again.'); 
+    window.location.href = 'login.html'; 
+    return; 
+  }
   try {
-    // Greeting
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+    // Greeting (fixed to /api/user/profile)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const profileData = await resProfile.json();
@@ -75,7 +79,7 @@ async function loadIRA() {
         `IRA – ${profileData.fullName || profileData.username || 'User'}`;
     }
 
-    // IRA data
+    // IRA data (requires backend route)
     const resIRA = await fetch('https://meta-bank-backend.onrender.com/api/user/ira', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -83,15 +87,26 @@ async function loadIRA() {
     if (resIRA.ok) {
       const table = document.getElementById('iraTable');
       const rows = (data.iraAccounts || []).map(acc => `
-        <tr><td>${acc.date}</td><td>${acc.plan}</td><td>$${Number(acc.balance || 0).toLocaleString()}</td><td>${acc.status}</td></tr>
+        <tr>
+          <td>${acc.date}</td>
+          <td>${acc.plan}</td>
+          <td>$${Number(acc.balance || 0).toLocaleString()}</td>
+          <td>${acc.status}</td>
+        </tr>
       `).join('');
       table.innerHTML = `<tr><th>Date</th><th>Plan</th><th>Balance</th><th>Status</th></tr>${rows || '<tr><td colspan="4">No IRA accounts found</td></tr>'}`;
-    } else { alert(data.message || 'Failed to load IRA'); }
-  } catch (err) { console.error('IRA fetch error:', err); alert('Error connecting to server'); }
+    } else { 
+      alert(data.message || 'Failed to load IRA'); 
+    }
+  } catch (err) { 
+    console.error('IRA fetch error:', err); 
+    alert('Error connecting to server'); 
+  }
 }
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadIRA);
 </script>
+
 
 </body>
 </html>

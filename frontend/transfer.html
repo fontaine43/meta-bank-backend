@@ -69,87 +69,51 @@
 </div>
 
 <script>
-async function loadTransfers() {
+async function loadStatements() {
   const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
+  if (!token) { 
+    alert('Session expired. Please log in again.'); 
+    window.location.href = 'login.html'; 
+    return; 
   }
   try {
-    // Greeting (updated to /api/auth/profile)
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+    // Greeting (fixed to /api/user/profile)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const profileData = await resProfile.json();
     if (resProfile.ok) {
       document.querySelector('.greeting').textContent =
-        `Transfer Center – ${profileData.fullName || profileData.username || 'User'}`;
+        `Statements – ${profileData.fullName || profileData.username || 'User'}`;
     }
 
-    // Transfers data
-    const resTransfers = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
+    // Statements data (requires backend route)
+    const resStatements = await fetch('https://meta-bank-backend.onrender.com/api/user/statements', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
-    const data = await resTransfers.json();
-    if (resTransfers.ok) {
-      const table = document.getElementById('transferTable');
-      const rows = (data.transfers || []).map(tr => `
+    const data = await resStatements.json();
+    if (resStatements.ok) {
+      const table = document.getElementById('statementTable');
+      const rows = (data.statements || []).map(st => `
         <tr>
-          <td>${tr.date}</td>
-          <td>${tr.to}</td>
-          <td>${tr.type}</td>
-          <td>$${Number(tr.amount || 0).toLocaleString()}</td>
-          <td>${tr.status}</td>
+          <td>${st.date}</td>
+          <td>${st.description}</td>
+          <td>$${Number(st.amount || 0).toLocaleString()}</td>
         </tr>
       `).join('');
-      table.innerHTML = `<tr><th>Date</th><th>To</th><th>Type</th><th>Amount</th><th>Status</th></tr>${rows || '<tr><td colspan="5">No transfers found</td></tr>'}`;
-    } else {
-      alert(data.message || 'Failed to load transfers');
+      table.innerHTML = `<tr><th>Date</th><th>Description</th><th>Amount</th></tr>${rows || '<tr><td colspan="3">No statements found</td></tr>'}`;
+    } else { 
+      alert(data.message || 'Failed to load statements'); 
     }
-  } catch (err) {
-    console.error('Transfers fetch error:', err);
-    alert('Error connecting to server');
+  } catch (err) { 
+    console.error('Statements fetch error:', err); 
+    alert('Error connecting to server'); 
   }
 }
-
-document.getElementById('transferForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) {
-    alert('Session expired. Please log in again.');
-    window.location.href = 'login.html';
-    return;
-  }
-  const payload = {
-    fromAccount: document.getElementById('fromAccount').value,
-    toAccount: document.getElementById('toAccount').value.trim(),
-    amount: document.getElementById('amount').value,
-    type: document.getElementById('type').value,
-    notes: document.getElementById('notes').value.trim()
-  };
-  try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/user/transfers', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (res.ok) {
-      alert('Transfer submitted successfully!');
-      loadTransfers(); // Refresh transfers live
-    } else {
-      alert(data.message || 'Failed to submit transfer');
-    }
-  } catch (err) {
-    console.error('Transfer submission error:', err);
-    alert('Error connecting to server');
-  }
-});
-
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
-window.addEventListener('DOMContentLoaded', loadTransfers);
+window.addEventListener('DOMContentLoaded', loadStatements);
 </script>
+
 
 </body>
 </html>

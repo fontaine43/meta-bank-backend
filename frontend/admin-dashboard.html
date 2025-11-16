@@ -191,9 +191,7 @@ fetch('https://meta-bank-backend.onrender.com/api/admin/stats', {
     document.getElementById('loanCount').innerText = data.activeLoans || '--';
     document.getElementById('ticketCount').innerText = data.openTickets || '--';
   })
-  .catch(() => {
-    console.warn('Analytics fetch failed. Using static fallback.');
-  });
+  .catch(err => console.error('Analytics fetch error:', err));
 
 // Load KYC approvals
 fetch('https://meta-bank-backend.onrender.com/api/admin/kyc', {
@@ -202,7 +200,7 @@ fetch('https://meta-bank-backend.onrender.com/api/admin/kyc', {
   .then(res => res.json())
   .then(data => {
     const table = document.getElementById('kycTable');
-    data.forEach(user => {
+    (data || []).forEach(user => {
       const row = `
         <tr>
           <td>${user.fullName}</td>
@@ -217,7 +215,8 @@ fetch('https://meta-bank-backend.onrender.com/api/admin/kyc', {
         </tr>`;
       table.insertAdjacentHTML('beforeend', row);
     });
-  });
+  })
+  .catch(err => console.error('KYC fetch error:', err));
 
 // Load users
 fetch('https://meta-bank-backend.onrender.com/api/admin/users', {
@@ -226,7 +225,7 @@ fetch('https://meta-bank-backend.onrender.com/api/admin/users', {
   .then(res => res.json())
   .then(data => {
     const table = document.getElementById('userTable');
-    data.forEach(user => {
+    (data || []).forEach(user => {
       const row = `
         <tr>
           <td>${user.fullName}</td>
@@ -240,7 +239,8 @@ fetch('https://meta-bank-backend.onrender.com/api/admin/users', {
         </tr>`;
       table.insertAdjacentHTML('beforeend', row);
     });
-  });
+  })
+  .catch(err => console.error('Users fetch error:', err));
 
 // Load tickets
 fetch('https://meta-bank-backend.onrender.com/api/admin/tickets', {
@@ -249,7 +249,7 @@ fetch('https://meta-bank-backend.onrender.com/api/admin/tickets', {
   .then(res => res.json())
   .then(data => {
     const table = document.getElementById('ticketTable');
-    data.forEach(ticket => {
+    (data || []).forEach(ticket => {
       const row = `
         <tr>
           <td>#${ticket.ticketId}</td>
@@ -260,7 +260,8 @@ fetch('https://meta-bank-backend.onrender.com/api/admin/tickets', {
         </tr>`;
       table.insertAdjacentHTML('beforeend', row);
     });
-  });
+  })
+  .catch(err => console.error('Tickets fetch error:', err));
 
 function logout() {
   localStorage.clear();
@@ -282,9 +283,6 @@ function rejectKYC(id) {
   }).then(() => location.reload());
 }
 
-function promoteUser(id) {
-  fetch(`https://meta-bank-backend.onrender.com/api/admin/users/${id}/promote`, {
-    method: 'POST',
 function promoteUser(id) {
   fetch(`https://meta-bank-backend.onrender.com/api/admin/users/${id}/promote`, {
     method: 'POST',

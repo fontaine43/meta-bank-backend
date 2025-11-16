@@ -51,10 +51,14 @@
 <script>
 async function loadStatements() {
   const token = localStorage.getItem('metaBankToken');
-  if (!token) { alert('Session expired. Please log in again.'); window.location.href = 'login.html'; return; }
+  if (!token) { 
+    alert('Session expired. Please log in again.'); 
+    window.location.href = 'login.html'; 
+    return; 
+  }
   try {
-    // Greeting
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/auth/profile', {
+    // Greeting (fixed to /api/user/profile)
+    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const profileData = await resProfile.json();
@@ -63,7 +67,7 @@ async function loadStatements() {
         `Statements – ${profileData.fullName || profileData.username || 'User'}`;
     }
 
-    // Statements data
+    // Statements data (requires backend route)
     const resStatements = await fetch('https://meta-bank-backend.onrender.com/api/user/statements', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
@@ -71,11 +75,20 @@ async function loadStatements() {
     if (resStatements.ok) {
       const table = document.getElementById('statementTable');
       const rows = (data.statements || []).map(st => `
-        <tr><td>${st.date}</td><td>${st.description}</td><td>$${Number(st.amount || 0).toLocaleString()}</td></tr>
+        <tr>
+          <td>${st.date}</td>
+          <td>${st.description}</td>
+          <td>$${Number(st.amount || 0).toLocaleString()}</td>
+        </tr>
       `).join('');
       table.innerHTML = `<tr><th>Date</th><th>Description</th><th>Amount</th></tr>${rows || '<tr><td colspan="3">No statements found</td></tr>'}`;
-    } else { alert(data.message || 'Failed to load statements'); }
-  } catch (err) { console.error('Statements fetch error:', err); alert('Error connecting to server'); }
+    } else { 
+      alert(data.message || 'Failed to load statements'); 
+    }
+  } catch (err) { 
+    console.error('Statements fetch error:', err); 
+    alert('Error connecting to server'); 
+  }
 }
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 window.addEventListener('DOMContentLoaded', loadStatements);

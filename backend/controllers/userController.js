@@ -10,16 +10,11 @@ const Transfer = require('../models/Transfer');
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
     res.status(200).json(user);
   } catch (err) {
     console.error('❌ Profile fetch error:', err);
-    res.status(500).json({
-      message: 'Failed to fetch profile',
-      details: err.message
-    });
+    res.status(500).json({ message: 'Failed to fetch profile', details: err.message });
   }
 };
 
@@ -27,9 +22,7 @@ exports.getProfile = async (req, res) => {
 exports.getUserDashboard = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.status(200).json({
       username: user.username,
@@ -49,10 +42,7 @@ exports.getUserDashboard = async (req, res) => {
     });
   } catch (err) {
     console.error('❌ Dashboard fetch error:', err);
-    res.status(500).json({
-      message: 'Failed to fetch dashboard',
-      details: err.message
-    });
+    res.status(500).json({ message: 'Failed to fetch dashboard', details: err.message });
   }
 };
 
@@ -67,17 +57,12 @@ exports.applyLoan = async (req, res) => {
     if (!amount || !purpose) {
       return res.status(400).json({ message: 'Loan amount and purpose are required' });
     }
-
     const loan = new Loan({ ...req.body, userId: req.user.id });
     await loan.save();
-
     res.status(201).json({ message: 'Loan application submitted successfully' });
   } catch (err) {
     console.error('❌ Loan application error:', err);
-    res.status(500).json({
-      message: 'Loan application failed',
-      details: err.message
-    });
+    res.status(500).json({ message: 'Loan application failed', details: err.message });
   }
 };
 
@@ -88,17 +73,12 @@ exports.makeTransfer = async (req, res) => {
     if (!amount || !recipientAccount) {
       return res.status(400).json({ message: 'Transfer amount and recipient account are required' });
     }
-
     const transfer = new Transfer({ ...req.body, userId: req.user.id });
     await transfer.save();
-
     res.status(201).json({ message: 'Transfer initiated successfully' });
   } catch (err) {
     console.error('❌ Transfer error:', err);
-    res.status(500).json({
-      message: 'Transfer failed',
-      details: err.message
-    });
+    res.status(500).json({ message: 'Transfer failed', details: err.message });
   }
 };
 
@@ -106,13 +86,10 @@ exports.makeTransfer = async (req, res) => {
 exports.getLoans = async (req, res) => {
   try {
     const loans = await Loan.find({ userId: req.user.id });
-    res.status(200).json(loans);
+    res.status(200).json({ loans });
   } catch (err) {
     console.error('❌ Fetch loans error:', err);
-    res.status(500).json({
-      message: 'Failed to fetch loans',
-      details: err.message
-    });
+    res.status(500).json({ message: 'Failed to fetch loans', details: err.message });
   }
 };
 
@@ -120,13 +97,10 @@ exports.getLoans = async (req, res) => {
 exports.getTransfers = async (req, res) => {
   try {
     const transfers = await Transfer.find({ userId: req.user.id });
-    res.status(200).json(transfers);
+    res.status(200).json({ transfers });
   } catch (err) {
     console.error('❌ Fetch transfers error:', err);
-    res.status(500).json({
-      message: 'Failed to fetch transfers',
-      details: err.message
-    });
+    res.status(500).json({ message: 'Failed to fetch transfers', details: err.message });
   }
 };
 
@@ -138,31 +112,96 @@ exports.getTransfers = async (req, res) => {
 exports.verifyAccount = async (req, res) => {
   try {
     const { token } = req.query;
-    if (!token) {
-      return res.status(400).json({ success: false, message: 'Verification token is required' });
-    }
+    if (!token) return res.status(400).json({ success: false, message: 'Verification token is required' });
 
     const user = await User.findOne({
       verificationToken: token,
       verificationTokenExpiry: { $gt: Date.now() }
     });
 
-    if (!user) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired token' });
-    }
+    if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired token' });
 
     user.isVerified = true;
     user.verificationToken = undefined;
     user.verificationTokenExpiry = undefined;
     await user.save();
 
-    res.json({ success: true, message: 'Account verified successfully!' });
+    res.status(200).json({ success: true, message: 'Account verified successfully!' });
   } catch (err) {
     console.error('❌ Verification error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Server error verifying account',
-      details: err.message
+    res.status(500).json({ success: false, message: 'Server error verifying account', details: err.message });
+  }
+};
+
+// =======================
+// Extra Feature Endpoints
+// =======================
+
+// GET /api/user/statements
+exports.getStatements = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('statements');
+    res.status(200).json({ statements: user?.statements || [] });
+  } catch (err) {
+    console.error('❌ Statements fetch error:', err);
+    res.status(500).json({ message: 'Failed to fetch statements', details: err.message });
+  }
+};
+
+// GET /api/user/investments
+exports.getInvestments = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('investments');
+    res.status(200).json({ investments: user?.investments || [] });
+  } catch (err) {
+    console.error('❌ Investments fetch error:', err);
+    res.status(500).json({ message: 'Failed to fetch investments', details: err.message });
+  }
+};
+
+// GET /api/user/ira
+exports.getIRA = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('iraAccounts');
+    res.status(200).json({ iraAccounts: user?.iraAccounts || [] });
+  } catch (err) {
+    console.error('❌ IRA fetch error:', err);
+    res.status(500).json({ message: 'Failed to fetch IRA accounts', details: err.message });
+  }
+};
+
+// GET /api/user/external-accounts
+exports.getExternalAccounts = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('externalAccounts');
+    res.status(200).json({ accounts: user?.externalAccounts || [] });
+  } catch (err) {
+    console.error('❌ External accounts fetch error:', err);
+    res.status(500).json({ message: 'Failed to fetch external accounts', details: err.message });
+  }
+};
+
+// GET /api/user/summary
+exports.getSummary = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('balance recentActivity');
+    res.status(200).json({
+      balance: user?.balance ?? 0,
+      recentActivity: user?.recentActivity || []
     });
+  } catch (err) {
+    console.error('❌ Summary fetch error:', err);
+    res.status(500).json({ message: 'Failed to fetch summary', details: err.message });
+  }
+};
+
+// GET /api/user/verification
+exports.getVerificationStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('isVerified');
+    res.status(200).json({ status: user?.isVerified ? 'Verified' : 'Not verified' });
+  } catch (err) {
+    console.error('❌ Verification status error:', err);
+    res.status(500).json({ message: 'Failed to fetch verification status', details: err.message });
   }
 };
