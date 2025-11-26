@@ -3,10 +3,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // ✅ Direct imports of your model files
-const User = require('./User');
-const Loan = require('./Loan');
-const Transfer = require('./Transfer');
-const Ticket = require('./Ticket');
+const User = require('./user');
+const Loan = require('./loan');
+const Transfer = require('./transfer');
+const Ticket = require('./ticket');
 
 const {
   sendVerificationEmail,
