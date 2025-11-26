@@ -12,17 +12,16 @@ const userSchema = new Schema({
   password: { type: String, required: true },
   dob: { type: Date, required: true },
   ssn: { type: String, required: true },
-  bankName: { type: String, required: true }
-});
+  bankName: { type: String, required: true },
 
   role: { type: String, enum: ['user', 'admin', 'support'], default: 'user' },
-  kycStatus: { type: String, enum: ['pending', 'approved', 'verified', 'rejected'], default: 'pending', index: true },
+  kycStatus: { type: String, enum: ['pending', 'approved', 'verified', 'rejected'], default: 'pending' },
 
   idFront: { type: String, default: '' },
   idBack: { type: String, default: '' },
   isVerified: { type: Boolean, default: false },
 
-  accountNumber: { type: String, unique: true, sparse: true, index: true },
+  accountNumber: { type: String, unique: true, sparse: true },
   accountType: { type: String, enum: ['checking', 'savings', 'business'], default: 'checking' },
   accountStatus: { type: String, enum: ['active', 'inactive'], default: 'inactive' },
   balance: { type: Number, default: 0 },
@@ -50,6 +49,7 @@ const userSchema = new Schema({
   verificationTokenExpiry: { type: Date }
 }, { timestamps: true });
 
+// Keep only one index definition per field
 userSchema.index({ email: 1 });
 userSchema.index({ username: 1 });
 userSchema.index({ accountNumber: 1 });
@@ -57,10 +57,10 @@ userSchema.index({ kycStatus: 1 });
 
 const loanSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  type: { type: String, enum: ['personal', 'business'], required: true, index: true },
+  type: { type: String, enum: ['personal', 'business'], required: true },
   amount: { type: Number, required: true, min: 0 },
   purpose: { type: String, required: true, trim: true },
-  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending', index: true },
+  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   appliedAt: { type: Date, default: Date.now },
   reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   reviewedAt: { type: Date },
@@ -76,7 +76,7 @@ const transferSchema = new Schema({
   amount: { type: Number, required: true, min: 0 },
   type: { type: String, trim: true }, // "Domestic" | "Wire"
   notes: { type: String, trim: true },
-  status: { type: String, enum: ['pending', 'completed'], default: 'pending', index: true },
+  status: { type: String, enum: ['pending', 'completed'], default: 'pending' },
   initiatedAt: { type: Date, default: Date.now },
   completedAt: { type: Date },
   processedBy: { type: Schema.Types.ObjectId, ref: 'User' },
@@ -97,7 +97,7 @@ const ticketSchema = new Schema({
   userEmail: { type: String, required: true, trim: true },
   issue: { type: String, required: true, trim: true },
   priority: { type: String, trim: true }, // High | Medium | Low
-  status: { type: String, enum: ['open', 'resolved'], default: 'open', index: true },
+  status: { type: String, enum: ['open', 'resolved'], default: 'open' },
   ticketId: { type: String, unique: true },
   resolvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   resolvedAt: { type: Date },
