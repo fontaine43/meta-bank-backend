@@ -2,146 +2,231 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Meta Bank - Register</title>
+  <title>Meta Bank – Register</title>
   <style>
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5fdf9; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f5fdf9 0%, #e0f7e9 100%);
+      min-height: 100vh;
+    }
     .navbar {
-      background-color: #006644; color: white; display: flex; justify-content: space-between;
-      align-items: center; padding: 15px 30px; position: sticky; top: 0; z-index: 1000;
+      background-color: #006644;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
-    .navbar h1 { margin: 0; font-size: 1.8em; cursor: pointer; }
+    .navbar h1 {
+      margin: 0;
+      font-size: 1.8em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .navbar h1 img {
+      height: 40px;
+      width: auto;
+      border-radius: 4px;
+    }
     .container {
-      max-width: 650px; margin: 30px auto 80px; background-color: white; border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1); padding: 30px;
+      max-width: 650px;
+      margin: 30px auto 80px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 40px 30px;
     }
-    h2 { color: #006644; text-align: center; margin-bottom: 20px; }
-    label { display: block; margin-top: 12px; font-weight: 600; }
+    h2 {
+      color: #006644;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
     input, select {
-      width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 4px;
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e1e5e9;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
     }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .actions { margin-top: 20px; text-align: center; }
+    input:focus, select:focus { outline: none; border-color: #006644; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .actions { margin-top: 30px; text-align: center; }
     button {
-      background-color: #006644; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;
+      background-color: #006644;
+      color: white;
+      padding: 14px 30px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      transition: background-color 0.3s;
     }
-    .error { color: #b00020; margin-top: 10px; text-align: center; }
-    .success { color: #006644; margin-top: 10px; text-align: center; }
+    button:hover { background-color: #004d33; }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
+    .alert {
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+    .alert-error { background-color: #ffeaea; color: #d63031; border: 1px solid #ffcccc; }
+    .alert-success { background-color: #e8f8ef; color: #006644; border: 1px solid #b8e6b8; }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .login-link { text-align: center; margin-top: 20px; }
+    .login-link a { color: #006644; text-decoration: none; font-weight: 500; }
+    .login-link a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="navbar">
-    <h1 onclick="location.href='index.html'">Meta Bank</h1>
+    <h1 onclick="location.href='index.html'">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDZeccWB2mKqtr0TRVnXSiTvQs9ky5mCKXqw&s" alt="Meta Bank Logo">
+      Meta Bank
+    </h1>
     <div>
       <a href="login.html" style="color:#fff;text-decoration:none;margin-right:15px;">Login</a>
-      <a href="register.html" style="background:#ffcc00;color:#003322;padding:6px 12px;border-radius:4px;text-decoration:none;">Sign Up</a>
+      <a href="register.html" style="background:#ffcc00;color:#003322;padding:8px 16px;border-radius:4px;text-decoration:none;">Sign Up</a>
     </div>
   </div>
 
   <div class="container">
     <h2>Create Your Account</h2>
+    <div id="alertMessage" class="alert"></div>
     <form id="registerForm">
-      <label for="fullName">Full Name</label>
-      <input type="text" id="fullName" required>
-
-      <label for="email">Email</label>
-      <input type="email" id="email" required>
-
-      <label for="phone">Phone</label>
-      <input type="text" id="phone" required>
-
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" required>
+      </div>
       <div class="row">
-        <div>
+        <div class="form-group">
           <label for="username">Username</label>
           <input type="text" id="username" required>
         </div>
-        <div>
+        <div class="form-group">
           <label for="bankName">Bank Name</label>
           <select id="bankName" required>
-            <option value="">Select</option>
             <option value="Meta Bank">Meta Bank</option>
           </select>
         </div>
       </div>
-
       <div class="row">
-        <div>
+        <div class="form-group">
           <label for="password">Password</label>
           <input type="password" id="password" required>
         </div>
-        <div>
+        <div class="form-group">
           <label for="confirmPassword">Confirm Password</label>
           <input type="password" id="confirmPassword" required>
         </div>
       </div>
-
       <div class="row">
-        <div>
+        <div class="form-group">
           <label for="dob">Date of Birth</label>
           <input type="date" id="dob" required>
         </div>
-        <div>
+        <div class="form-group">
           <label for="ssn">SSN</label>
           <input type="text" id="ssn" required>
         </div>
       </div>
-
       <div class="row">
-        <div>
+        <div class="form-group">
           <label for="accountType">Account Type</label>
           <select id="accountType" required>
-            <option value="">Select</option>
-            <option value="Checking">Checking Account</option>
-            <option value="Business">Business Account</option>
-            <option value="IRA">IRA Account</option>
-            <option value="Investment">Investment Account</option>
-            <option value="Student">Student Account</option>
-            <option value="Savings">Savings Account</option>
+            <option value="checking">Checking Account</option>
+            <option value="savings">Savings Account</option>
+            <option value="business">Business Account</option>
+            <option value="investment">Investment Account</option>
+            <option value="ira">IRA Account</option>
           </select>
         </div>
-        <div>
+        <div class="form-group">
           <label for="accountStatus">Account Status</label>
           <select id="accountStatus" required>
-            <option value="">Select</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+            <option value="active">Active</option>
+            <option value="inactive" selected>Inactive</option>
           </select>
         </div>
       </div>
-
-      <div class="row">
-        <div>
-          <label for="idFront">ID Front (optional)</label>
-          <input type="file" id="idFront" accept="image/*">
-        </div>
-        <div>
-          <label for="idBack">ID Back (optional)</label>
-          <input type="file" id="idBack" accept="image/*">
-        </div>
-      </div>
-
       <div class="actions">
-        <button type="submit">Create Account</button>
+        <button type="submit" id="registerButton">
+          <span id="buttonText">Create Account</span>
+          <span id="buttonSpinner" class="loading" style="display: none;"></span>
+        </button>
       </div>
-
-      <div id="msg" class="error" style="display:none;"></div>
-      <div id="ok" class="success" style="display:none;"></div>
+      <div class="login-link">
+        Already have an account? <a href="login.html">Login here</a>
+      </div>
     </form>
   </div>
 
-  <script>
+<script>
+const API_BASE =
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : 'https://meta-bank-backend.onrender.com/api';
+
+function showAlert(message, type = 'error') {
+  const alertEl = document.getElementById('alertMessage');
+  alertEl.textContent = message;
+  alertEl.className = `alert alert-${type}`;
+  alertEl.style.display = 'block';
+  if (type === 'success') setTimeout(() => alertEl.style.display = 'none', 5000);
+}
+
+function setLoading(isLoading) {
+  const button = document.getElementById('registerButton');
+  const buttonText = document.getElementById('buttonText');
+  const spinner = document.getElementById('buttonSpinner');
+  if (isLoading) {
+    button.disabled = true;
+        buttonText.textContent = 'Creating Account...';
+    spinner.style.display = 'inline-block';
+  } else {
+    button.disabled = false;
+    buttonText.textContent = 'Create Account';
+    spinner.style.display = 'none';
+  }
+}
+
 document.getElementById('registerForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
-  const msg = document.getElementById('msg');
-  const ok = document.getElementById('ok');
-  msg.style.display = 'none';
-  ok.style.display = 'none';
-
-  const submitBtn = this.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.style.opacity = '0.6';
-
-  // Collect values
+  // Collect form values
   const fullName = document.getElementById('fullName').value.trim();
   const email = document.getElementById('email').value.trim();
   const phone = document.getElementById('phone').value.trim();
@@ -154,56 +239,62 @@ document.getElementById('registerForm').addEventListener('submit', async functio
   const accountType = document.getElementById('accountType').value.trim();
   const accountStatus = document.getElementById('accountStatus').value.trim();
 
-  // Validate required fields
-  const required = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
-  for (const [key, val] of Object.entries(required)) {
-    if (!val) {
-      msg.textContent = 'All fields are required';
-      msg.style.display = 'block';
-      submitBtn.disabled = false;
-      submitBtn.style.opacity = '1';
-      return;
-    }
+  // Validation
+  if (!fullName || !email || !phone || !username || !password || !confirmPassword || !dob || !ssn) {
+    showAlert('All fields are required');
+    return;
   }
   if (password !== confirmPassword) {
-    msg.textContent = 'Passwords do not match';
-    msg.style.display = 'block';
-    submitBtn.disabled = false;
-    submitBtn.style.opacity = '1';
+    showAlert('Passwords do not match');
+    return;
+  }
+  if (password.length < 6) {
+    showAlert('Password must be at least 6 characters long');
     return;
   }
 
-  const body = { fullName, email, phone, username, password, confirmPassword, dob, ssn, bankName, accountType, accountStatus };
+  setLoading(true);
 
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/register', {
+    const response = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify({
+        fullName,
+        email,
+        phone,
+        username,
+        password,
+        confirmPassword,
+        dob,
+        ssn,
+        bankName,
+        accountType,
+        accountStatus
+      })
     });
 
-    const data = await res.json();
+    const data = await response.json();
 
-    if (!res.ok || !data.success) {
-      throw new Error(data.message || data.details || 'Registration failed');
+    if (response.ok && data.success) {
+      showAlert('✅ Account created successfully! Please check your email for verification link.', 'success');
+      document.getElementById('registerForm').reset();
+    } else {
+      showAlert(data.message || 'Registration failed. Please try again.');
     }
-
-    // ✅ Show success message and redirect to login
-    ok.textContent = 'Account created successfully. Redirecting to login...';
-    ok.style.display = 'block';
-
-    setTimeout(() => {
-      window.location.href = 'login.html';
-    }, 1500);
-  } catch (err) {
-    msg.textContent = err.message.includes('Failed to fetch')
-      ? 'Cannot reach server. Check backend URL or CORS.'
-      : err.message;
-    msg.style.display = 'block';
+  } catch (error) {
+    console.error('Registration error:', error);
+    showAlert('Unable to connect to server. Please check your internet connection and try again.');
   } finally {
-    submitBtn.disabled = false;
-    submitBtn.style.opacity = '1';
+    setLoading(false);
   }
+});
+
+// Restrict DOB to 18+ years ago
+document.addEventListener('DOMContentLoaded', function() {
+  const today = new Date();
+  const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+  document.getElementById('dob').max = minDate.toISOString().split('T')[0];
 });
 </script>
 

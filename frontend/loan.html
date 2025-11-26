@@ -2,101 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Meta Bank Loans</title>
+  <title>Meta Bank Business Loans</title>
   <style>
+    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f9;
-      display: flex;
+      margin:0;
+      font-family:'Segoe UI',sans-serif;
+      background-color:#f4f6f9;
+      display:flex;
+      min-height:100vh;
     }
-
     .sidebar {
-      width: 250px;
-      background-color: #006644;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
+      width:250px;
+      background-color:#006644;
+      color:white;
+      height:100vh;
+      padding:20px;
+      position:fixed;
+      left:0;
+      top:0;
     }
-
-    .sidebar h2 {
-      margin-top: 0;
-      font-size: 1.5em;
-      margin-bottom: 30px;
-    }
-
+    .sidebar h2 { margin-top:0; font-size:1.5em; margin-bottom:30px; text-align:center; }
     .sidebar a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      margin-bottom: 15px;
-      font-weight: 500;
+      display:block; color:white; text-decoration:none; margin-bottom:15px;
+      font-weight:500; padding:10px 15px; border-radius:6px; transition:background-color 0.3s;
     }
-
-    .sidebar a:hover {
-      text-decoration: underline;
-    }
-
+    .sidebar a:hover { background-color:#004d33; }
+    .sidebar a.active { background-color:#004d33; }
     .main {
-      flex: 1;
-      padding: 30px;
-      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+      flex:1; padding:30px; background:linear-gradient(to bottom right,#ffffff,#e0f7e9);
+      margin-left:250px; width:calc(100% - 250px);
     }
-
-    .greeting {
-      font-size: 1.4em;
-      margin-bottom: 20px;
-      color: #006644;
+    .greeting { font-size:1.4em; margin-bottom:20px; color:#006644; font-weight:600; }
+    .loan-form,.loan-summary,.loan-calculator {
+      background-color:white; padding:25px; border-radius:12px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.1); margin-bottom:30px;
     }
-
-    .loan-form, .loan-summary {
-      background-color: white;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      max-width: 600px;
-      margin-bottom: 30px;
+    h3 { margin-top:0; color:#006644; font-size:1.3em; margin-bottom:20px; }
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:20px; }
+    .stat-card { background:#f8f9fa; padding:20px; border-radius:8px; border-left:4px solid #006644; }
+    .stat-label { font-size:0.9em; color:#666; margin-bottom:5px; }
+    .stat-value { font-size:1.4em; font-weight:600; color:#006644; }
+    label { display:block; margin-top:15px; font-weight:bold; color:#333; }
+    input,textarea,select {
+      width:100%; padding:12px 15px; margin-top:5px; border:2px solid #e1e5e9;
+      border-radius:6px; font-size:1em; transition:border-color 0.3s;
     }
-
-    .loan-form h3, .loan-summary h3 {
-      margin-top: 0;
-      color: #006644;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 1em;
-    }
-
+    input:focus,textarea:focus,select:focus { outline:none; border-color:#006644; }
     button {
-      margin-top: 20px;
-      background-color: #006644;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+      margin-top:20px; background-color:#006644; color:white; padding:12px 24px;
+      border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:600;
+      transition:background-color 0.3s;
     }
-
-    .loan-summary p {
-      margin: 10px 0;
-      font-size: 1em;
+    button:hover { background-color:#004d33; }
+    button:disabled { background-color:#ccc; cursor:not-allowed; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td { padding:12px 15px; border-bottom:1px solid #eee; text-align:left; }
+    th { background-color:#e0f7e9; color:#006644; font-weight:600; }
+    .alert { padding:12px 15px; border-radius:6px; margin-bottom:20px; text-align:center; font-weight:500; display:none; }
+    .alert-success { background:#e8f8ef; color:#006644; border:1px solid #b8e6b8; }
+    .alert-error { background:#ffeaea; color:#d63031; border:1px solid #ffcccc; }
+    .loading {
+      display:inline-block; width:20px; height:20px; border:3px solid #fff;
+      border-radius:50%; border-top-color:transparent; animation:spin 1s ease-in-out infinite; margin-right:10px;
     }
-
-    .loan-summary strong {
-      color: #003322;
-    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loan-types { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; margin-top:20px; }
+    .loan-type-card { background:#f8f9fa; padding:20px; border-radius:8px; border:2px solid #e0f7e9; transition:transform 0.3s; }
+    .loan-type-card:hover { transform:translateY(-2px); border-color:#006644; }
+    .loan-type-card h4 { margin-top:0; color:#006644; }
+    .calculator-results { background:#e8f8ef; padding:20px; border-radius:8px; margin-top:20px; border-left:4px solid #006644; }
   </style>
 </head>
 <body>
@@ -107,98 +82,305 @@
   <a href="overview.html">Overview</a>
   <a href="verification.html">Verification</a>
   <a href="profile.html">Profile</a>
-  <a href="loan.html">Loans</a>
+  <a href="loan.html" class="active">Loans</a>
   <a href="investments.html">Investments</a>
   <a href="ira.html">IRA</a>
   <a href="transfer.html">Transfer</a>
   <a href="external-accounts.html">External Accounts</a>
   <a href="statements.html">Statements</a>
-  <a href="#" onclick="logout()">Sign Out</a>
+  <a href="business-account.html">Business Account</a>
+  <a href="#" id="signOutLink">Sign Out</a>
 </div>
 
 <div class="main">
-  <div class="greeting">Loading Loan Center...</div>
-
-  <div class="loan-form">
-    <h3>Apply for a Loan</h3>
-    <form id="loanForm">
-      <label for="loanType">Loan Type</label>
-      <select id="loanType" required>
-        <option value="">Select loan type</option>
-        <option>Business Loan</option>
-        <option>Home Loan</option>
-        <option>Auto Loan</option>
-        <option>Personal Loan</option>
-      </select>
-
-      <label for="amount">Amount</label>
-      <input type="number" id="amount" placeholder="Enter amount" required>
-
-      <label for="term">Term (months)</label>
-      <input type="number" id="term" placeholder="e.g. 12, 24, 36" required>
-
-      <label for="purpose">Purpose</label>
-      <textarea id="purpose" rows="3" placeholder="Describe the purpose of the loan" required></textarea>
-
-      <button type="submit">Submit Application</button>
-    </form>
-  </div>
+  <div class="greeting">Loading Business Loan Center...</div>
+  <div id="alertMessage" class="alert"></div>
 
   <div class="loan-summary">
-    <h3>My Active Loans</h3>
-    <div id="loanSummaryContent">
-      <p>Loading active loans...</p>
+    <h3>Loan Overview</h3>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Active Loans</div><div class="stat-value" id="activeLoans">0</div></div>
+      <div class="stat-card"><div class="stat-label">Total Borrowed</div><div class="stat-value" id="totalBorrowed">$0.00</div></div>
+      <div class="stat-card"><div class="stat-label">Monthly Payment</div><div class="stat-value" id="monthlyPayment">$0.00</div></div>
+      <div class="stat-card"><div class="stat-label">Credit Score</div><div class="stat-value" id="creditScore">-</div></div>
     </div>
+    <table id="loanTable">
+      <tr><th>Loan Type</th><th>Amount</th><th>Interest Rate</th><th>Term</th><th>Status</th></tr>
+      <tr><td colspan="5" style="text-align:center;padding:30px;">Loading active loans...</td></tr>
+    </table>
+  </div>
+
+  <div class="loan-calculator">
+    <h3>Loan Calculator</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+      <div><label for="calcAmount">Loan Amount</label><input type="number" id="calcAmount" min="1000" step="1000" value="10000"></div>
+      <div><label for="calcTerm">Loan Term (months)</label>
+        <select id="calcTerm"><option value="12">12</option><option value="24">24</option><option value="36" selected>36</option><option value="48">48</option><option value="60">60</option></select>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px;">
+      <div><label for="calcInterest">Interest Rate (%)</label><input type="number" id="calcInterest" min="1" max="25" step="0.1" value="6.5"></div>
+      <div><label for="calcType">Loan Type</label>
+        <select id="calcType"><option value="business">Business Loan</option><option value="personal">Personal Loan</option><option value="auto">Auto Loan</option><option value="home">Home Loan</option></select>
+             </select>
+      </div>
+    </div>
+    
+    <button onclick="calculateLoan()">Calculate Payment</button>
+    
+    <div id="calcResults" class="calculator-results" style="display: none;">
+      <h4>Calculation Results</h4>
+      <div id="resultsContent"></div>
+    </div>
+  </div>
+
+  <div class="loan-form">
+    <h3>Apply for a Business Loan</h3>
+    
+    <div class="loan-types">
+      <div class="loan-type-card">
+        <h4>💰 Business Expansion</h4>
+        <p>Fund your business growth and expansion plans</p>
+        <ul>
+          <li>Up to $500,000</li>
+          <li>3-7 year terms</li>
+          <li>Competitive rates</li>
+        </ul>
+        <button onclick="selectLoanType('Business Expansion')">Select This Loan</button>
+      </div>
+      <div class="loan-type-card">
+        <h4>🏢 Equipment Financing</h4>
+        <p>Purchase new equipment and machinery</p>
+        <ul>
+          <li>Up to $250,000</li>
+          <li>2-5 year terms</li>
+          <li>Fixed rates</li>
+        </ul>
+        <button onclick="selectLoanType('Equipment Financing')">Select This Loan</button>
+      </div>
+    </div>
+
+    <form id="loanForm">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div>
+          <label for="loanType">Loan Type</label>
+          <select id="loanType" required>
+            <option value="">Select loan type</option>
+            <option value="Business Expansion">Business Expansion</option>
+            <option value="Equipment Financing">Equipment Financing</option>
+            <option value="Working Capital">Working Capital</option>
+            <option value="Commercial Real Estate">Commercial Real Estate</option>
+          </select>
+        </div>
+        <div>
+          <label for="amount">Loan Amount</label>
+          <input type="number" id="amount" placeholder="Enter amount" min="1000" step="1000" required>
+        </div>
+      </div>
+      
+      <div style="margin-top: 15px;">
+        <label for="purpose">Purpose of Loan</label>
+        <textarea id="purpose" rows="4" placeholder="Describe the purpose of the loan..." required></textarea>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+        <div>
+          <label for="businessAge">Business Age (years)</label>
+          <input type="number" id="businessAge" placeholder="Years in business" min="0" required>
+        </div>
+        <div>
+          <label for="annualRevenue">Annual Revenue</label>
+          <input type="number" id="annualRevenue" placeholder="Annual revenue" min="0" step="1000" required>
+        </div>
+      </div>
+      
+      <button type="submit" id="submitButton">
+        <span id="buttonText">Submit Application</span>
+        <span id="buttonSpinner" class="loading" style="display: none;"></span>
+      </button>
+    </form>
   </div>
 </div>
 
 <script>
-async function loadLoans() {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) { 
-    alert('Session expired. Please log in again.'); 
-    window.location.href = 'login.html'; 
-    return; 
-  }
-  try {
-    // Greeting (fixed to /api/user/profile)
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const profileData = await resProfile.json();
-    if (resProfile.ok) {
-      document.querySelector('.greeting').textContent =
-        `Loans – ${profileData.fullName || profileData.username || 'User'}`;
-    }
+const API_BASE =
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : 'https://meta-bank-backend.onrender.com/api';
 
-    // Loans data (backend returns array directly)
-    const resLoans = await fetch('https://meta-bank-backend.onrender.com/api/user/loans', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const data = await resLoans.json();
-    if (resLoans.ok) {
-      const table = document.getElementById('loanTable');
-      const rows = (data || []).map(loan => `
-        <tr>
-          <td>${loan.date}</td>
-          <td>${loan.type}</td>
-          <td>$${Number(loan.amount || 0).toLocaleString()}</td>
-          <td>${loan.status}</td>
-        </tr>
-      `).join('');
-      table.innerHTML = `<tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>${rows || '<tr><td colspan="4">No loans found</td></tr>'}`;
-    } else { 
-      alert(data.message || 'Failed to load loans'); 
-    }
-  } catch (err) { 
-    console.error('Loans fetch error:', err); 
-    alert('Error connecting to server'); 
+function showAlert(message, type = 'error') {
+  const alertEl = document.getElementById('alertMessage');
+  alertEl.textContent = message;
+  alertEl.className = `alert alert-${type}`;
+  alertEl.style.display = 'block';
+  if (type === 'success') setTimeout(() => alertEl.style.display = 'none', 5000);
+}
+
+function setLoading(isLoading) {
+  const button = document.getElementById('submitButton');
+  const buttonText = document.getElementById('buttonText');
+  const spinner = document.getElementById('buttonSpinner');
+  if (isLoading) {
+    button.disabled = true;
+    buttonText.textContent = 'Submitting Application...';
+    spinner.style.display = 'inline-block';
+  } else {
+    button.disabled = false;
+    buttonText.textContent = 'Submit Application';
+    spinner.style.display = 'none';
   }
 }
-function logout() { localStorage.clear(); window.location.href = 'login.html'; }
-window.addEventListener('DOMContentLoaded', loadLoans);
-</script>
 
+function selectLoanType(type) {
+  document.getElementById('loanType').value = type;
+  document.getElementById('loanForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function calculateLoan() {
+  const amount = parseFloat(document.getElementById('calcAmount').value);
+  const term = parseInt(document.getElementById('calcTerm').value);
+  const interest = parseFloat(document.getElementById('calcInterest').value);
+  if (!amount || !term || !interest) {
+    showAlert('Please fill all calculator fields');
+    return;
+  }
+  const monthlyRate = interest / 100 / 12;
+  const monthlyPayment = (amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -term));
+  const totalPayment = monthlyPayment * term;
+  const totalInterest = totalPayment - amount;
+  document.getElementById('resultsContent').innerHTML = `
+    <p><strong>Monthly Payment:</strong> $${monthlyPayment.toFixed(2)}</p>
+    <p><strong>Total Payment:</strong> $${totalPayment.toFixed(2)}</p>
+    <p><strong>Total Interest:</strong> $${totalInterest.toFixed(2)}</p>
+    <p><strong>Loan Term:</strong> ${term} months</p>
+  `;
+  document.getElementById('calcResults').style.display = 'block';
+}
+
+async function loadLoans() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    showAlert('Session expired. Please log in again.');
+    setTimeout(() => window.location.href = 'login.html', 2000);
+    return;
+  }
+  try {
+    const profileRes = await fetch(`${API_BASE}/auth/profile`, { headers: { 'Authorization': 'Bearer ' + token } });
+    const profileData = await profileRes.json();
+    if (profileRes.ok && profileData.success) {
+      const user = profileData.user;
+      document.querySelector('.greeting').textContent = `Business Loans – ${user.fullName || user.username || 'User'}`;
+    }
+    const loansRes = await fetch(`${API_BASE}/user/loans`, { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await loansRes.json();
+    if (loansRes.ok && data.success) {
+      const formatCurrency = amt => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(amt||0);
+      const loans = data.loans || [];
+      document.getElementById('activeLoans').textContent = loans.length;
+      const totalBorrowed = loans.reduce((sum, loan) => sum + (loan.amount||0), 0);
+      document.getElementById('totalBorrowed').textContent = formatCurrency(totalBorrowed);
+      const table = document.getElementById('loanTable');
+      if (loans.length > 0) {
+        let html = `<tr><th>Loan Type</th><th>Amount</th><th>Interest Rate</th><th>Term</th><th>Status</th></tr>`;
+        loans.forEach(loan => {
+          html += `<tr>
+            <td>${loan.type||'Business Loan'}</td>
+            <td>${formatCurrency(loan.amount)}</td>
+            <td>${loan.interestRate?loan.interestRate+'%':'N/A'}</td>
+            <td>${loan.term?loan.term+' months':'N/A'}</td>
+            <td>${loan.status||'Pending'}</td>
+          </tr>`;
+        });
+        table.innerHTML = html;
+      } else {
+        table.innerHTML = `<tr><th>Loan Type</th><th>Amount</th><th>Interest Rate</th><th>Term</th><th>Status</th></tr>
+          <tr><td colspan="5" style="text-align:center;padding:30px;">No active loans found</td></tr>`;
+      }
+    } else {
+      showAlert(data.message || 'Failed to load loans');
+    }
+  } catch (err) {
+    console.error('Loans fetch error:', err);
+    showAlert('Error connecting to server');
+  }
+}
+
+document.getElementById('loanForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    showAlert('Session expired. Please log in again.');
+    window.location.href = 'login.html';
+    return;
+  }
+  const loanType = document.getElementById('loanType').value;
+  const amount = document.getElementById('amount').value;
+  const purpose = document.getElementById('purpose').value.trim();
+  const businessAge = document.getElementById('businessAge').value;
+  const annualRevenue = document.getElementById('annualRevenue').value;
+
+  if (!loanType || !amount || !purpose || !businessAge || !annualRevenue) {
+    showAlert('Please fill in all required fields');
+    return;
+  }
+
+  if (parseFloat(amount) < 1000) {
+    showAlert('Loan amount must be at least $1,000');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const response = await fetch(`${API_BASE}/user/business-loan`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        type: loanType,
+        amount: parseFloat(amount),
+        purpose: purpose,
+        businessAge: parseInt(businessAge),
+        annualRevenue: parseFloat(annualRevenue)
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      showAlert('✅ Loan application submitted successfully!', 'success');
+      document.getElementById('loanForm').reset();
+      loadLoans(); // Reload loans data
+    } else {
+      showAlert(data.message || 'Failed to submit loan application');
+    }
+  } catch (err) {
+    console.error('Loan application error:', err);
+    showAlert('Error connecting to server');
+  } finally {
+    setLoading(false);
+  }
+});
+
+// Sign out functionality
+document.getElementById('signOutLink').addEventListener('click', e => {
+  e.preventDefault();
+  localStorage.clear();
+  window.location.href = 'login.html';
+});
+
+// Load loans on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const token = localStorage.getItem('metaBankToken');
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+  loadLoans();
+});
+</script>
 
 </body>
 </html>

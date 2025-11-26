@@ -4,125 +4,262 @@
   <meta charset="UTF-8">
   <title>Meta Bank – Email Verification</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #ffffff, #e0f7e9);
+      background: linear-gradient(135deg, #f5fdf9 0%, #e0f7e9 100%);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
+      padding: 20px;
     }
-
-    .verify-box {
+    .verify-container {
       background: white;
-      padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      max-width: 500px;
+      padding: 50px 40px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
       text-align: center;
+      max-width: 500px;
+      width: 100%;
     }
-
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: #006644;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2em;
+      font-weight: bold;
+    }
     h2 {
       color: #006644;
       margin-bottom: 20px;
+      font-size: 2em;
     }
-
     p {
       font-size: 1.1em;
       margin: 15px 0;
       color: #333;
+      line-height: 1.6;
     }
-
     .status {
       font-weight: bold;
-      margin-top: 20px;
-      color: #006644;
-    }
-
-    button {
       margin-top: 25px;
+      color: #006644;
+      font-size: 1.2em;
+      padding: 15px;
+      background: #e8f8ef;
+      border-radius: 8px;
+      border: 2px solid #b8e6b8;
+    }
+    .status.error {
+      background: #ffeaea;
+      border-color: #ffcccc;
+      color: #d63031;
+    }
+    button {
+      margin-top: 30px;
       background-color: #006644;
       color: white;
-      padding: 12px 20px;
+      padding: 15px 30px;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 1em;
+      font-size: 1.1em;
+      font-weight: 600;
+      transition: background-color 0.3s;
+      width: 100%;
+      max-width: 200px;
     }
-
     button:hover {
       background-color: #004d33;
+    }
+    .loading {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .success-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      margin: 30px 0;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 25%;
+      right: 25%;
+      height: 2px;
+      background: #e0f7e9;
+      z-index: 1;
+    }
+    .step {
+      text-align: center;
+      flex: 1;
+      position: relative;
+      z-index: 2;
+    }
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: #e0f7e9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-weight: bold;
+      color: #006644;
+    }
+    .step.active .step-number {
+      background: #006644;
+      color: white;
+    }
+    .step-text {
+      font-size: 0.9em;
+      color: #666;
     }
   </style>
 </head>
 <body>
 
-<div class="verify-box">
+<div class="verify-container">
+  <div class="logo">MB</div>
   <h2>Email Verification</h2>
-  <p id="message">Verifying your account, please wait...</p>
-  <p class="status" id="status"></p>
-  <button id="loginBtn" style="display:none;" onclick="window.location.href='login.html'">Go to Login</button>
+
+  <div class="steps">
+    <div class="step active">
+      <div class="step-number">1</div>
+      <div class="step-text">Verify Email</div>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-text">Complete Profile</div>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-text">Start Banking</div>
+    </div>
+  </div>
+
+  <p id="message">Verifying your email address, please wait...</p>
+
+  <div class="status" id="status" style="display: none;"></div>
+
+  <button id="loginBtn" style="display:none;" onclick="window.location.href='login.html'">
+    Continue to Login
+  </button>
+
+  <button id="resendBtn" style="display:none; background-color: #ffcc00; color: #003322; margin-top: 15px;" onclick="resendVerification()">
+    Resend Verification Email
+  </button>
 </div>
 
 <script>
-// Shared helper for authenticated requests (used when token is required)
-async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) throw new Error('No token found');
-
-  const res = await fetch(`https://meta-bank-backend.onrender.com${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...(options.headers || {})
-    }
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || 'Server error');
-  return data;
-}
-
 async function verifyAccount() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
 
   if (!token) {
-    document.getElementById('message').textContent = "Invalid verification link.";
+    showError("❌ Invalid verification link. Please check your email or request a new verification link.");
     return;
   }
 
   try {
-    const res = await fetch(`https://meta-bank-backend.onrender.com/api/user/verify?token=${token}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
+    const res = await fetch(`${getApiBase()}/auth/verify?token=${encodeURIComponent(token)}`);
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      showSuccess("✅ Your email has been verified successfully!", "You may now log in and access your dashboard.");
+      document.getElementById('loginBtn').style.display = "inline-block";
+
+      // Update steps
+      document.querySelectorAll('.step')[0].classList.remove('active');
+      document.querySelectorAll('.step')[1].classList.add('active');
+    } else {
+      showError("❌ Verification failed.", data.message || "This link may have expired or is invalid.");
+      document.getElementById('resendBtn').style.display = "inline-block";
+    }
+  } catch (err) {
+    console.error('Verification error:', err);
+    showError("⚠️ Error connecting to server.", "Please check your internet connection and try again.");
+    document.getElementById('resendBtn').style.display = "inline-block";
+  }
+}
+
+async function resendVerification() {
+  const email = new URLSearchParams(window.location.search).get('email');
+  if (!email) {
+    showError("Please provide your email address to resend verification.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${getApiBase()}/auth/resend-verification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email })
     });
 
     const data = await res.json();
 
-    if (res.ok) {
-      document.getElementById('message').textContent = "✅ Your account has been verified successfully!";
-      document.getElementById('status').textContent = "You may now log in and access your dashboard.";
-      document.getElementById('loginBtn').style.display = "inline-block";
-
-      // Optionally fetch profile for greeting if logged in
-      try {
-        const { user } = await apiFetch('/api/auth/profile');
-        document.querySelector('.greeting').textContent =
-          `Verification Center – ${user.fullName || user.username || 'User'}`;
-      } catch {
-        // ignore if not logged in yet
-      }
+    if (res.ok && data.success) {
+      showSuccess("📧 Verification email sent!", "Please check your inbox for the new verification link.");
     } else {
-      document.getElementById('message').textContent = "❌ Verification failed.";
-      document.getElementById('status').textContent = data.message || "This link may have expired.";
+      showError("Failed to resend verification email.", data.message);
     }
   } catch (err) {
-    console.error('Verification error:', err);
-    document.getElementById('message').textContent = "⚠️ Error connecting to server.";
+    console.error('Resend error:', err);
+    showError("Error connecting to server.");
   }
+}
+
+function getApiBase() {
+  // API Base URL (localhost in dev, /api in production)
+  const API_BASE =
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : 'https://meta-bank-backend.onrender.com/api';
+
+  return API_BASE; // FIX: ensure the base is returned
+}
+
+function showSuccess(title, message) {
+  document.getElementById('message').textContent = title;
+  const statusEl = document.getElementById('status');
+  statusEl.textContent = message;
+  statusEl.className = 'status';
+  statusEl.style.display = 'block';
+}
+
+function showError(title, message) {
+  document.getElementById('message').textContent = title;
+  const statusEl = document.getElementById('status');
+  statusEl.textContent = message || '';
+  statusEl.className = 'status error';
+  statusEl.style.display = 'block';
 }
 
 window.addEventListener('DOMContentLoaded', verifyAccount);

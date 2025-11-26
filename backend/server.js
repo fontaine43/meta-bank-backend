@@ -1,91 +1,78 @@
+require('dotenv').config();
 const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-
-// Load environment variables
-dotenv.config();
-
-// Connect to MongoDB
-const connectDB = require('./utils/db');
-
-// Import routes
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const kycRoutes = require('./routes/kycRoutes');
+const helmet = require('helmet');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const routes = require('./routes');
 
 const app = express();
 
-// =======================
-// Ensure uploads folder exists
-// =======================
+// uploads dir
 const uploadsPath = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
   console.log('📁 Created uploads directory');
 }
 
-// =======================
-// Middleware
-// =======================
-
-// Allowed origins (production + local dev)
+// cors
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://meta-bank-frontend.onrender.com',
+  process.env.FRONTEND_URL || 'https://metabankamerica.com',
   'http://localhost:3000',
   'http://127.0.0.1:3000'
 ];
-
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
+  origin(origin, cb) {
+    if (!origin || allowedOrigins.includes(origin)) cb(null, true);
+    else {
       console.warn(`❌ Blocked by CORS: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+      cb(null, false);
     }
   },
   credentials: true
 }));
 
-// Parse JSON bodies
 app.use(express.json());
-
-// Serve static uploads
+app.use(helmet());
 app.use('/uploads', express.static(uploadsPath));
 
-// Log every request (for debugging frontend calls)
-app.use((req, res, next) => {
+// logger
+app.use((req, _res, next) => {
   console.log(`➡️  ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// =======================
-// Routes
-// =======================
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/kyc', kycRoutes);
+// routes
+app.use('/api', routes);
 
-// Health check
-app.get('/', (req, res) => {
-  res.json({ success: true, message: '✅ Meta Bank backend is running' });
+// global error handler
+app.use((err, _req, res, _next) => {
+  console.error('❌ Unhandled error:', err);
+  res.status(500).json({ success: false, message: 'Internal server error' });
 });
 
-// =======================
-// Start Server
-// =======================
-connectDB()
-  .then(() => {
+// start
+(async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`✅ MongoDB connected: ${conn.connection.host}`);
+    if (process.env.NODE_ENV !== 'production') mongoose.set('debug', true);
+
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`🚀 Meta Bank backend running on port ${PORT}`);
-    });
-  })
-  .catch(err => {
+    const server = app.listen(PORT, () => console.log(`🚀 Meta Bank backend running on port ${PORT}`));
+
+    const shutdown = () => {
+      console.log('🛑 Shutting down server...');
+      server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+      });
+    };
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+  } catch (err) {
     console.error('❌ Failed to start server:', err.message);
     process.exit(1);
-  });
+  }
+})();

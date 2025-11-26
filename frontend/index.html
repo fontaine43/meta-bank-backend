@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Meta Bank - Where Trust Meets Banking.</title>
+  <title>Meta Bank - Where Trust Meets Banking</title>
   <style>
     html { scroll-behavior: smooth; }
     body {
@@ -25,6 +25,12 @@
       margin: 0;
       font-size: 1.8em;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .navbar img.logo {
+      height: 40px;
+      margin-right: 10px;
     }
     .nav-links {
       display: flex;
@@ -36,9 +42,7 @@
       text-decoration: none;
       font-weight: 500;
     }
-    .dropdown {
-      position: relative;
-    }
+    .dropdown { position: relative; }
     .dropdown-content {
       display: none;
       position: absolute;
@@ -57,26 +61,16 @@
       text-decoration: none;
       color: #006644;
     }
-    .dropdown-content a:hover {
-      background-color: #e0f7e9;
-    }
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
+    .dropdown-content a:hover { background-color: #e0f7e9; }
+    .dropdown:hover .dropdown-content { display: block; }
     .hero {
       background: linear-gradient(to right, #006644, #009966);
       color: white;
       padding: 80px 30px;
       text-align: center;
     }
-    .hero h2 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
-    .hero p {
-      font-size: 1.2em;
-      margin-bottom: 30px;
-    }
+    .hero h2 { font-size: 2.5em; margin-bottom: 10px; }
+    .hero p { font-size: 1.2em; margin-bottom: 30px; }
     .hero-buttons button {
       margin: 10px;
       padding: 12px 24px;
@@ -99,14 +93,8 @@
       margin: 40px auto;
       padding: 20px;
     }
-    section h2 {
-      color: #006644;
-      margin-top: 40px;
-    }
-    section p {
-      font-size: 16px;
-      line-height: 1.6;
-    }
+    section h2 { color: #006644; margin-top: 40px; }
+    section p { font-size: 16px; line-height: 1.6; }
     .product-grid {
       display: flex;
       flex-wrap: wrap;
@@ -121,10 +109,7 @@
       padding: 20px;
       background: #fff;
     }
-    .product-block h3 {
-      margin-top: 0;
-      color: #004d33;
-    }
+    .product-block h3 { margin-top: 0; color: #004d33; }
     .product-block button {
       background-color: #006644;
       color: white;
@@ -143,33 +128,17 @@
       border-radius: 8px;
       max-width: 600px;
     }
-    .analytics h3 {
-      color: #006644;
-      margin-bottom: 10px;
-    }
-    .analytics p {
-      font-size: 1.1em;
-      margin: 5px 0;
-    }
+    .analytics h3 { color: #006644; margin-bottom: 10px; }
+    .analytics p { font-size: 1.1em; margin: 5px 0; }
     footer {
       background-color: #003322;
       color: white;
       padding: 40px 30px;
     }
-    footer h4 {
-      margin-bottom: 15px;
-    }
-    footer ul {
-      list-style: none;
-      padding: 0;
-    }
-    footer ul li {
-      margin-bottom: 8px;
-    }
-    footer ul li a {
-      color: white;
-      text-decoration: none;
-    }
+    footer h4 { margin-bottom: 15px; }
+    footer ul { list-style: none; padding: 0; }
+    footer ul li { margin-bottom: 8px; }
+    footer ul li a { color: white; text-decoration: none; }
     .footer-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -187,7 +156,10 @@
 <body>
 
 <div class="navbar">
-  <h1 onclick="location.href='index.html'">Meta Bank</h1>
+  <h1 onclick="location.href='index.html'">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDZeccWB2mKqtr0TRVnXSiTvQs9ky5mCKXqw&s" alt="Meta Bank Logo" class="logo">
+    Meta Bank
+  </h1>
   <div class="nav-links">
     <div class="dropdown">
       <a href="#">Products ▾</a>
@@ -213,10 +185,12 @@
 </div>
 
 <div class="hero">
+  <!-- Removed the hero logo -->
   <h2>Where Trust Meets Banking</h2>
   <p>Experience secure, intelligent, and accessible financial services—anytime, anywhere.</p>
   <div class="hero-buttons">
     <button class="primary" onclick="location.href='register.html'">Open Account</button>
+    <button class="primary" onclick="location.href='business-account.html'">Open Business Account</button>
     <button class="secondary" onclick="document.getElementById('products').scrollIntoView()">Explore Products</button>
   </div>
 </div>
@@ -225,57 +199,66 @@
   <h2 style="text-align:center;">Featured Products</h2>
   <p style="text-align:center;">Discover banking solutions designed to help you achieve your financial goals.</p>
   <div class="product-grid">
-    <!-- All product blocks go here -->
+    <!-- Savings -->
     <div class="product-block" id="savings">
       <h3>Savings Account</h3>
       <p>Grow your wealth with competitive interest rates and zero maintenance fees.</p>
       <button onclick="location.href='register.html'">Open Savings Account</button>
       <button onclick="alert('Savings Account offers 3.5% APY, no fees, and instant access.')">Learn More</button>
     </div>
+    <!-- Checking -->
     <div class="product-block" id="checking">
       <h3>Checking Account</h3>
       <p>Manage your daily transactions with ease. Free debit cards and mobile check deposits.</p>
       <button onclick="location.href='register.html'">Open Checking Account</button>
       <button onclick="alert('Checking Account includes free debit, mobile deposits, and no overdraft fees.')">Learn More</button>
     </div>
+    <!-- Business -->
     <div class="product-block" id="business">
       <h3>Business Account</h3>
       <p>Multi-user access, invoicing tools, and accounting software integration.</p>
-      <button onclick="location.href='register.html'">Open Business Account</button>
+      <button onclick="location.href='business-account.html'">Open Business Account</button>
       <button onclick="alert('Business Account supports teams, invoicing, and accounting integrations.')">Learn More</button>
     </div>
+        <!-- Investment -->
     <div class="product-block" id="investment">
       <h3>Investment Account</h3>
       <p>Access stocks, ETFs, and retirement tools with expert guidance.</p>
       <button onclick="location.href='register.html'">Open Investment Account</button>
       <button onclick="alert('Investment Account offers diversified portfolios and expert insights.')">Learn More</button>
     </div>
+    <!-- IRA -->
     <div class="product-block" id="ira">
       <h3>IRA Account</h3>
-      <p>Secure your retirement with tax-advantaged savings      <button onclick="location.href='register.html'">Open IRA Account</button>
+      <p>Secure your retirement with tax-advantaged savings.</p>
+      <button onclick="location.href='register.html'">Open IRA Account</button>
       <button onclick="alert('IRA Account includes tax benefits and flexible plans.')">Learn More</button>
     </div>
+    <!-- High-Yield -->
     <div class="product-block" id="highyield">
       <h3>High-Yield Savings</h3>
-      <p>Earn up to 4.5% APY with no minimum balance. Your money grows faster with our high-yield savings options.</p>
+      <p>Earn up to 4.5% APY with no minimum balance.</p>
       <button onclick="location.href='register.html'">Open High-Yield Account</button>
       <button onclick="alert('High-Yield Savings offers top-tier APY and no balance limits.')">Learn More</button>
     </div>
+    <!-- Crypto -->
     <div class="product-block" id="crypto">
       <h3>Crypto Investment</h3>
-      <p>Invest in digital assets with confidence. Secure wallets, real-time tracking, and regulated crypto investment options.</p>
+      <p>Invest in digital assets with confidence. Secure wallets and real-time tracking.</p>
       <button onclick="location.href='register.html'">Start Crypto Investment</button>
       <button onclick="alert('Crypto Investment includes secure wallets and regulated access.')">Learn More</button>
     </div>
+    <!-- Home Loan -->
     <div class="product-block" id="homeloan">
       <h3>Home Loan</h3>
-      <p>Make your dream home a reality. Get pre-approved in minutes, enjoy low interest rates, and flexible repayment plans.</p>
+      <p>Make your dream home a reality with low interest rates and flexible repayment plans.</p>
       <button onclick="location.href='register.html'">Apply for Home Loan</button>
       <button onclick="alert('Home Loan offers fast approval and flexible terms.')">Learn More</button>
     </div>
+    <!-- Auto Loan -->
     <div class="product-block" id="autoloan">
       <h3>Auto Loan</h3>
-      <p>Drive your future with affordable auto loans. Quick approvals, competitive rates, and no hidden fees.</p>
+      <p>Drive your future with affordable auto loans. Quick approvals and competitive rates.</p>
       <button onclick="location.href='register.html'">Apply for Auto Loan</button>
       <button onclick="alert('Auto Loan includes fast approval and no hidden fees.')">Learn More</button>
     </div>
@@ -290,29 +273,29 @@
 
 <section id="about">
   <h2>About Meta Bank</h2>
-  <p>Founded in 2023, Meta Bank is a digital-first financial institution committed to speed, security, and simplicity. We serve individuals and businesses with modern banking tools that empower smarter financial decisions.</p>
+  <p>Founded in 2023, Meta Bank is a digital-first financial institution committed to speed, security, and simplicity.</p>
 </section>
 
 <section id="mission">
   <h2>Our Mission</h2>
-  <p>To deliver secure, transparent, and innovative banking experiences that help our customers grow. We believe in financial inclusion, digital empowerment, and trust through technology.</p>
+  <p>To deliver secure, transparent, and innovative banking experiences that help our customers grow.</p>
 </section>
 
 <section id="privacy">
   <h2>Privacy & Security</h2>
-  <p>Meta Bank uses AES-256 encryption, secure cloud infrastructure, and strict compliance with U.S. banking regulations. Your data is protected, your transactions are secure, and your trust is our priority.</p>
+  <p>Meta Bank uses AES-256 encryption, secure cloud infrastructure, and strict compliance with U.S. banking regulations.</p>
 </section>
 
 <section id="contact">
   <h2>Contact Us</h2>
-  <p>📧 Email: support@metabank.com<br>📞 Phone: 1-800-METABANK<br>📍 Address: Fremont, CA — Available 24/7</p>
+  <p>📧 Email: support@metabankamerica.com<br>📞 Phone: 1-800-METABANK<br>📍 Address: Fremont, CA — Available 24/7</p>
 </section>
 
 <section id="testimonials">
   <h2>What Our Customers Say</h2>
-  <p>“Meta Bank helped me open my first savings account in minutes. The process was smooth and secure.” — Sarah T.</p>
-  <p>“As a small business owner, I rely on Meta Bank’s tools to manage cash flow and payroll. It’s a game-changer.” — Jamal R.</p>
-  <p>“I invested in crypto through Meta Bank and felt confident every step of the way. Their platform is intuitive and safe.” — Priya M.</p>
+  <p>“Meta Bank helped me open my first savings account in minutes.” — Sarah T.</p>
+  <p>“As a small business owner, I rely on Meta Bank’s tools to manage cash flow.” — Jamal R.</p>
+  <p>“I invested in crypto through Meta Bank and felt confident every step of the way.” — Priya M.</p>
 </section>
 
 <footer>
@@ -336,7 +319,7 @@
     <div>
       <h4>Contact Us</h4>
       <ul>
-        <li>Email: support@metabank.com</li>
+        <li>Email: support@metabankamerica.com</li>
         <li>Phone: 1-800-METABANK</li>
         <li>Available 24/7</li>
       </ul>
@@ -349,15 +332,30 @@
 </div>
 
 <script>
-fetch('https://meta-bank-backend.onrender.com/api/admin/stats')
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById('userCount').innerText = data.users;
-    document.getElementById('txnCount').innerText = data.transactions;
-  })
-  .catch(() => {
-    console.warn('Analytics fetch failed. Using static fallback.');
-  });
+  // Safe analytics update for Admin sessions only; otherwise keep your static numbers
+  (async function loadAnalyticsIfAdmin() {
+    const token = localStorage.getItem('metaBankToken');
+    if (!token) return;
+
+    try {
+      const res = await fetch('/api/admin/analytics', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const data = await res.json();
+      if (res.ok && data) {
+        if (typeof data.users !== 'undefined') {
+          document.getElementById('userCount').innerText = data.users;
+        }
+        // No explicit "transactions today" in backend; derive from transfers count if present
+        if (typeof data.openTickets !== 'undefined') {
+          // Keep your existing 342 if backend doesn't provide a direct metric
+          // Optionally, map another stat here
+        }
+      }
+    } catch (err) {
+      console.warn('Analytics fetch skipped:', err.message);
+    }
+  })();
 </script>
 
 </body>

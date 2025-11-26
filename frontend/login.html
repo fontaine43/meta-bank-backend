@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Meta Bank - Login</title>
+  <title>Meta Bank – Login</title>
   <style>
-    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #f5fdf9;
+      background: linear-gradient(135deg, #f5fdf9 0%, #e0f7e9 100%);
+      min-height: 100vh;
     }
     .navbar {
       background-color: #006644;
@@ -25,233 +26,175 @@
       margin: 0;
       font-size: 1.8em;
       cursor: pointer;
-    }
-    .nav-links {
       display: flex;
-      gap: 20px;
       align-items: center;
-    }
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .features {
-      max-width: 500px;
-      margin: 40px auto 0;
-      text-align: center;
-      color: #006644;
-    }
-    .features h3 { margin-bottom: 10px; }
-    .features ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 10px;
     }
-    .features ul li a {
-      text-decoration: none;
-      color: #006644;
-      font-weight: 500;
-      display: block;
-      padding: 8px;
-      border: 1px solid #006644;
+    .navbar h1 img {
+      height: 40px;
+      width: auto;
       border-radius: 4px;
-      background-color: #e0f7e9;
     }
-    .login-wrapper {
-      max-width: 400px;
-      margin: 30px auto 80px;
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
       background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 40px 30px;
     }
-    .login-wrapper h2 {
-      text-align: center;
+    h2 {
       color: #006644;
-      font-size: 24px;
+      text-align: center;
       margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 600;
     }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    input[type="text"], input[type="password"] {
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+    input {
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 12px 15px;
+      border: 2px solid #e1e5e9;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
     }
-    .actions { margin-top: 20px; text-align: center; }
-    .actions button {
+    input:focus { outline: none; border-color: #006644; }
+    .actions { margin-top: 30px; text-align: center; }
+    button {
       background-color: #006644;
       color: white;
-      padding: 10px 20px;
+      padding: 14px 30px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      transition: background-color 0.3s;
     }
-    .links { margin-top: 10px; text-align: center; }
-    .links a { color: #006644; text-decoration: none; margin: 0 10px; }
-    footer { background-color: #003322; color: white; padding: 40px 30px; }
-    footer h4 { margin-bottom: 15px; }
-    footer ul { list-style: none; padding: 0; }
-    footer ul li { margin-bottom: 8px; }
-    footer ul li a { color: white; text-decoration: none; }
-    .footer-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 40px;
-    }
-    .footer-bottom {
-      background-color: #002211;
-      color: #ccc;
+    button:hover { background-color: #004d33; }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
+    .alert {
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
       text-align: center;
-      padding: 15px;
-      font-size: 0.9em;
+      font-weight: 500;
+      display: none;
     }
+    .alert-error { background-color: #ffeaea; color: #d63031; border: 1px solid #ffcccc; }
+    .alert-success { background-color: #e8f8ef; color: #006644; border: 1px solid #b8e6b8; }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .register-link { text-align: center; margin-top: 20px; }
+    .register-link a { color: #006644; text-decoration: none; font-weight: 500; }
+    .register-link a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-
-<div class="navbar">
-  <h1 onclick="location.href='index.html'">Meta Bank</h1>
-  <div class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="register.html" style="background-color: #ffcc00; color: #003322; padding: 6px 12px; border-radius: 4px;">Sign Up</a>
-  </div>
-</div>
-
-<div class="features">
-  <h3>Why Choose Meta Bank?</h3>
-  <ul>
-    <li><a href="index.html#fdic">FDIC Insured up to $250,000</a></li>
-    <li><a href="index.html#support">24/7 Customer Support</a></li>
-    <li><a href="index.html#fees">No Hidden Fees</a></li>
-    <li><a href="index.html#security">Advanced Security</a></li>
-  </ul>
-</div>
-
-<div class="login-wrapper">
-  <h2>Secure Login</h2>
-  <form id="loginForm">
-    <label for="username">Username</label>
-    <input type="text" id="username" placeholder="Enter your username" required>
-
-    <label for="password">Password</label>
-    <input type="password" id="password" placeholder="Enter your password" required>
-
-    <label><input type="checkbox"> Remember me</label>
-
-    <div class="actions">
-      <button type="submit">Log In</button>
-    </div>
-
-    <div class="links">
-      <a href="#">Forgot password?</a> |
-      <a href="register.html">Sign up</a>
-    </div>
-  </form>
-</div>
-
-<footer>
-  <div class="footer-grid">
+  <div class="navbar">
+    <h1 onclick="location.href='index.html'">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDZeccWB2mKqtr0TRVnXSiTvQs9ky5mCKXqw&s" alt="Meta Bank Logo">
+      Meta Bank
+    </h1>
     <div>
-      <h4>Quick Links</h4>
-      <ul>
-        <li><a href="index.html#products">Products</a></li>
-        <li><a href="index.html#mission">Our Mission</a></li>
-        <li><a href="index.html#about">About Us</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Legal</h4>
-      <ul>
-        <li><a href="index.html#privacy">Privacy & Security</a></li>
-        <li><a href="#">Terms of Service</a></li>
-        <li><a href="#">Compliance</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Contact Us</h4>
-      <ul>
-        <li>Email: support@metabank.com</li>
-        <li>Phone: 1-800-METABANK</li>
-        <li>Available 24/7</li>
-      </ul>
+      <a href="login.html" style="color:#fff;text-decoration:none;margin-right:15px;">Login</a>
+      <a href="register.html" style="background:#ffcc00;color:#003322;padding:8px 16px;border-radius:4px;text-decoration:none;">Sign Up</a>
     </div>
   </div>
-</footer>
 
-<div class="footer-bottom">
-  © 2025 Meta Bank. All rights reserved. Member FDIC. Equal Housing Lender.
-</div>
+  <div class="container">
+    <h2>Login to Your Account</h2>
+    <div id="alertMessage" class="alert"></div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="usernameOrEmail">Username or Email</label>
+        <input type="text" id="usernameOrEmail" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required>
+      </div>
+      <div class="actions">
+        <button type="submit" id="loginButton">
+          <span id="buttonText">Login</span>
+          <span id="buttonSpinner" class="loading" style="display: none;"></span>
+        </button>
+      </div>
+      <div class="register-link">
+        Don’t have an account? <a href="register.html">Register here</a>
+      </div>
+    </form>
+  </div>
 
 <script>
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
+const API_BASE =
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : 'https://meta-bank-backend.onrender.com/api';
+
+function showAlert(message, type = 'error') {
+  const alertEl = document.getElementById('alertMessage');
+  alertEl.textContent = message;
+  alertEl.className = `alert alert-${type}`;
+  alertEl.style.display = 'block';
+  if (type === 'success') setTimeout(() => alertEl.style.display = 'none', 4000);
+}
+
+function setLoading(isLoading) {
+  const button = document.getElementById('loginButton');
+  const buttonText = document.getElementById('buttonText');
+  const spinner = document.getElementById('buttonSpinner');
+  if (isLoading) {
+    button.disabled = true;
+    buttonText.textContent = 'Logging in...';
+    spinner.style.display = 'inline-block';
+  } else {
+    button.disabled = false;
+    buttonText.textContent = 'Login';
+    spinner.style.display = 'none';
+  }
+}
+
+document.getElementById('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
-
-  const formElement = document.getElementById('loginForm');
-  const submitButton = formElement.querySelector('button[type="submit"]');
-
-  const username = document.getElementById('username').value.trim();
+  const usernameOrEmail = document.getElementById('usernameOrEmail').value.trim();
   const password = document.getElementById('password').value.trim();
-
-  if (!username || !password) {
-    alert('Please enter both username and password');
+  if (!usernameOrEmail || !password) {
+    showAlert('Please enter both username/email and password');
     return;
   }
-
-  // Spinner
-  let spinner = document.createElement('div');
-  spinner.innerText = 'Authenticating...';
-  spinner.style.cssText = 'text-align:center; color:#006644; font-weight:bold; margin-top:15px;';
-  formElement.appendChild(spinner);
-
-  submitButton.disabled = true;
-  submitButton.style.opacity = '0.6';
-
+  setLoading(true);
   try {
-    const res = await fetch('https://meta-bank-backend.onrender.com/api/auth/login', {
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ usernameOrEmail, password })
     });
-
     const data = await res.json();
-
-    if (!res.ok || !data.token) {
-      throw new Error(data.message || 'Login failed');
+    if (res.ok && data.success) {
+      showAlert('✅ Login successful! Redirecting...', 'success');
+      localStorage.setItem('metaBankToken', data.token);
+      setTimeout(() => window.location.href = 'dashboard.html', 1500);
+    } else {
+      showAlert(data.message || 'Login failed. Please try again.');
     }
-
-    // Save token and user info
-    localStorage.setItem('metaBankToken', data.token);
-    if (data.user) {
-      localStorage.setItem('metaBankUser', JSON.stringify(data.user));
-    }
-
-    // Redirect to dashboard
-    spinner.innerText = 'Redirecting...';
-    setTimeout(() => {
-      window.location.href = 'dashboard.html';
-    }, 800);
   } catch (err) {
     console.error('Login error:', err);
-    alert(err.message.includes('Failed to fetch')
-      ? 'Cannot reach server. Check backend URL or CORS.'
-      : err.message);
-    if (spinner) spinner.remove();
+    showAlert('Error connecting to server');
   } finally {
-    submitButton.disabled = false;
-    submitButton.style.opacity = '1';
-        if (!localStorage.getItem('metaBankToken') && spinner) {
-      spinner.remove();
-    }
+    setLoading(false);
   }
 });
 </script>

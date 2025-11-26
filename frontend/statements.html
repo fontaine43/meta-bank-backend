@@ -2,21 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Meta Bank Statements</title>
+  <title>Meta Bank – Statements</title>
   <style>
-    body { margin:0; font-family:'Segoe UI',sans-serif; background-color:#f4f6f9; display:flex; }
-    .sidebar { width:250px; background-color:#006644; color:white; height:100vh; padding:20px; box-sizing:border-box; }
-    .sidebar h2 { margin-top:0; font-size:1.5em; margin-bottom:30px; }
-    .sidebar a { display:block; color:white; text-decoration:none; margin-bottom:15px; font-weight:500; }
-    .sidebar a:hover { text-decoration:underline; }
-    .main { flex:1; padding:30px; background:linear-gradient(to bottom right,#ffffff,#e0f7e9); }
-    .greeting { font-size:1.4em; margin-bottom:20px; color:#006644; }
-    .statements { background-color:white; padding:25px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.05); max-width:700px; }
-    .statements h3 { margin-top:0; color:#006644; }
+    * { box-sizing: border-box; }
+    body {
+      margin:0; font-family:'Segoe UI',sans-serif;
+      background-color:#f4f6f9; display:flex; min-height:100vh;
+    }
+    .sidebar {
+      width:250px; background-color:#006644; color:white;
+      height:100vh; padding:20px; position:fixed; left:0; top:0;
+    }
+    .sidebar h2 { margin:0 0 30px; font-size:1.5em; text-align:center; }
+    .sidebar a {
+      display:block; color:white; text-decoration:none; margin-bottom:15px;
+      font-weight:500; padding:10px 15px; border-radius:6px; transition:background-color 0.3s;
+    }
+    .sidebar a:hover { background-color:#004d33; }
+    .sidebar a.active { background-color:#004d33; }
+    .main {
+      flex:1; padding:30px; background:linear-gradient(to bottom right,#ffffff,#e0f7e9);
+      margin-left:250px; width:calc(100% - 250px);
+    }
+    .greeting { font-size:1.4em; margin-bottom:20px; color:#006644; font-weight:600; }
+    .card {
+      background:#fff; padding:25px; border-radius:12px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.1); margin-bottom:24px; max-width:900px;
+    }
+    h3 { margin:0 0 20px; color:#006644; font-size:1.3em; }
     table { width:100%; border-collapse:collapse; margin-top:10px; }
-    th,td { padding:10px; border-bottom:1px solid #ddd; text-align:left; }
-    th { background-color:#e0f7e9; color:#006644; }
-    a.download { color:#006644; text-decoration:underline; font-weight:500; }
+    th,td { padding:12px 15px; border-bottom:1px solid #eee; text-align:left; }
+    th { background-color:#e0f7e9; color:#006644; font-weight:600; }
+    .alert { padding:12px 15px; border-radius:6px; margin-bottom:20px; text-align:center; font-weight:500; display:none; }
+    .alert-success { background:#e8f8ef; color:#006644; border:1px solid #b8e6b8; }
+    .alert-error { background:#ffeaea; color:#d63031; border:1px solid #ffcccc; }
+    button {
+      background:#006644; color:white; border:none; padding:8px 16px;
+      border-radius:6px; cursor:pointer; font-weight:600; transition:background-color 0.3s;
+    }
+    button:hover { background:#004d33; }
+    .filter-bar { margin-bottom:20px; }
+    select { padding:8px 12px; border:2px solid #e1e5e9; border-radius:6px; font-size:1em; }
   </style>
 </head>
 <body>
@@ -31,67 +57,107 @@
   <a href="ira.html">IRA</a>
   <a href="transfer.html">Transfer</a>
   <a href="external-accounts.html">External Accounts</a>
-  <a href="statements.html">Statements</a>
-  <a href="#" onclick="logout()">Sign Out</a>
+  <a href="statements.html" class="active">Statements</a>
+  <a href="business-account.html">Business Account</a>
+  <a href="#" id="signOutLink">Sign Out</a>
 </div>
 
 <div class="main">
-  <div class="greeting">Loading statements...</div>
-  <div class="statements">
-    <h3>Monthly Statements</h3>
+  <div class="greeting">Account Statements</div>
+  <div id="alertMessage" class="alert"></div>
+
+  <div class="card">
+    <h3>Filter Statements</h3>
+    <div class="filter-bar">
+      <label for="yearSelect">Year:</label>
+      <select id="yearSelect"></select>
+      <label for="monthSelect">Month:</label>
+      <select id="monthSelect">
+        <option value="">All</option>
+        <option value="1">January</option><option value="2">February</option>
+        <option value="3">March</option><option value="4">April</option>
+        <option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option>
+        <option value="9">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
+      <button onclick="loadStatements()">Apply</button>
+    </div>
     <table id="statementsTable">
-      <tr>
-        <th>Month</th><th>Account</th><th>Type</th><th>Download</th>
-      </tr>
-      <tr><td colspan="4">Loading statements...</td></tr>
+      <tr><th>Date</th><th>Period</th><th>Balance</th><th>Download</th></tr>
+      <tr><td colspan="4" style="text-align:center;padding:30px;">Loading statements...</td></tr>
     </table>
   </div>
 </div>
 
 <script>
-async function loadStatements() {
-  const token = localStorage.getItem('metaBankToken');
-  if (!token) { 
-    alert('Session expired. Please log in again.'); 
-    window.location.href = 'login.html'; 
-    return; 
-  }
-  try {
-    // Greeting (fixed to /api/user/profile)
-    const resProfile = await fetch('https://meta-bank-backend.onrender.com/api/user/profile', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const profileData = await resProfile.json();
-    if (resProfile.ok) {
-      document.querySelector('.greeting').textContent =
-        `Statements – ${profileData.fullName || profileData.username || 'User'}`;
-    }
+const API_BASE =
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : 'https://meta-bank-backend.onrender.com/api';
 
-    // Statements data (requires backend route)
-    const resStatements = await fetch('https://meta-bank-backend.onrender.com/api/user/statements', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const data = await resStatements.json();
-    if (resStatements.ok) {
-      const table = document.getElementById('statementTable');
-      const rows = (data.statements || []).map(st => `
-        <tr>
-          <td>${st.date}</td>
-          <td>${st.description}</td>
-          <td>$${Number(st.amount || 0).toLocaleString()}</td>
-        </tr>
-      `).join('');
-      table.innerHTML = `<tr><th>Date</th><th>Description</th><th>Amount</th></tr>${rows || '<tr><td colspan="3">No statements found</td></tr>'}`;
-    } else { 
-      alert(data.message || 'Failed to load statements'); 
-    }
-  } catch (err) { 
-    console.error('Statements fetch error:', err); 
-    alert('Error connecting to server'); 
+function showAlert(message,type='error'){
+  const el=document.getElementById('alertMessage');
+  el.textContent=message; el.className=`alert alert-${type}`; el.style.display='block';
+  if(type==='success') setTimeout(()=>el.style.display='none',4000);
+}
+
+document.getElementById('signOutLink').addEventListener('click',e=>{
+  e.preventDefault(); localStorage.clear(); location.href='login.html';
+});
+
+function populateYears(){
+  const yearSelect=document.getElementById('yearSelect');
+  const currentYear=new Date().getFullYear();
+  for(let y=currentYear;y>=currentYear-5;y--){
+    const opt=document.createElement('option');
+    opt.value=y; opt.textContent=y;
+    yearSelect.appendChild(opt);
   }
 }
-function logout() { localStorage.clear(); window.location.href = 'login.html'; }
-window.addEventListener('DOMContentLoaded', loadStatements);
+
+async function loadStatements(){
+  const token=localStorage.getItem('metaBankToken');
+  if(!token){location.href='login.html';return;}
+  const year=document.getElementById('yearSelect').value;
+  const month=document.getElementById('monthSelect').value;
+  try{
+    const res=await fetch(`${API_BASE}/user/statements?year=${year}&month=${month}`,{
+      headers:{'Authorization':'Bearer '+token}
+    });
+    const data=await res.json();
+    const table=document.getElementById('statementsTable');
+    if(res.ok&&data.success){
+      const stmts=data.statements||[];
+      if(stmts.length>0){
+        let html=`<tr><th>Date</th><th>Period</th><th>Balance</th><th>Download</th></tr>`;
+        stmts.forEach(s=>{
+          const bal=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(s.balance||0);
+          html+=`<tr>
+            <td>${new Date(s.date).toLocaleDateString()}</td>
+            <td>${s.period||'N/A'}</td>
+            <td>${bal}</td>
+            <td><a href="${s.downloadUrl}" target="_blank"><button>Download</button></a></td>
+          </tr>`;
+        });
+        table.innerHTML=html;
+      }else{
+        table.innerHTML=`<tr><th>Date</th><th>Period</th><th>Balance</th><th>Download</th></tr>
+          <tr><td colspan="4" style="text-align:center;padding:30px;">No statements found</td></tr>`;
+      }
+    }else{
+      showAlert(data.message||'Failed to load statements');
+    }
+  }catch(err){
+    console.error('Statements fetch error:',err);
+    showAlert('Error connecting to server');
+  }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  populateYears();
+  loadStatements();
+});
 </script>
 
 </body>
