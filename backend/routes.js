@@ -6,71 +6,87 @@ const c = require('./controllers');
 
 const router = express.Router();
 
-// uploads
+// Ensure uploads directory exists
 const uploadDir = path.join(__dirname, 'uploads');
+
+// Multer storage config
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadDir),
   filename: (_req, file, cb) => {
-    const safeName = file.originalname.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._-]/g, '');
+    const safeName = file.originalname
+      .replace(/\s+/g, '_')
+      .replace(/[^a-zA-Z0-9._-]/g, '');
     cb(null, Date.now() + '-' + safeName);
   }
 });
+
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype) return cb(null, false);
     cb(null, true);
   }
 });
 
-// auth
+// -------------------- AUTH --------------------
 router.post('/auth/register', c.register);
 router.post('/auth/login', c.login);
 router.get('/auth/verify', c.verifyUser);
 router.get('/auth/profile', verifyToken, c.profile);
 
-// user
+// -------------------- USER --------------------
 router.get('/user/dashboard', verifyToken, c.dashboard);
 router.get('/user/verification', verifyToken, c.getVerificationStatus);
+
+// KYC upload (front/back of ID)
 router.post(
   '/user/kyc/upload',
   verifyToken,
-  upload.fields([{ name: 'idFront', maxCount: 1 }, { name: 'idBack', maxCount: 1 }]),
+  upload.fields([
+    { name: 'idFront', maxCount: 1 },
+    { name: 'idBack', maxCount: 1 }
+  ]),
   c.uploadKYC
 );
 
+// Business account registration (EIN + certificate/articles)
 router.post(
   '/user/business-account',
   verifyToken,
-  upload.fields([{ name: 'einLetter', maxCount: 1 }, { name: 'certOrArticles', maxCount: 1 }]),
+  upload.fields([
+    { name: 'einLetter', maxCount: 1 },
+    { name: 'certOrArticles', maxCount: 1 }
+  ]),
   c.registerBusinessAccount
 );
 
-// loans
+// Loans
 router.post('/user/loan', verifyToken, c.applyLoan);
 router.get('/user/loans', verifyToken, c.getLoans);
 
-// transfers
+// Transfers
 router.post('/user/transfer', verifyToken, c.makeTransfer);
 router.get('/user/transfers', verifyToken, c.getTransfers);
 router.put('/user/transfer/:id/complete', verifyToken, isAdmin, c.completeTransfer);
 
-// extra user features
+// Extra user features
 router.get('/user/statements', verifyToken, c.getStatements);
 router.get('/user/investments', verifyToken, c.getInvestments);
 router.get('/user/external-accounts', verifyToken, c.getExternalAccounts);
 router.get('/user/ira-accounts', verifyToken, c.getIraAccounts);
 
-// admin
+// -------------------- ADMIN --------------------
 router.get('/admin/analytics', verifyToken, isAdmin, c.analytics);
 router.get('/admin/users', verifyToken, isAdmin, c.getAllUsers);
 router.put('/admin/users/:id/role', verifyToken, isAdmin, c.changeUserRole);
 router.delete('/admin/users/:id', verifyToken, isAdmin, c.deleteUser);
+
+// Tickets
 router.get('/admin/tickets', verifyToken, isAdmin, c.getOpenTickets);
 router.put('/admin/tickets/:id/resolve', verifyToken, isAdmin, c.resolveTicket);
 
-// kyc admin
+// KYC approvals
 router.put('/admin/kyc/:id/approve', verifyToken, isAdmin, c.approveKYC);
 router.put('/admin/kyc/:id/reject', verifyToken, isAdmin, c.rejectKYC);
 
