@@ -33,9 +33,15 @@ router.get('/auth/profile', verifyToken, c.profile);
 // user
 router.get('/user/dashboard', verifyToken, c.dashboard);
 router.get('/user/verification', verifyToken, c.getVerificationStatus);
-router.post('/user/kyc/upload', verifyToken, upload.fields([{ name: 'idFront', maxCount: 1 }, { name: 'idBack', maxCount: 1 }]), c.uploadKYC);
+router.post(
+  '/user/kyc/upload',
+  verifyToken,
+  upload.fields([{ name: 'idFront', maxCount: 1 }, { name: 'idBack', maxCount: 1 }]),
+  c.uploadKYC
+);
 
-router.post('/user/business-account',
+router.post(
+  '/user/business-account',
   verifyToken,
   upload.fields([{ name: 'einLetter', maxCount: 1 }, { name: 'certOrArticles', maxCount: 1 }]),
   c.registerBusinessAccount
@@ -49,6 +55,12 @@ router.get('/user/loans', verifyToken, c.getLoans);
 router.post('/user/transfer', verifyToken, c.makeTransfer);
 router.get('/user/transfers', verifyToken, c.getTransfers);
 router.put('/user/transfer/:id/complete', verifyToken, isAdmin, c.completeTransfer);
+
+// extra user features
+router.get('/user/statements', verifyToken, c.getStatements);
+router.get('/user/investments', verifyToken, c.getInvestments);
+router.get('/user/external-accounts', verifyToken, c.getExternalAccounts);
+router.get('/user/ira-accounts', verifyToken, c.getIraAccounts);
 
 // admin
 router.get('/admin/analytics', verifyToken, isAdmin, c.analytics);

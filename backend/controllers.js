@@ -151,6 +151,31 @@ const getTransfers = async (req, res) => {
 };
 const completeTransfer = async (req, res) => ok(res, { success: true, message: 'Transfer completed' });
 
+/** Extra User Features */
+const getStatements = async (req, res) => {
+  const user = await User.findById(req.user.id).select('statements');
+  if (!user) return notFound(res, 'User not found');
+  return ok(res, { success: true, statements: user.statements });
+};
+
+const getInvestments = async (req, res) => {
+  const user = await User.findById(req.user.id).select('investments');
+  if (!user) return notFound(res, 'User not found');
+  return ok(res, { success: true, investments: user.investments });
+};
+
+const getExternalAccounts = async (req, res) => {
+  const user = await User.findById(req.user.id).select('externalAccounts');
+  if (!user) return notFound(res, 'User not found');
+  return ok(res, { success: true, externalAccounts: user.externalAccounts });
+};
+
+const getIraAccounts = async (req, res) => {
+  const user = await User.findById(req.user.id).select('iraAccounts');
+  if (!user) return notFound(res, 'User not found');
+  return ok(res, { success: true, iraAccounts: user.iraAccounts });
+};
+
 /** Admin */
 const analytics = async (_req, res) => ok(res, { success: true, stats: {} });
 const getAllUsers = async (_req, res) => {
@@ -191,6 +216,12 @@ module.exports = {
   makeTransfer,
   getTransfers,
   completeTransfer,
+
+  // extra user features
+  getStatements,
+  getInvestments,
+  getExternalAccounts,
+  getIraAccounts,
 
   // admin
   analytics,
