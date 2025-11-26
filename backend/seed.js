@@ -1,11 +1,19 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { User, Ticket } = require('./models');
+
+// Import models directly
+const User = require('./user');
+const Ticket = require('./ticket');
 const { ROUTING_NUMBER } = require('./utils');
 
 (async () => {
   try {
+    // Debug: confirm URI
+    console.log('Loaded MONGO_URI:', process.env.MONGO_URI);
+
     await mongoose.connect(process.env.MONGO_URI, { dbName: 'metaBank' });
     console.log('✅ Connected to MongoDB');
 
@@ -13,8 +21,13 @@ const { ROUTING_NUMBER } = require('./utils');
 
     const upsertUser = async (doc) => {
       const existing = await User.findOne({ email: doc.email });
-      if (existing) return existing;
-      return User.create(doc);
+      if (existing) {
+        console.log(`ℹ️ User already exists: ${doc.username}`);
+        return existing;
+      }
+      const created = await User.create(doc);
+      console.log(`✅ Seeded user: ${doc.username}`);
+      return created;
     };
 
     // Admin (business account)
@@ -24,6 +37,9 @@ const { ROUTING_NUMBER } = require('./utils');
       username: 'admin',
       password: await hashPassword('Admin@123'),
       bankName: 'Meta Bank',
+      dob: new Date('1980-01-01'),
+      ssn: '000-00-0000',
+      phone: '555-0000',
       accountType: 'business',
       accountStatus: 'active',
       accountNumber: '8888888800000000',
@@ -36,13 +52,16 @@ const { ROUTING_NUMBER } = require('./utils');
       isSeeded: true
     });
 
-    // Default checking user
+    // Default checking user (Richard Scott)
     await upsertUser({
-      fullName: 'Default User',
+      fullName: 'Richard Scott',
       email: 'user@metabankamerica.com',
       username: 'defaultuser',
       password: await hashPassword('User@123'),
       bankName: 'Meta Bank',
+      dob: new Date('1990-01-01'),
+      ssn: '111-11-1111',
+      phone: '555-1111',
       accountType: 'checking',
       accountStatus: 'active',
       accountNumber: '7777777700000000',
@@ -55,13 +74,16 @@ const { ROUTING_NUMBER } = require('./utils');
       isSeeded: true
     });
 
-    // Savings user
+    // Savings user (Barry Scott)
     await upsertUser({
-      fullName: 'Savings User',
+      fullName: 'Barry Scott',
       email: 'savings@metabankamerica.com',
       username: 'savingsuser',
       password: await hashPassword('Savings@123'),
       bankName: 'Meta Bank',
+      dob: new Date('1995-01-01'),
+      ssn: '222-22-2222',
+      phone: '555-2222',
       accountType: 'savings',
       accountStatus: 'active',
       accountNumber: '6666666600000000',

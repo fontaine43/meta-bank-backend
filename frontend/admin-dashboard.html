@@ -2,67 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Meta Bank Admin Dashboard</title>
+  <title>Meta Bank Admin Portal</title>
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin:0; font-family:'Segoe UI',sans-serif;
-      background-color:#f4f6f9; display:flex; min-height:100vh;
-    }
-    .sidebar {
-      width:250px; background-color:#003322; color:white;
-      height:100vh; padding:20px; position:fixed; left:0; top:0;
-    }
+    body { margin:0; font-family:'Segoe UI',sans-serif; background:#f4f6f9; display:flex; min-height:100vh; }
+    .sidebar { width:250px; background:#003322; color:white; height:100vh; padding:20px; position:fixed; left:0; top:0; }
     .sidebar h2 { margin:0 0 30px; font-size:1.5em; text-align:center; }
-    .sidebar a {
-      display:block; color:white; text-decoration:none; margin-bottom:15px;
-      font-weight:500; padding:10px 15px; border-radius:6px; transition:background-color 0.3s;
-    }
-    .sidebar a:hover { background-color:#002211; }
-    .sidebar a.active { background-color:#002211; }
-    .main {
-      flex:1; padding:30px; background:linear-gradient(to bottom right,#ffffff,#e0f7e9);
-      margin-left:250px; width:calc(100% - 250px); overflow-x:auto;
-    }
+    .sidebar a { display:block; color:white; text-decoration:none; margin-bottom:15px; font-weight:500; padding:10px 15px; border-radius:6px; transition:background-color 0.3s; }
+    .sidebar a:hover, .sidebar a.active { background:#002211; }
+    .main { flex:1; padding:30px; background:linear-gradient(to bottom right,#ffffff,#e0f7e9); margin-left:250px; width:calc(100% - 250px); overflow-x:auto; }
     .greeting { font-size:1.8em; margin-bottom:20px; color:#003322; font-weight:600; }
-    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px; }
-    .stat-card {
-      background:white; padding:25px; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.1);
-      text-align:center; border-left:4px solid #003322;
-    }
-    .stat-value { font-size:2em; font-weight:600; color:#003322; margin:10px 0; }
-    .stat-label { color:#666; font-size:0.9em; font-weight:500; }
-    .panel { background-color:white; padding:25px; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.1); margin-bottom:30px; }
+    .panel { background:white; padding:25px; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.1); margin-bottom:30px; }
     .panel h3 { margin:0 0 20px; color:#003322; font-size:1.3em; border-bottom:2px solid #e0f7e9; padding-bottom:10px; }
     .panel table { width:100%; border-collapse:collapse; margin-top:10px; }
     .panel th,.panel td { padding:12px 15px; border-bottom:1px solid #eee; text-align:left; }
-    .panel th { background-color:#e0f7e9; color:#003322; font-weight:600; }
-    .panel button { background-color:#006644; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; margin-right:5px; transition:background-color 0.3s; }
-    .panel button.reject { background-color:#d63031; }
-    .panel button:hover { opacity:0.9; }
-    .panel a { color:#006644; text-decoration:underline; font-weight:500; }
-    .panel a:hover { text-decoration:none; }
+    .panel th { background:#e0f7e9; color:#003322; font-weight:600; }
+    .empty-state { text-align:center; padding:20px; color:#666; }
     .alert { padding:12px 15px; border-radius:6px; margin-bottom:20px; text-align:center; font-weight:500; display:none; }
     .alert-success { background:#e8f8ef; color:#006644; border:1px solid #b8e6b8; }
     .alert-error { background:#ffeaea; color:#d63031; border:1px solid #ffcccc; }
-    .loading { display:inline-block; width:20px; height:20px; border:3px solid #fff; border-radius:50%; border-top-color:transparent; animation:spin 1s ease-in-out infinite; margin-right:10px; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .status-badge { display:inline-block; padding:4px 12px; border-radius:20px; font-size:0.8em; font-weight:600; }
-    .status-pending { background-color:#fff3cd; color:#856404; }
-    .status-approved { background-color:#e8f8ef; color:#006644; }
-    .status-rejected { background-color:#ffeaea; color:#d63031; }
-    .empty-state { text-align:center; padding:40px; color:#666; }
+    input,button { margin:5px 0; padding:10px; border-radius:6px; font-size:14px; }
+    input { border:1px solid #ccc; width:100%; }
+    button { background:#006644; color:white; border:none; cursor:pointer; font-weight:600; }
+    button:hover { opacity:0.9; }
   </style>
 </head>
 <body>
 
 <div class="sidebar">
-  <h2>Admin Panel</h2>
+  <h2>Admin Portal</h2>
   <a href="admin-dashboard.html" class="active">Dashboard</a>
+  <a href="#balances">Balances</a>
+  <a href="#transactions">Transactions</a>
+  <a href="#scheduled">Scheduled</a>
+  <a href="#transfer">Fake Transfer</a>
+  <a href="#register">Register User</a>
   <a href="#kyc">KYC Approvals</a>
   <a href="#users">User Management</a>
   <a href="#tickets">Support Tickets</a>
-  <a href="#analytics">Analytics</a>
   <a href="#" id="logoutLink">Logout</a>
 </div>
 
@@ -70,219 +47,186 @@
   <div class="greeting">Welcome Admin</div>
   <div id="alertMessage" class="alert"></div>
 
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="userCount">--</div></div>
-    <div class="stat-card"><div class="stat-label">Pending KYC</div><div class="stat-value" id="kycCount">--</div></div>
-    <div class="stat-card"><div class="stat-label">Active Loans</div><div class="stat-value" id="loanCount">--</div></div>
-    <div class="stat-card"><div class="stat-label">Open Tickets</div><div class="stat-value" id="ticketCount">--</div></div>
+  <!-- Balances -->
+  <div class="panel" id="balances">
+    <h3>💰 Account Balances</h3>
+    <table id="balanceTable"><tr><td class="empty-state">Loading balances...</td></tr></table>
   </div>
 
-  <div class="panel" id="kyc">
-    <h3>📋 KYC Approvals</h3>
-    <table id="kycTable">
-      <tr><th>User</th><th>Email</th><th>Submitted</th><th>ID Documents</th><th>Status</th><th>Action</th></tr>
-      <tr><td colspan="6" class="empty-state">Loading KYC approvals...</td></tr>
-    </table>
+  <!-- Transactions -->
+  <div class="panel" id="transactions">
+    <h3>📑 Transaction History</h3>
+    <table id="transactionTable"><tr><td class="empty-state">Loading transactions...</td></tr></table>
   </div>
 
-  <div class="panel" id="users">
-    <h3>👥 User Management</h3>
-    <table id="userTable">
-      <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Action</th></tr>
-      <tr><td colspan="6" class="empty-state">Loading users...</td></tr>
-    </table>
+  <!-- Scheduled -->
+  <div class="panel" id="scheduled">
+    <h3>⏳ Scheduled Transactions</h3>
+    <table id="scheduledTable"><tr><td class="empty-state">Loading scheduled...</td></tr></table>
   </div>
 
-  <div class="panel" id="tickets">
-    <h3>🎫 Support Tickets</h3>
-    <table id="ticketTable">
-      <tr><th>Ticket ID</th><th>User</th><th>Issue</th><th>Priority</th><th>Status</th><th>Action</th></tr>
-      <tr><td colspan="6" class="empty-state">Loading tickets...</td></tr>
-    </table>
+  <!-- Fake Transfer -->
+  <div class="panel" id="transfer">
+    <h3>💸 Fake Transfer</h3>
+    <form id="transferForm">
+      <input type="email" id="fromEmail" placeholder="From (Admin email)" required>
+      <input type="email" id="toEmail" placeholder="To (User email)" required>
+      <input type="number" id="amount" placeholder="Amount" required>
+      <button type="submit">Transfer</button>
+    </form>
   </div>
+
+  <!-- Register User -->
+  <div class="panel" id="register">
+    <h3>📝 Register New User</h3>
+    <form id="registerForm">
+      <input type="text" id="regName" placeholder="Full Name" required>
+      <input type="email" id="regEmail" placeholder="Email" required>
+      <input type="password" id="regPassword" placeholder="Password" required>
+      <input type="text" id="regType" placeholder="Account Type (checking/savings)" required>
+      <button type="submit">Register User</button>
+    </form>
+  </div>
+
+  <!-- Existing panels -->
+  <div class="panel" id="kyc"><h3>📋 KYC Approvals</h3><table id="kycTable"><tr><td class="empty-state">Loading KYC...</td></tr></table></div>
+  <div class="panel" id="users"><h3>👥 User Management</h3><table id="userTable"><tr><td class="empty-state">Loading users...</td></tr></table></div>
+  <div class="panel" id="tickets"><h3>🎫 Support Tickets</h3><table id="ticketTable"><tr><td class="empty-state">Loading tickets...</td></tr></table></div>
 </div>
 
 <script>
-const API_BASE =
-  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000/api'
-    : 'https://meta-bank-backend.onrender.com/api';
-
 function showAlert(message,type='error'){
   const el=document.getElementById('alertMessage');
   el.textContent=message; el.className=`alert alert-${type}`; el.style.display='block';
   if(type==='success') setTimeout(()=>el.style.display='none',4000);
 }
 
-function requireToken(){
-  const token=localStorage.getItem('metaBankToken');
-  if(!token){alert('Session expired. Please log in again.'); window.location.href='login.html';}
-  return token;
+// Load balances from localStorage (adminData)
+function loadBalances(){
+  const data=JSON.parse(localStorage.getItem('adminData')||'{}');
+  const accounts=data.accounts||[];
+  const table=document.getElementById('balanceTable');
+  if(accounts.length>0){
+    let html='<tr><th>Name</th><th>Email</th><th>Type</th><th>Account #</th><th>Balance</th></tr>';
+    accounts.forEach(acc=>{
+      html+=`<tr><td>${acc.fullName}</td><td>${acc.email}</td><td>${acc.accountType}</td><td>${acc.accountNumber}</td><td>$${acc.balance.toLocaleString()}</td></tr>`;
+    });
+    table.innerHTML=html;
+  }else{ table.innerHTML='<tr><td colspan="5" class="empty-state">No accounts found</td></tr>'; }
 }
 
-async function getData(url){
-  const token=requireToken();
-  const res=await fetch(url,{headers:{'Authorization':'Bearer '+token}});
-  if(!res.ok) throw new Error('Network error');
-  return res.json();
-}
+// Fetch transactions live
+async function loadTransactions(){
+  try {
+    const res = await fetch('http://localhost:5000/auth/transactions');
+    const data = await res.json();
+    const table = document.getElementById('transactionTable');
 
-async function postAction(url, body={}){
-  const token=requireToken();
-  const res=await fetch(url,{
-    method:'POST',
-    headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
-    body:JSON.stringify(body)
-  });
-  return res;
-}
-
-async function loadAnalytics(){
-  try{
-    const d=await getData(`${API_BASE}/admin/analytics`);
-    document.getElementById('userCount').innerText=d.users||'0';
-    document.getElementById('kycCount').innerText=d.pendingKYC||'0';
-    document.getElementById('loanCount').innerText=d.activeLoans||'0';
-    document.getElementById('ticketCount').innerText=d.openTickets||'0';
-  }catch(err){
-    console.error('Analytics fetch error:',err);
-    showAlert('Failed to load analytics');
-  }
-}
-
-async function loadKYCApprovals(){
-  try{
-    const users=await getData(`${API_BASE}/kyc/pending`);
-    const table=document.getElementById('kycTable');
-    if(users && users.length>0){
-      let html=`<tr><th>User</th><th>Email</th><th>Submitted</th><th>ID Documents</th><th>Status</th><th>Action</th></tr>`;
-      users.forEach(user=>{
-        const submittedDate=user.submittedAt?new Date(user.submittedAt).toLocaleDateString():'N/A';
-        html+=`<tr>
-          <td><strong>${user.fullName||'N/A'}</strong></td>
-          <td>${user.email||'N/A'}</td>
-          <td>${submittedDate}</td>
-          <td>
-            <a href="${user.idFront||'#'}" target="_blank" ${!user.idFront?'style="color:#ccc;pointer-events:none;"':''}>Front</a> |
-            <a href="${user.idBack||'#'}" target="_blank" ${!user.idBack?'style="color:#ccc;pointer-events:none;"':''}>Back</a>
-          </td>
-          <td><span class="status-badge status-pending">Pending</span></td>
-          <td>
-            <button onclick="approveKYC('${user._id}')">Approve</button>
-            <button class="reject" onclick="rejectKYC('${user._id}')">Reject</button>
-          </td>
+    if (res.ok && data.success && data.transactions.length > 0) {
+      let html = '<tr><th>From</th><th>To</th><th>Amount</th><th>Date</th><th>Status</th></tr>';
+      data.transactions.forEach(tx => {
+        const dateStr = new Date(tx.date).toLocaleString();
+        html += `<tr>
+          <td>${tx.from}</td>
+          <td>${tx.to}</td>
+          <td>$${tx.amount}</td>
+          <td>${dateStr}</td>
+          <td>${tx.status}</td>
         </tr>`;
       });
-      table.innerHTML=html;
-    }else{
-      table.innerHTML=`<tr><th>User</th><th>Email</th><th>Submitted</th><th>ID Documents</th><th>Status</th><th>Action</th></tr>
-        <tr><td colspan="6" class="empty-state">No pending KYC approvals</td></tr>`;
+      table.innerHTML = html;
+    } else {
+      table.innerHTML = '<tr><td colspan="5" class="empty-state">No transactions found</td></tr>';
     }
-  }catch(err){
-    console.error('KYC fetch error:',err);
-    showAlert('Failed to load KYC approvals');
+  } catch (err) {
+    console.error('Transactions fetch error:', err);
+    showAlert('Failed to load transactions');
   }
 }
 
-async function loadUsers(){
-  try{
-    const users=await getData(`${API_BASE}/admin/users`);
-    const table=document.getElementById('userTable');
-    if(users && users.length>0){
-      let html=`<tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Action</th></tr>`;
-      users.forEach(user=>{
-        const joinDate=user.createdAt?new Date(user.createdAt).toLocaleDateString():'N/A';
-        const status=user.isVerified?'Active':'Inactive';
-        const statusClass=user.isVerified?'status-approved':'status-pending';
-        html+=`<tr>
-          <td><strong>${user.fullName||'N/A'}</strong></td>
-          <td>${user.email||'N/A'}</td>
-          <td>${user.role||'User'}</td>
-          <td><span class="status-badge ${statusClass}">${status}</span></td>
-          <td>${joinDate}</td>
-          <td>
-            <button onclick="promoteUser('${user._id}')">Promote</button>
-            <button class="reject" onclick="toggleUser('${user._id}', ${user.isVerified?'true':'false'})">${user.isVerified?'Suspend':'Activate'}</button>
-          </td>
-        </tr>`;
-      });
-      table.innerHTML=html;
-    }else{
-      table.innerHTML=`<tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Action</th></tr>
-        <tr><td colspan="6" class="empty-state">No users found</td></tr>`;
+async function loadScheduled(){
+  try {
+    const res = await fetch('http://localhost:5000/auth/transactions');
+    const data = await res.json();
+    const table = document.getElementById('scheduledTable');
+
+    if (res.ok && data.success) {
+      const scheduled = data.transactions.filter(tx => tx.status === 'scheduled');
+      if (scheduled.length > 0) {
+        let html = '<tr><th>From</th><th>To</th><th>Amount</th><th>Date</th><th>Status</th></tr>';
+        scheduled.forEach(tx => {
+          const dateStr = new Date(tx.date).toLocaleString();
+          html += `<tr>
+            <td>${tx.from}</td>
+            <td>${tx.to}</td>
+            <td>$${tx.amount}</td>
+            <td>${dateStr}</td>
+            <td>${tx.status}</td>
+          </tr>`;
+        });
+        table.innerHTML = html;
+      } else {
+        table.innerHTML = '<tr><td colspan="5" class="empty-state">No scheduled transactions</td></tr>';
+      }
     }
-  }catch(err){
-    console.error('Users fetch error:',err);
-    showAlert('Failed to load users');
+  } catch (err) {
+    console.error('Scheduled fetch error:', err);
+    showAlert('Failed to load scheduled transactions');
   }
 }
 
-async function loadTickets(){
+// Fake transfer form
+document.getElementById('transferForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const fromEmail=document.getElementById('fromEmail').value;
+  const toEmail=document.getElementById('toEmail').value;
+  const amount=parseFloat(document.getElementById('amount').value);
   try{
-    const tickets=await getData(`${API_BASE}/admin/tickets`);
-    const table=document.getElementById('ticketTable');
-    if(tickets && tickets.length>0){
-      let html=`<tr><th>Ticket ID</th><th>User</th><th>Issue</th><th>Priority</th><th>Status</th><th>Action</th></tr>`;
-      tickets.forEach(ticket=>{
-        const priority=ticket.priority||'Medium';
-        const priorityColor=priority==='High' ? '#d63031' : priority==='Low' ? '#006644' : '#ffcc00';
-        html+=`<tr>
-          <td><strong>#${ticket.ticketId||'N/A'}</strong></td>
-          <td>${ticket.userEmail||'N/A'}</td>
-          <td>${ticket.issue||'N/A'}</td>
-          <td style="color:${priorityColor};font-weight:600;">${priority}</td>
-          <td><span class="status-badge status-pending">${ticket.status||'Open'}</span></td>
-          <td><button onclick="resolveTicket('${ticket._id}')">Resolve</button></td>
-        </tr>`;
-      });
-      table.innerHTML=html;
+    const res=await fetch('http://localhost:5000/auth/fake-transfer',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fromEmail,toEmail,amount})
+    });
+    const data=await res.json();
+    if(res.ok && data.success){
+      showAlert(data.message,'success');
+      loadBalances(); 
+      loadTransactions(); 
     }else{
-      table.innerHTML=`<tr><th>Ticket ID</th><th>User</th><th>Issue</th><th>Priority</th><th>Status</th><th>Action</th></tr>
-        <tr><td colspan="6" class="empty-state">No open tickets</td></tr>`;
+      showAlert(data.error||'Transfer failed');
     }
   }catch(err){
-    console.error('Tickets fetch error:',err);
-    showAlert('Failed to load tickets');
+    console.error('Transfer error:',err);
+    showAlert('Error connecting to server');
   }
-}
+});
 
-// Actions
-async function approveKYC(id){
+// Register new user form
+document.getElementById('registerForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const fullName=document.getElementById('regName').value;
+  const email=document.getElementById('regEmail').value;
+  const password=document.getElementById('regPassword').value;
+  const accountType=document.getElementById('regType').value;
   try{
-    const res=await postAction(`${API_BASE}/kyc/approve/${id}`);
-    if(res.ok){ showAlert('KYC approved successfully!','success'); loadKYCApprovals(); loadAnalytics(); }
-    else{ showAlert('Failed to approve KYC'); }
-  }catch(err){ console.error('Approve KYC error:',err); showAlert('Failed to approve KYC'); }
-}
-async function rejectKYC(id){
-  try{
-    const res=await postAction(`${API_BASE}/kyc/reject/${id}`);
-    if(res.ok){ showAlert('KYC rejected successfully!','success'); loadKYCApprovals(); loadAnalytics(); }
-    else{ showAlert('Failed to reject KYC'); }
-  }catch(err){ console.error('Reject KYC error:',err); showAlert('Failed to reject KYC'); }
-}
-async function promoteUser(id){
-  try{
-    const res=await postAction(`${API_BASE}/admin/promote/${id}`);
-    if(res.ok){ showAlert('User promoted successfully!','success'); loadUsers(); }
-    else{ showAlert('Failed to promote user'); }
-  }catch(err){ console.error('Promote user error:',err); showAlert('Failed to promote user'); }
-}
-async function toggleUser(id,isVerified){
-  try{
-    const endpoint=isVerified ? `${API_BASE}/admin/suspend/${id}` : `${API_BASE}/admin/activate/${id}`;
-    const res=await postAction(endpoint);
-    if(res.ok){ showAlert('User status updated successfully!','success'); loadUsers(); }
-    else{ showAlert('Failed to update user status'); }
-  }catch(err){ console.error('Update user status error:',err); showAlert('Failed to update user status'); }
-}
-async function resolveTicket(id){
-  try{
-    const res=await postAction(`${API_BASE}/admin/tickets/resolve/${id}`);
-    if(res.ok){ showAlert('Ticket resolved successfully!','success'); loadTickets(); loadAnalytics(); }
-    else{ showAlert('Failed to resolve ticket'); }
-  }catch(err){ console.error('Resolve ticket error:',err); showAlert('Failed to resolve ticket'); }
-}
+    const res=await fetch('http://localhost:5000/auth/register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fullName,email,password,accountType})
+    });
+    const data=await res.json();
+    if(res.ok && data.success){
+      showAlert('User registered successfully','success');
+      document.getElementById('registerForm').reset();
+      loadBalances(); 
+    }else{
+      showAlert(data.error||'Registration failed');
+    }
+  }catch(err){
+    console.error('Register error:',err);
+    showAlert('Error connecting to server');
+  }
+});
 
 // Logout
 document.getElementById('logoutLink').addEventListener('click',e=>{
@@ -291,115 +235,12 @@ document.getElementById('logoutLink').addEventListener('click',e=>{
 
 // Init
 document.addEventListener('DOMContentLoaded',()=>{
-  const token=localStorage.getItem('metaBankToken');
-  if(!token){window.location.href='login.html';return;}
-  loadAnalytics();
-  loadKYCApprovals();
-  loadUsers();
-  loadTickets();
-});
-</script>
-
-</body>
-</html>
-      users.forEach(user=>{
-        const submittedDate=user.submittedAt?new Date(user.submittedAt).toLocaleDateString():'N/A';
-        table.innerHTML += `
-          <tr>
-            <td><strong>${user.fullName||'N/A'}</strong></td>
-            <td>${user.email||'N/A'}</td>
-            <td>${submittedDate}</td>
-            <td>
-              <a href="${user.idFront||'#'}" target="_blank" ${!user.idFront?'style="color:#ccc;pointer-events:none;"':''}>Front</a> |
-              <a href="${user.idBack||'#'}" target="_blank" ${!user.idBack?'style="color:#ccc;pointer-events:none;"':''}>Back</a>
-            </td>
-            <td><span class="status-badge status-pending">Pending</span></td>
-            <td>
-              <button onclick="approveKYC('${user._id}')">Approve</button>
-              <button class="reject" onclick="rejectKYC('${user._id}')">Reject</button>
-            </td>
-          </tr>`;
-      });
-    } else {
-      table.innerHTML = `<tr><th>User</th><th>Email</th><th>Submitted</th><th>ID Documents</th><th>Status</th><th>Action</th></tr>
-        <tr><td colspan="6" class="empty-state">No pending KYC approvals</td></tr>`;
-    }
-  }catch(err){console.error(err);showAlert('Failed to load KYC approvals');}
-}
-
-async function loadUsers(){
-  try{
-    const users=await getData(`${API_BASE}/admin/users`);
-    const table=document.getElementById('userTable');
-    if(users&&users.length>0){
-      let html=`<tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Action</th></tr>`;
-      users.forEach(user=>{
-        const joinDate=user.createdAt?new Date(user.createdAt).toLocaleDateString():'N/A';
-        const status=user.isVerified?'Active':'Inactive';
-        const statusClass=user.isVerified?'status-approved':'status-pending';
-        html+=`<tr>
-          <td><strong>${user.fullName||'N/A'}</strong></td>
-          <td>${user.email||'N/A'}</td>
-          <td>${user.role||'User'}</td>
-          <td><span class="status-badge ${statusClass}">${status}</span></td>
-          <td>${joinDate}</td>
-          <td>
-            <button onclick="promoteUser('${user._id}')">Promote</button>
-            <button class="reject" onclick="toggleUser('${user._id}',${user.isVerified})">${user.isVerified?'Suspend':'Activate'}</button>
-          </td>
-        </tr>`;
-      });
-      table.innerHTML=html;
-    }else{
-      table.innerHTML=`<tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Action</th></tr>
-        <tr><td colspan="6" class="empty-state">No users found</td></tr>`;
-    }
-  }catch(err){console.error(err);showAlert('Failed to load users');}
-}
-
-async function loadTickets(){
-  try{
-    const tickets=await getData(`${API_BASE}/admin/tickets`);
-    const table=document.getElementById('ticketTable');
-    if(tickets&&tickets.length>0){
-      let html=`<tr><th>Ticket ID</th><th>User</th><th>Issue</th><th>Priority</th><th>Status</th><th>Action</th></tr>`;
-      tickets.forEach(ticket=>{
-        const priority=ticket.priority||'Medium';
-        const priorityColor=priority==='High'?'#d63031':priority==='Low'?'#006644':'#ffcc00';
-        html+=`<tr>
-          <td><strong>#${ticket.ticketId||'N/A'}</strong></td>
-          <td>${ticket.userEmail||'N/A'}</td>
-          <td>${ticket.issue||'N/A'}</td>
-          <td style="color:${priorityColor};font-weight:600;">${priority}</td>
-          <td><span class="status-badge status-pending">${ticket.status||'Open'}</span></td>
-          <td><button onclick="resolveTicket('${ticket._id}')">Resolve</button></td>
-        </tr>`;
-      });
-      table.innerHTML=html;
-    }else{
-      table.innerHTML=`<tr><th>Ticket ID</th><th>User</th><th>Issue</th><th>Priority</th><th>Status</th><th>Action</th></tr>
-        <tr><td colspan="6" class="empty-state">No open tickets</td></tr>`;
-    }
-  }catch(err){console.error(err);showAlert('Failed to load tickets');}
-}
-
-// Action handlers
-async function approveKYC(id){const res=await postAction(`${API_BASE}/kyc/approve/${id}`);if(res.ok){showAlert('KYC approved','success');loadKYCApprovals();loadAnalytics();}else{showAlert('Failed to approve KYC');}}
-async function rejectKYC(id){const res=await postAction(`${API_BASE}/kyc/reject/${id}`);if(res.ok){showAlert('KYC rejected','success');loadKYCApprovals();loadAnalytics();}else{showAlert('Failed to reject KYC');}}
-async function promoteUser(id){const res=await postAction(`${API_BASE}/admin/promote/${id}`);if(res.ok){showAlert('User promoted','success');loadUsers();}else{showAlert('Failed to promote user');}}
-async function toggleUser(id,isVerified){const endpoint=isVerified?`${API_BASE}/admin/suspend/${id}`:`${API_BASE}/admin/activate/${id}`;const res=await postAction(endpoint);if(res.ok){showAlert('User status updated','success');loadUsers();}else{showAlert('Failed to update user');}}
-async function resolveTicket(id){const res=await postAction(`${API_BASE}/admin/tickets/resolve/${id}`);if(res.ok){showAlert('Ticket resolved','success');loadTickets();loadAnalytics();}else{showAlert('Failed to resolve ticket');}}
-
-document.getElementById('logoutLink').addEventListener('click',e=>{
-  e.preventDefault(); localStorage.clear(); window.location.href='login.html';
-});
-
-document.addEventListener('DOMContentLoaded',()=>{
-  requireToken();
-  loadAnalytics();
-  loadKYCApprovals();
-  loadUsers();
-  loadTickets();
+  const data=localStorage.getItem('adminData');
+  if(!data){window.location.href='login.html';return;}
+  loadBalances();
+  loadTransactions();
+  loadScheduled();
+  // keep your existing loaders for analytics, KYC, users, tickets if backend endpoints exist
 });
 </script>
 

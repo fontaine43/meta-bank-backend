@@ -141,8 +141,8 @@
 <script>
 const API_BASE =
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000/api'
-    : 'https://meta-bank-backend.onrender.com/api';
+    ? 'http://localhost:5000'
+    : 'https://meta-bank-backend.onrender.com';
 
 function showAlert(message, type = 'error') {
   const alertEl = document.getElementById('alertMessage');
@@ -180,16 +180,20 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      // send both email and username so backend can match
-      body: JSON.stringify({ email: usernameOrEmail, username: usernameOrEmail, password })
+      body: JSON.stringify({ email: usernameOrEmail, password })
     });
     const data = await res.json();
     if (res.ok && data.success) {
       showAlert('✅ Login successful! Redirecting...', 'success');
-      localStorage.setItem('metaBankToken', data.token);
-      setTimeout(() => window.location.href = 'dashboard.html', 1500);
+      if (data.role === 'admin') {
+        localStorage.setItem('adminData', JSON.stringify(data));
+        setTimeout(() => window.location.href = 'admin-dashboard.html', 1500);
+      } else {
+        localStorage.setItem('userData', JSON.stringify(data));
+        setTimeout(() => window.location.href = 'user-dashboard.html', 1500);
+      }
     } else {
-      showAlert(data.message || 'Login failed. Please try again.');
+      showAlert(data.error || 'Login failed. Please try again.');
     }
   } catch (err) {
     console.error('Login error:', err);

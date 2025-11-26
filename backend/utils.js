@@ -1,8 +1,10 @@
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
+// Routing number from .env or fallback
 const ROUTING_NUMBER = process.env.ROUTING_NUMBER || '231386894';
 
+// Configure mail transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -11,8 +13,11 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+/**
+ * Send verification email to a new user
+ */
 const sendVerificationEmail = async (to, name, token) => {
-  const link = `https://meta-bank-frontend.onrender.com/verify.html?token=${token}`;
+  const link = `${process.env.FRONTEND_URL || 'https://metabankamerica.com'}/verify.html?token=${token}`;
   const mailOptions = {
     from: `"Meta Bank" <${process.env.META_BANK_EMAIL}>`,
     to,
@@ -27,9 +32,17 @@ const sendVerificationEmail = async (to, name, token) => {
       <p>If you did not register, please ignore this email.</p>
     `
   };
-  try { await transporter.sendMail(mailOptions); } catch (err) { console.error('Email error:', err.message); }
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Verification email sent to ${to}`);
+  } catch (err) {
+    console.error('❌ Email error:', err.message);
+  }
 };
 
+/**
+ * Notify admin when a new user registers
+ */
 const notifyAdminOfNewUser = async (user) => {
   const mailOptions = {
     from: `"Meta Bank" <${process.env.META_BANK_EMAIL}>`,
@@ -44,20 +57,31 @@ const notifyAdminOfNewUser = async (user) => {
       <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
     `
   };
-  try { await transporter.sendMail(mailOptions); } catch (err) { console.error('Admin notify error:', err.message); }
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Admin notified of new user: ${user.username}`);
+  } catch (err) {
+    console.error('❌ Admin notify error:', err.message);
+  }
 };
 
+/**
+ * Generate a random 12-digit account number
+ */
 const generateAccountNumber = (prefix = '') => {
   const buf = crypto.randomBytes(8).toString('hex');
   const num = (BigInt('0x' + buf) % BigInt(9_000_000_000_00)) + BigInt(100_000_000_000);
-  return `${prefix}${num.toString()}`; // 12 digits
+  return `${prefix}${num.toString()}`;
 };
 
+/**
+ * Provide default display balances for seeded accounts
+ */
 const seedDisplayBalance = (type) => {
   switch ((type || '').toLowerCase()) {
-    case 'business': return 3678089.00; // $3,678,089
-    case 'savings': return 3987.00;     // $3,987.00
-    case 'checking': return 278000.00;  // $278,000
+    case 'business': return 3240000.00; // from .env DEFAULT_BUSINESS_BALANCE
+    case 'savings': return 2760.00;     // from .env DEFAULT_SAVINGS_BALANCE
+    case 'checking': return 165000.00;  // from .env DEFAULT_CHECKING_BALANCE
     default: return 0.00;
   }
 };

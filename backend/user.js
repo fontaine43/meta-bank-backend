@@ -22,4 +22,7 @@ const userSchema = new Schema({
   isSeeded: { type: Boolean, default: false }
 }, { timestamps: true });
 
-module.exports = mongoose.models.User || mongoose.model('User', userSchema);
+// Prevent recompilation errors in dev/hot-reload environments
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+module.exports = User;
