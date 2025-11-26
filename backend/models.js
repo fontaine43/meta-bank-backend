@@ -6,13 +6,14 @@ const { Schema } = mongoose;
  */
 const userSchema = new Schema({
   fullName: { type: String, required: true, trim: true },
-  email: { type: String, unique: true, required: true, lowercase: true, index: true },
+  email: { type: String, unique: true, required: true, lowercase: true }, // removed index: true
   phone: { type: String, required: true },
-  username: { type: String, unique: true, required: true, lowercase: true, index: true },
+  username: { type: String, unique: true, required: true, lowercase: true }, // removed index: true
   password: { type: String, required: true },
   dob: { type: Date, required: true },
   ssn: { type: String, required: true },
-  bankName: { type: String, required: true },
+  bankName: { type: String, required: true }
+});
 
   role: { type: String, enum: ['user', 'admin', 'support'], default: 'user' },
   kycStatus: { type: String, enum: ['pending', 'approved', 'verified', 'rejected'], default: 'pending', index: true },
