@@ -7,4 +7,4 @@ const ticketSchema = new Schema({
   status: { type: String, enum: ['open', 'resolved'], default: 'open' }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Ticket', ticketSchema);
+module.exports = mongoose.models.Ticket || mongoose.model('Ticket', ticketSchema);

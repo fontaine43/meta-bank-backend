@@ -7,4 +7,4 @@ const transferSchema = new Schema({
   status: { type: String, enum: ['pending', 'completed'], default: 'pending' }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Transfer', transferSchema);
+module.exports = mongoose.models.Transfer || mongoose.model('Transfer', transferSchema);

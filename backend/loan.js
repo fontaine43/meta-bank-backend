@@ -7,4 +7,4 @@ const loanSchema = new Schema({
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Loan', loanSchema);
+module.exports = mongoose.models.Loan || mongoose.model('Loan', loanSchema);
