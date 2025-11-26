@@ -332,13 +332,16 @@
 </div>
 
 <script>
+  // Define backend API base URL once
+  const API_BASE = 'https://meta-bank-backend.onrender.com/api';
+
   // Safe analytics update for Admin sessions only; otherwise keep your static numbers
   (async function loadAnalyticsIfAdmin() {
     const token = localStorage.getItem('metaBankToken');
     if (!token) return;
 
     try {
-      const res = await fetch('/api/admin/analytics', {
+      const res = await fetch(`${API_BASE}/admin/analytics`, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const data = await res.json();
@@ -349,7 +352,6 @@
         // No explicit "transactions today" in backend; derive from transfers count if present
         if (typeof data.openTickets !== 'undefined') {
           // Keep your existing 342 if backend doesn't provide a direct metric
-          // Optionally, map another stat here
         }
       }
     } catch (err) {

@@ -20,12 +20,15 @@ if (!fs.existsSync(uploadsPath)) {
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://metabankamerica.com',
   'http://localhost:3000',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:3000',
+  'https://meta-bank-frontend.onrender.com' // Render static site
 ];
+
 app.use(cors({
   origin(origin, cb) {
-    if (!origin || allowedOrigins.includes(origin)) cb(null, true);
-    else {
+    if (!origin || allowedOrigins.includes(origin)) {
+      cb(null, true);
+    } else {
       console.warn(`❌ Blocked by CORS: ${origin}`);
       cb(null, false);
     }
@@ -60,7 +63,9 @@ app.use((err, _req, res, _next) => {
     if (process.env.NODE_ENV !== 'production') mongoose.set('debug', true);
 
     const PORT = process.env.PORT || 5000;
-    const server = app.listen(PORT, () => console.log(`🚀 Meta Bank backend running on port ${PORT}`));
+    const server = app.listen(PORT, () =>
+      console.log(`🚀 Meta Bank backend running on port ${PORT}`)
+    );
 
     const shutdown = () => {
       console.log('🛑 Shutting down server...');

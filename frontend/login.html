@@ -180,7 +180,8 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usernameOrEmail, password })
+      // send both email and username so backend can match
+      body: JSON.stringify({ email: usernameOrEmail, username: usernameOrEmail, password })
     });
     const data = await res.json();
     if (res.ok && data.success) {
