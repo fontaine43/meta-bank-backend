@@ -135,3 +135,37 @@ const login = async (req, res) => {
 };
 
 /** The rest of your controllers (verifyUser, profile, dashboard, KYC, business, loans, transfers, admin) remain unchanged from your last version. */
+module.exports = {
+  // auth
+  register,
+  login,
+  verifyUser,
+  profile,
+  dashboard,
+
+  // kyc
+  uploadKYC,
+  getVerificationStatus,
+  approveKYC,
+  rejectKYC,
+
+  // business
+  registerBusinessAccount,
+
+  // loans
+  applyLoan,
+  getLoans,
+
+  // transfers
+  makeTransfer,
+  getTransfers,
+  completeTransfer,
+
+  // admin
+  analytics,
+  getAllUsers,
+  changeUserRole,
+  deleteUser,
+  getOpenTickets,
+  resolveTicket
+};
