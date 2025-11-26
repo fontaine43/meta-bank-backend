@@ -1,7 +1,13 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User, Loan, Transfer, Ticket } = require('./models');
+
+// ✅ Direct imports of your model files
+const User = require('./User');
+const Loan = require('./Loan');
+const Transfer = require('./Transfer');
+const Ticket = require('./Ticket');
+
 const {
   sendVerificationEmail,
   notifyAdminOfNewUser,
