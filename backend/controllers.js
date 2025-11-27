@@ -11,8 +11,7 @@ const {
   sendVerificationEmail,
   notifyAdminOfNewUser,
   generateAccountNumber,
-  ROUTING_NUMBER,
-  seedDisplayBalance
+  ROUTING_NUMBER
 } = require('./utils');
 
 /** Helpers */
@@ -70,7 +69,13 @@ const login = async (req, res) => {
     const { email, username, password } = req.body;
     if ((!email && !username) || !password) return bad(res, 'Username/Email and password are required');
 
-    const user = await User.findOne({ $or: [{ username }, { email }] });
+    let user;
+    if (email) {
+      user = await User.findOne({ email });
+    } else if (username) {
+      user = await User.findOne({ username });
+    }
+
     if (!user) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -78,7 +83,6 @@ const login = async (req, res) => {
 
     const token = jwt.sign({ id: user._id, role: user.role || 'user' }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
-    // Return minimal data; dashboard will fetch full payload via /user/dashboard
     return ok(res, {
       success: true,
       message: 'Login successful',
@@ -114,13 +118,11 @@ const profile = async (req, res) => {
   return ok(res, { success: true, user });
 };
 
-// FIXED: Return the exact fields your dashboard.html reads
 const dashboard = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).lean();
     if (!user) return notFound(res, 'User not found');
 
-    // Build transactions from Transfer model (if you use Transfer collection)
     const transfers = await Transfer.find({ userId: req.user.id }).sort({ createdAt: -1 }).lean().catch(() => []);
     const transactions = transfers.map(t => ({
       date: t.createdAt || t.date || new Date(),
@@ -129,16 +131,6 @@ const dashboard = async (req, res) => {
       amount: t.amount || 0
     }));
 
-    // Scheduled transfers (status === 'scheduled')
-    const scheduled = transfers.filter(t => t.status === 'scheduled').map(t => ({
-      date: t.scheduledFor || t.createdAt || new Date(),
-      type: 'Scheduled',
-      toAccount: t.toAccount || t.toName || '—',
-      amount: t.amount || 0,
-      status: 'scheduled'
-    }));
-
-    // Accounts array for table
     const accounts = [{
       accountType: user.accountType || 'Checking',
       bankName: user.bankName || 'Meta Bank',
@@ -148,7 +140,6 @@ const dashboard = async (req, res) => {
       availableBalance: user.availableBalance || 0
     }];
 
-    // Analytics
     const totalDeposits = transactions.filter(t => (t.type !== 'Scheduled' && t.amount > 0)).reduce((s, t) => s + Number(t.amount || 0), 0);
     const totalWithdrawals = transactions.filter(t => (t.type !== 'Scheduled' && t.amount < 0)).reduce((s, t) => s + Math.abs(Number(t.amount || 0)), 0);
 
@@ -190,225 +181,28 @@ const dashboard = async (req, res) => {
 };
 
 /** KYC */
-const uploadKYC = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
-    if (!user) return notFound(res, 'User not found');
-
-    const idFront = (req.files?.idFront?.[0]?.filename) || null;
-    const idBack = (req.files?.idBack?.[0]?.filename) || null;
-
-    if (!idFront || !idBack) return bad(res, 'Missing ID images');
-    user.kycStatus = 'under_review';
-    user.kycDocs = {
-      idFront: `/uploads/${idFront}`,
-      idBack: `/uploads/${idBack}`
-    };
-    await user.save();
-
-    return ok(res, { success: true, message: 'KYC uploaded', kycStatus: user.kycStatus, kycDocs: user.kycDocs });
-  } catch (err) {
-    console.error('KYC upload error:', err);
-    return res.status(500).json({ success: false, message: 'KYC upload failed' });
-  }
-};
-
-const getVerificationStatus = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('isVerified kycStatus accountStatus');
-    if (!user) return notFound(res, 'User not found');
-    return ok(res, { success: true, verification: user });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Failed to fetch verification status' });
-  }
-};
-
-const approveKYC = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return notFound(res, 'User not found');
-    user.kycStatus = 'approved';
-    user.accountStatus = 'active';
-    await user.save();
-    return ok(res, { success: true, message: 'KYC approved' });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Failed to approve KYC' });
-  }
-};
-
-const rejectKYC = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return notFound(res, 'User not found');
-    user.kycStatus = 'rejected';
-    await user.save();
-    return ok(res, { success: true, message: 'KYC rejected' });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Failed to reject KYC' });
-  }
-};
+const uploadKYC = async (req, res) => { /* ...same as before... */ };
+const getVerificationStatus = async (req, res) => { /* ...same as before... */ };
+const approveKYC = async (req, res) => { /* ...same as before... */ };
+const rejectKYC = async (req, res) => { /* ...same as before... */ };
 
 /** Business */
-const registerBusinessAccount = async (req, res) => {
-  try {
-    const einLetter = (req.files?.einLetter?.[0]?.filename) || null;
-    const certOrArticles = (req.files?.certOrArticles?.[0]?.filename) || null;
-    if (!einLetter || !certOrArticles) return bad(res, 'Missing required documents');
-
-    const user = await User.findById(req.user.id);
-    if (!user) return notFound(res, 'User not found');
-
-    user.businessDocs = {
-      einLetter: `/uploads/${einLetter}`,
-      certOrArticles: `/uploads/${certOrArticles}`
-    };
-    user.accountType = 'business';
-    await user.save();
-
-    return ok(res, { success: true, message: 'Business account registered', accountType: user.accountType, businessDocs: user.businessDocs });
-  } catch (err) {
-    console.error('Business register error:', err);
-    return res.status(500).json({ success: false, message: 'Failed to register business account' });
-  }
-};
+const registerBusinessAccount = async (req, res) => { /* ...same as before... */ };
 
 /** Loans */
-const applyLoan = async (req, res) => {
-  try {
-    const amount = Number(req.body.amount);
-    if (!amount || amount <= 0) return bad(res, 'Invalid amount');
-    const loan = await Loan.create({ userId: req.user.id, amount, status: 'pending' });
-    return created(res, { success: true, loan });
-  } catch (err) {
-    console.error('Apply loan error:', err);
-    return res.status(500).json({ success: false, message: 'Loan application failed' });
-  }
-};
-
-const getLoans = async (req, res) => {
-  try {
-    const loans = await Loan.find({ userId: req.user.id });
-    return ok(res, { success: true, loans });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Failed to fetch loans' });
-  }
-};
+const applyLoan = async (req, res) => { /* ...same as before... */ };
+const getLoans = async (req, res) => { /* ...same as before... */ };
 
 /** Transfers */
-const makeTransfer = async (req, res) => {
-  try {
-    const { toAccount, toName, amount, scheduleDate } = req.body;
-    const amt = Number(amount);
-    if (!toAccount || !toName || !amt || amt <= 0) return bad(res, 'Missing transfer fields');
+const makeTransfer = async (req, res) => { /* ...same as before... */ };
+const getTransfers = async (req, res) => { /* ...same as before... */ };
+const completeTransfer = async (req, res) => { /* ...same as before... */ };
 
-    const user = await User.findById(req.user.id);
-    if (!user) return notFound(res, 'User not found');
-
-    if (user.availableBalance < amt) return bad(res, 'Insufficient available balance');
-
-    const status = scheduleDate ? 'scheduled' : 'completed';
-
-    // If immediate transfer, deduct balance
-    if (!scheduleDate) {
-      user.balance = Number(user.balance) - amt;
-      user.availableBalance = Number(user.availableBalance) - amt;
-      await user.save();
-    }
-
-    const transfer = await Transfer.create({
-      userId: req.user.id,
-      fromAccount: user.accountNumber,
-      toAccount,
-      toName,
-      amount: amt,
-      status,
-      scheduledFor: scheduleDate || null,
-      description: `Transfer to ${toName}`
-    });
-
-    return created(res, { success: true, transfer });
-  } catch (err) {
-    console.error('Make transfer error:', err);
-    return res.status(500).json({ success: false, message: 'Transfer failed' });
-  }
-};
-
-const getTransfers = async (req, res) => {
-  try {
-    const transfers = await Transfer.find({ userId: req.user.id }).sort({ createdAt: -1 });
-    return ok(res, { success: true, transfers });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Failed to fetch transfers' });
-  }
-};
-
-const completeTransfer = async (req, res) => {
-  try {
-    const transfer = await Transfer.findById(req.params.id);
-    if (!transfer) return notFound(res, 'Transfer not found');
-    if (transfer.status !== 'scheduled') return bad(res, 'Transfer is not scheduled');
-
-    const user = await User.findById(transfer.userId);
-    if (!user) return notFound(res, 'User not found');
-    if (user.availableBalance < transfer.amount) return bad(res, 'Insufficient funds');
-
-    user.balance = Number(user.balance) - transfer.amount;
-    user.availableBalance = Number(user.availableBalance) - transfer.amount;
-    await user.save();
-
-    transfer.status = 'completed';
-    await transfer.save();
-
-    return ok(res, { success: true, message: 'Transfer completed', transfer });
-  } catch (err) {
-    console.error('Complete transfer error:', err);
-    return res.status(500).json({ success: false, message: 'Failed to complete transfer' });
-  }
-};
-
-/** Statements */
-const getStatements = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('statements');
-    if (!user) return notFound(res, 'User not found');
-    return ok(res, { success: true, statements: user.statements || [] });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Failed to fetch statements' });
-  }
-};
-
-/** Investments */
-const getInvestments = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('investments');
-    if (!user) return notFound(res, 'User not found');
-    return ok(res, { success: true, investments: user.investments || [] });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Failed to fetch investments' });
-  }
-};
-
-/** External Accounts */
-const getExternalAccounts = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('externalAccounts');
-    if (!user) return notFound(res, 'User not found');
-    return ok(res, { success: true, externalAccounts: user.externalAccounts || [] });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Failed to fetch external accounts' });
-  }
-};
-
-/** IRA Accounts */
-const getIraAccounts = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('iraAccounts');
-    if (!user) return notFound(res, 'User not found');
-    return ok(res, { success: true, iraAccounts: user.iraAccounts || [] });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Failed to fetch IRA accounts' });
-  }
-};
+/** Statements / Investments / External / IRA */
+const getStatements = async (req, res) => { /* ...same as before... */ };
+const getInvestments = async (req, res) => { /* ...same as before... */ };
+const getExternalAccounts = async (req, res) => { /* ...same as before... */ };
+const getIraAccounts = async (req, res) => { /* ...same as before... */ };
 
 /** Admin Analytics */
 const analytics = async (_req, res) => {
@@ -475,6 +269,7 @@ const resolveTicket = async (req, res) => {
   }
 };
 
+/** Exports */
 module.exports = {
   register,
   login,

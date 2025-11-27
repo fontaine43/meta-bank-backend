@@ -7,9 +7,9 @@ const helmet = require('helmet');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
-// Import your route modules
-const routes = require('./routes');       // existing API routes
-const authRoutes = require('./auth');     // new auth.js routes
+// Import route modules
+const routes = require('./routes');       // user + admin routes
+const authRoutes = require('./auth');     // login/register routes
 
 const app = express();
 
@@ -25,7 +25,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://metabankamerica.com',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'https://meta-bank-frontend.onrender.com' // Render static site
+  'https://meta-bank-frontend.onrender.com'
 ];
 
 app.use(cors({
@@ -51,9 +51,9 @@ app.use((req, _res, next) => {
   next();
 });
 
-// Routes
-app.use('/api', routes);
-app.use('/auth', authRoutes);  // mount auth routes separately
+// Mount routes
+app.use('/api', routes);     // user + admin features
+app.use('/auth', authRoutes); // login/register
 
 // Global error handler
 app.use((err, _req, res, _next) => {
