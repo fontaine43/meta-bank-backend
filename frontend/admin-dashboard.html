@@ -88,90 +88,170 @@
     </form>
   </div>
 
-  <!-- Existing panels -->
+  <!-- Other panels -->
   <div class="panel" id="kyc"><h3>📋 KYC Approvals</h3><table id="kycTable"><tr><td class="empty-state">Loading KYC...</td></tr></table></div>
   <div class="panel" id="users"><h3>👥 User Management</h3><table id="userTable"><tr><td class="empty-state">Loading users...</td></tr></table></div>
   <div class="panel" id="tickets"><h3>🎫 Support Tickets</h3><table id="ticketTable"><tr><td class="empty-state">Loading tickets...</td></tr></table></div>
 </div>
 
 <script>
+const API_BASE =
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000'
+    : 'https://meta-bank-backend.onrender.com';
+
 function showAlert(message,type='error'){
   const el=document.getElementById('alertMessage');
   el.textContent=message; el.className=`alert alert-${type}`; el.style.display='block';
   if(type==='success') setTimeout(()=>el.style.display='none',4000);
 }
 
-// Load balances from localStorage (adminData)
-function loadBalances(){
-  const data=JSON.parse(localStorage.getItem('adminData')||'{}');
-  const accounts=data.accounts||[];
-  const table=document.getElementById('balanceTable');
-  if(accounts.length>0){
-    let html='<tr><th>Name</th><th>Email</th><th>Type</th><th>Account #</th><th>Balance</th></tr>';
-    accounts.forEach(acc=>{
-      html+=`<tr><td>${acc.fullName}</td><td>${acc.email}</td><td>${acc.accountType}</td><td>${acc.accountNumber}</td><td>$${acc.balance.toLocaleString()}</td></tr>`;
+// Balances
+async function loadBalances(){
+  try {
+    const token = localStorage.getItem('metaBankToken');
+    const res = await fetch(`${API_BASE}/auth/accounts`, {
+      headers: { 'Authorization': `Bearer ${token}` }
     });
-    table.innerHTML=html;
-  }else{ table.innerHTML='<tr><td colspan="5" class="empty-state">No accounts found</td></tr>'; }
+    const data = await res.json();
+    const table=document.getElementById('balanceTable');
+    if(res.ok && data.success && data.accounts.length>0){
+      let html='<tr><th>Name</th><th>Email</th><th>Type</th><th>Account #</th><th>Balance</th></tr>';
+      data.accounts.forEach(acc=>{
+        html+=`<tr><td>${acc.fullName}</td><td>${acc.email}</td><td>${acc.accountType}</td><td>${acc.accountNumber}</td><td>$${acc.balance.toLocaleString()}</td></tr>`;
+      });
+      table.innerHTML=html;
+    }else{
+      table.innerHTML='<tr><td colspan="5" class="empty-state">No accounts found</td></tr>';
+    }
+  } catch(err){
+    console.error('Balances error:',err);
+    showAlert('Failed to load balances');
+  }
 }
 
-// Fetch transactions live
+// Transactions
 async function loadTransactions(){
   try {
-    const res = await fetch('http://localhost:5000/auth/transactions');
+    const token = localStorage.getItem('metaBankToken');
+    const res = await fetch(`${API_BASE}/auth/transactions`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     const data = await res.json();
-    const table = document.getElementById('transactionTable');
-
-    if (res.ok && data.success && data.transactions.length > 0) {
-      let html = '<tr><th>From</th><th>To</th><th>Amount</th><th>Date</th><th>Status</th></tr>';
-      data.transactions.forEach(tx => {
-        const dateStr = new Date(tx.date).toLocaleString();
-        html += `<tr>
-          <td>${tx.from}</td>
-          <td>${tx.to}</td>
-          <td>$${tx.amount}</td>
-          <td>${dateStr}</td>
-          <td>${tx.status}</td>
-        </tr>`;
+    const table=document.getElementById('transactionTable');
+    if(res.ok && data.success && data.transactions.length>0){
+      let html='<tr><th>From</th><th>To</th><th>Amount</th><th>Date</th><th>Status</th></tr>';
+      data.transactions.forEach(tx=>{
+        const dateStr=new Date(tx.date).toLocaleString();
+        html+=`<tr><td>${tx.from}</td><td>${tx.to}</td><td>$${tx.amount}</td><td>${dateStr}</td><td>${tx.status}</td></tr>`;
       });
-      table.innerHTML = html;
-    } else {
-      table.innerHTML = '<tr><td colspan="5" class="empty-state">No transactions found</td></tr>';
+      table.innerHTML=html;
+    }else{
+      table.innerHTML='<tr><td colspan="5" class="empty-state">No transactions found</td></tr>';
     }
-  } catch (err) {
-    console.error('Transactions fetch error:', err);
+  } catch(err){
+    console.error('Transactions error:',err);
     showAlert('Failed to load transactions');
   }
 }
 
+// Scheduled
 async function loadScheduled(){
   try {
-    const res = await fetch('http://localhost:5000/auth/transactions');
+    const token = localStorage.getItem('metaBankToken');
+    const res = await fetch(`${API_BASE}/auth/transactions`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     const data = await res.json();
-    const table = document.getElementById('scheduledTable');
-
-    if (res.ok && data.success) {
-      const scheduled = data.transactions.filter(tx => tx.status === 'scheduled');
-      if (scheduled.length > 0) {
-        let html = '<tr><th>From</th><th>To</th><th>Amount</th><th>Date</th><th>Status</th></tr>';
-        scheduled.forEach(tx => {
-          const dateStr = new Date(tx.date).toLocaleString();
-          html += `<tr>
-            <td>${tx.from}</td>
-            <td>${tx.to}</td>
-            <td>$${tx.amount}</td>
-            <td>${dateStr}</td>
-            <td>${tx.status}</td>
-          </tr>`;
+    const table=document.getElementById('scheduledTable');
+    if(res.ok && data.success){
+      const scheduled=data.transactions.filter(tx=>tx.status==='scheduled');
+      if(scheduled.length>0){
+        let html='<tr><th>From</th><th>To</th><th>Amount</th><th>Date</th><th>Status</th></tr>';
+        scheduled.forEach(tx=>{
+          const dateStr=new Date(tx.date).toLocaleString();
+          html+=`<tr><td>${tx.from}</td><td>${tx.to}</td><td>$${tx.amount}</td><td>${dateStr}</td><td>${tx.status}</td></tr>`;
         });
-        table.innerHTML = html;
-      } else {
-        table.innerHTML = '<tr><td colspan="5" class="empty-state">No scheduled transactions</td></tr>';
+        table.innerHTML=html;
+      }else{
+        table.innerHTML='<tr><td colspan="5" class="empty-state">No scheduled transactions</td></tr>';
       }
     }
-  } catch (err) {
-    console.error('Scheduled fetch error:', err);
+  } catch(err){
+    console.error('Scheduled error:',err);
     showAlert('Failed to load scheduled transactions');
+  }
+}
+
+// KYC Approvals
+async function loadKyc(){
+  try {
+    const token = localStorage.getItem('metaBankToken');
+    const res = await fetch(`${API_BASE}/auth/kyc`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    const table=document.getElementById('kycTable');
+    if(res.ok && data.success && data.kyc.length>0){
+      let html='<tr><th>User</th><th>Email</th><th>Status</th></tr>';
+      data.kyc.forEach(item=>{
+        html+=`<tr><td>${item.fullName}</td><td>${item.email}</td><td>${item.status}</td></tr>`;
+      });
+      table.innerHTML=html;
+    }else{
+      table.innerHTML='<tr><td colspan="3" class="empty-state">No KYC approvals found</td></tr>';
+    }
+  } catch(err){
+    console.error('KYC error:',err);
+    showAlert('Failed to load KYC approvals');
+  }
+}
+
+// User Management
+async function loadUsers(){
+  try {
+    const token = localStorage.getItem('metaBankToken');
+    const res = await fetch(`${API_BASE}/auth/users`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    const table=document.getElementById('userTable');
+    if(res.ok && data.success && data.users.length>0){
+      let html='<tr><th>Name</th><th>Email</th><th>Type</th><th>Account #</th></tr>';
+      data.users.forEach(u=>{
+        html+=`<tr><td>${u.fullName}</td><td>${u.email}</td><td>${u.accountType}</td><td>${u.accountNumber}</td></tr>`;
+      });
+      table.innerHTML=html;
+    }else{
+      table.innerHTML='<tr><td colspan="4" class="empty-state">No users found</td></tr>';
+    }
+  } catch(err){
+    console.error('Users error:',err);
+    showAlert('Failed to load users');
+  }
+}
+
+// Support Tickets
+async function loadTickets(){
+  try {
+    const token = localStorage.getItem('metaBankToken');
+    const res = await fetch(`${API_BASE}/auth/tickets`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    const table=document.getElementById('ticketTable');
+    if(res.ok && data.success && data.tickets.length>0){
+      let html='<tr><th>Subject</th><th>User</th><th>Status</th></tr>';
+      data.tickets.forEach(t=>{
+        html+=`<tr><td>${t.subject}</td><td>${t.userEmail}</td><td>${t.status}</td></tr>`;
+      });
+      table.innerHTML=html;
+    }else{
+      table.innerHTML='<tr><td colspan="3" class="empty-state">No tickets found</td></tr>';
+    }
+  } catch(err){
+    console.error('Tickets error:',err);
+    showAlert('Failed to load tickets');
   }
 }
 
@@ -182,9 +262,13 @@ document.getElementById('transferForm').addEventListener('submit', async e=>{
   const toEmail=document.getElementById('toEmail').value;
   const amount=parseFloat(document.getElementById('amount').value);
   try{
-    const res=await fetch('http://localhost:5000/auth/fake-transfer',{
+    const token = localStorage.getItem('metaBankToken');
+    const res=await fetch(`${API_BASE}/auth/fake-transfer`,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${token}`
+      },
       body:JSON.stringify({fromEmail,toEmail,amount})
     });
     const data=await res.json();
@@ -192,6 +276,7 @@ document.getElementById('transferForm').addEventListener('submit', async e=>{
       showAlert(data.message,'success');
       loadBalances(); 
       loadTransactions(); 
+      loadScheduled();
     }else{
       showAlert(data.error||'Transfer failed');
     }
@@ -209,16 +294,20 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
   const password=document.getElementById('regPassword').value;
   const accountType=document.getElementById('regType').value;
   try{
-    const res=await fetch('http://localhost:5000/auth/register',{
+    const token = localStorage.getItem('metaBankToken');
+    const res=await fetch(`${API_BASE}/auth/register`,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${token}`
+      },
       body:JSON.stringify({fullName,email,password,accountType})
     });
     const data=await res.json();
     if(res.ok && data.success){
       showAlert('User registered successfully','success');
       document.getElementById('registerForm').reset();
-      loadBalances(); 
+            loadBalances(); 
     }else{
       showAlert(data.error||'Registration failed');
     }
@@ -230,17 +319,24 @@ document.getElementById('registerForm').addEventListener('submit', async e=>{
 
 // Logout
 document.getElementById('logoutLink').addEventListener('click',e=>{
-  e.preventDefault(); localStorage.clear(); window.location.href='login.html';
+  e.preventDefault(); 
+  localStorage.clear(); 
+  window.location.href='login.html';
 });
 
 // Init
 document.addEventListener('DOMContentLoaded',()=>{
-  const data=localStorage.getItem('adminData');
-  if(!data){window.location.href='login.html';return;}
+  const token=localStorage.getItem('metaBankToken');
+  if(!token){
+    window.location.href='login.html';
+    return;
+  }
   loadBalances();
   loadTransactions();
   loadScheduled();
-  // keep your existing loaders for analytics, KYC, users, tickets if backend endpoints exist
+  loadKyc();
+  loadUsers();
+  loadTickets();
 });
 </script>
 
