@@ -1,7 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('./user');
-const Transaction = require('./transaction'); // new model for logging transfers
+const Transaction = require('./transaction'); // model for logging transfers
 
 const router = express.Router();
 
@@ -11,10 +12,19 @@ const router = express.Router();
  */
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, username, password } = req.body;
+    if ((!email && !username) || !password) {
+      return res.status(400).json({ success: false, error: 'Username/Email and password are required' });
+    }
 
-    // Find user by email
-    const user = await User.findOne({ email });
+    // Find user by email or username
+    let user;
+    if (email) {
+      user = await User.findOne({ email });
+    } else {
+      user = await User.findOne({ username });
+    }
+
     if (!user) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }
@@ -25,6 +35,13 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
+
     // Admin login → return all seeded accounts + transactions
     if (user.role === 'admin') {
       const accounts = await User.find({ isSeeded: true });
@@ -34,6 +51,7 @@ router.post('/login', async (req, res) => {
       return res.json({
         success: true,
         role: 'admin',
+        token,
         admin: {
           fullName: user.fullName,
           email: user.email,
@@ -59,6 +77,7 @@ router.post('/login', async (req, res) => {
     return res.json({
       success: true,
       role: 'user',
+      token,
       fullName: user.fullName,
       email: user.email,
       accountType: user.accountType,
@@ -78,10 +97,10 @@ router.post('/login', async (req, res) => {
  */
 router.post('/register', async (req, res) => {
   try {
-    const { fullName, email, password, accountType } = req.body;
+    const { fullName, email, username, password, accountType } = req.body;
 
     // Check if user already exists
-    const existing = await User.findOne({ email });
+    const existing = await User.findOne({ $or: [{ email }, { username }] });
     if (existing) {
       return res.status(400).json({ success: false, error: 'User already exists' });
     }
@@ -93,6 +112,7 @@ router.post('/register', async (req, res) => {
     const newUser = new User({
       fullName,
       email,
+      username,
       password: hashed,
       accountType,
       accountNumber: Math.floor(Math.random() * 1e16).toString(),

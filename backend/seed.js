@@ -17,6 +17,10 @@ const { ROUTING_NUMBER } = require('./utils');
     await mongoose.connect(process.env.MONGO_URI, { dbName: 'metaBank' });
     console.log('✅ Connected to MongoDB');
 
+    // Clear existing users
+    await User.deleteMany({});
+    console.log('🗑️ Cleared users collection');
+
     const hashPassword = async (plain) => await bcrypt.hash(plain, 10);
 
     const upsertUser = async (doc) => {
