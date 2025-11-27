@@ -224,4 +224,54 @@ router.get('/accounts', async (req, res) => {
   }
 });
 
+/**
+ * GET /auth/kyc
+ * Returns demo KYC approvals
+ */
+router.get('/kyc', async (req, res) => {
+  try {
+    // Replace with real KYC model/query
+    const kyc = [
+      { fullName: 'Richard Scott', email: 'user@metabankamerica.com', status: 'pending' },
+      { fullName: 'Barry Scott', email: 'savings@metabankamerica.com', status: 'approved' }
+    ];
+    res.json({ success: true, kyc });
+  } catch (err) {
+    console.error('❌ KYC fetch error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+/**
+ * GET /auth/users
+ * Returns all users
+ */
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json({ success: true, users });
+  } catch (err) {
+    console.error('❌ Users fetch error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+/**
+ * GET /auth/tickets
+ * Returns demo support tickets
+ */
+router.get('/tickets', async (req, res) => {
+  try {
+    // Replace with real Ticket model/query
+    const tickets = [
+      { subject: 'Login issue', userEmail: 'user@metabankamerica.com', status: 'open' },
+      { subject: 'Transfer delay', userEmail: 'savings@metabankamerica.com', status: 'closed' }
+    ];
+    res.json({ success: true, tickets });
+  } catch (err) {
+    console.error('❌ Tickets fetch error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 module.exports = router;
