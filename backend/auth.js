@@ -7,6 +7,14 @@ const Transaction = require('./transaction'); // model for logging transfers
 const router = express.Router();
 
 /**
+ * Utility: Generate a clean 12-digit account number
+ */
+function generateAccountNumber() {
+  // Random integer between 100000000000 and 999999999999
+  return Math.floor(Math.random() * 900000000000 + 100000000000).toString();
+}
+
+/**
  * POST /auth/login
  * Handles login for both admin and normal users
  */
@@ -115,7 +123,7 @@ router.post('/register', async (req, res) => {
       username,
       password: hashed,
       accountType,
-      accountNumber: Math.floor(Math.random() * 1e16).toString(),
+      accountNumber: generateAccountNumber(), // <-- 12-digit generator
       balance: 0,
       availableBalance: 0,
       role: 'user',
@@ -230,7 +238,6 @@ router.get('/accounts', async (req, res) => {
  */
 router.get('/kyc', async (req, res) => {
   try {
-    // Replace with real KYC model/query
     const kyc = [
       { fullName: 'Richard Scott', email: 'user@metabankamerica.com', status: 'pending' },
       { fullName: 'Barry Scott', email: 'savings@metabankamerica.com', status: 'approved' }
@@ -262,7 +269,6 @@ router.get('/users', async (req, res) => {
  */
 router.get('/tickets', async (req, res) => {
   try {
-    // Replace with real Ticket model/query
     const tickets = [
       { subject: 'Login issue', userEmail: 'user@metabankamerica.com', status: 'open' },
       { subject: 'Transfer delay', userEmail: 'savings@metabankamerica.com', status: 'closed' }
